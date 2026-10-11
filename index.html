@@ -8166,4 +8166,2619 @@
 </script>
 </section>
 <!-- END SECTION 19 -->
-         
+
+<!-- NEON ARENA - SECTION 20: OPTIMIZATION & BUG FIX -->
+<section id="na-optimizer-20" dir="rtl">
+  <style>
+    #na-optimizer-20 {
+      --na20-bg: #0b0d17;
+      --na20-card: #131727;
+      --na20-line: #282e46;
+      --na20-text: #f4f5ff;
+      --na20-muted: #969db8;
+      --na20-purple: #8b5cf6;
+      --na20-cyan: #22d3ee;
+      color: var(--na20-text);
+      font-family: inherit;
+      margin: 20px auto;
+      padding: 16px;
+      max-width: 1050px;
+      box-sizing: border-box;
+    }
+
+    #na-optimizer-20 *,
+    #na-optimizer-20 *::before,
+    #na-optimizer-20 *::after {
+      box-sizing: border-box;
+    }
+
+    #na-optimizer-20 .na20-panel {
+      background: var(--na20-bg);
+      border: 1px solid var(--na20-line);
+      border-radius: 20px;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    #na-optimizer-20 .na20-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    #na-optimizer-20 .na20-logo {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: white;
+      font-size: 22px;
+      background: linear-gradient(135deg, #7c3aed, #0891b2);
+    }
+
+    #na-optimizer-20 h2 {
+      font-size: clamp(19px, 4vw, 25px);
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    #na-optimizer-20 .na20-subtitle {
+      font-size: 13px;
+      color: var(--na20-muted);
+      margin: 0 0 20px;
+      line-height: 1.9;
+    }
+
+    #na-optimizer-20 .na20-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    #na-optimizer-20 .na20-stat {
+      min-width: 0;
+      padding: 14px 10px;
+      border: 1px solid var(--na20-line);
+      background: var(--na20-card);
+      border-radius: 14px;
+    }
+
+    #na-optimizer-20 .na20-stat-label {
+      font-size: 12px;
+      color: var(--na20-muted);
+      margin-bottom: 9px;
+    }
+
+    #na-optimizer-20 .na20-stat-value {
+      font-size: 21px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    #na-optimizer-20 .na20-status {
+      border: 1px solid var(--na20-line);
+      background: var(--na20-card);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    #na-optimizer-20 .na20-status-title {
+      font-weight: 800;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    #na-optimizer-20 .na20-message {
+      color: var(--na20-muted);
+      font-size: 13px;
+      line-height: 1.9;
+      overflow-wrap: anywhere;
+    }
+
+    #na-optimizer-20 .na20-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    #na-optimizer-20 .na20-btn {
+      min-width: 0;
+      min-height: 46px;
+      padding: 11px 12px;
+      border: 1px solid var(--na20-line);
+      border-radius: 12px;
+      color: white;
+      background: var(--na20-card);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      overflow-wrap: anywhere;
+      touch-action: manipulation;
+      transition: border-color .2s, transform .2s;
+    }
+
+    #na-optimizer-20 .na20-btn:hover {
+      border-color: var(--na20-purple);
+    }
+
+    #na-optimizer-20 .na20-btn:active {
+      transform: scale(.98);
+    }
+
+    #na-optimizer-20 .na20-primary {
+      border: none;
+      background: linear-gradient(110deg, #7c3aed, #2563eb);
+    }
+
+    #na-optimizer-20 .na20-log {
+      max-height: 190px;
+      overflow: auto;
+      overflow-wrap: anywhere;
+      font-size: 12px;
+      line-height: 1.9;
+      color: var(--na20-muted);
+      white-space: pre-wrap;
+      margin: 0;
+    }
+
+    #na-optimizer-20 .na20-footer {
+      color: var(--na20-muted);
+      font-size: 11px;
+      line-height: 1.9;
+      margin-top: 13px;
+    }
+
+    @media (max-width: 520px) {
+      #na-optimizer-20 {
+        padding: 9px;
+        margin: 12px auto;
+      }
+
+      #na-optimizer-20 .na20-panel {
+        padding: 13px;
+        border-radius: 16px;
+      }
+
+      #na-optimizer-20 .na20-grid {
+        gap: 7px;
+      }
+
+      #na-optimizer-20 .na20-stat {
+        padding: 11px 7px;
+      }
+
+      #na-optimizer-20 .na20-stat-value {
+        font-size: 18px;
+      }
+
+      #na-optimizer-20 .na20-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <div class="na20-panel">
+    <div class="na20-heading">
+      <div class="na20-logo">⚡</div>
+      <div>
+        <h2>NEON SYSTEM CHECK</h2>
+        <div style="font-size:11px;color:#22d3ee;margin-top:5px">
+          SECTION 20 · PERFORMANCE
+        </div>
+      </div>
+    </div>
+
+    <p class="na20-subtitle">
+      ابزار بررسی وضعیت مرورگر، سازگاری موبایل و خطاهای ثبت‌شده؛
+      بدون تغییر دادن اطلاعات بخش‌های قبلی.
+    </p>
+
+    <div class="na20-grid">
+      <div class="na20-stat">
+        <div class="na20-stat-label">وضعیت صفحه</div>
+        <div class="na20-stat-value" id="na20-page">آماده</div>
+      </div>
+      <div class="na20-stat">
+        <div class="na20-stat-label">نوع نمایش</div>
+        <div class="na20-stat-value" id="na20-device">...</div>
+      </div>
+      <div class="na20-stat">
+        <div class="na20-stat-label">خطاهای ثبت‌شده</div>
+        <div class="na20-stat-value" id="na20-errors">۰</div>
+      </div>
+    </div>
+
+    <div class="na20-status">
+      <div class="na20-status-title">🛠 بررسی‌های سیستم</div>
+      <div class="na20-message" id="na20-report" aria-live="polite">
+        در حال بررسی وضعیت صفحه...
+      </div>
+    </div>
+
+    <div class="na20-status">
+      <div class="na20-status-title">📋 گزارش خطاها</div>
+      <pre class="na20-log" id="na20-log">هنوز خطایی در این بخش ثبت نشده است.</pre>
+    </div>
+
+    <div class="na20-actions">
+      <button type="button" class="na20-btn na20-primary"
+        id="na20-check">🔍 بررسی دوباره</button>
+      <button type="button" class="na20-btn"
+        id="na20-top">⬆️ رفتن به بالای سایت</button>
+      <button type="button" class="na20-btn"
+        id="na20-width">📱 بررسی اندازه صفحه</button>
+      <button type="button" class="na20-btn"
+        id="na20-clear">🧹 پاک کردن گزارش این بخش</button>
+    </div>
+
+    <div class="na20-footer">
+      این ابزار فقط خطاهای قابل مشاهده در مرورگر و چند وضعیت پایه را بررسی می‌کند.
+      رفع خودکار خطاهای سایر بخش‌ها یا بررسی امنیت سرور با این پنل انجام نمی‌شود.
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('na-optimizer-20');
+      if (!root || root.dataset.initialized === 'true') return;
+      root.dataset.initialized = 'true';
+
+      const $ = id => root.querySelector('#' + id);
+      const errors = [];
+      let totalErrors = 0;
+
+      function addError(message) {
+        totalErrors++;
+        errors.unshift(String(message).slice(0, 300));
+        if (errors.length > 12) errors.pop();
+        renderErrors();
+      }
+
+      function renderErrors() {
+        $('na20-errors').textContent =
+          new Intl.NumberFormat('fa-IR').format(totalErrors);
+
+        $('na20-log').textContent = errors.length
+          ? errors.join('\n\n')
+          : 'هنوز خطایی در این بخش ثبت نشده است.';
+      }
+
+      function checkSystem() {
+        const width = window.innerWidth;
+        const mobile = width <= 768;
+        const viewport = document.querySelector('meta[name="viewport"]');
+        const missingIds = [];
+        const ids = new Set();
+
+        document.querySelectorAll('[id]').forEach(el => {
+          if (ids.has(el.id)) missingIds.push(el.id);
+          ids.add(el.id);
+        });
+
+        $('na20-page').textContent =
+          document.readyState === 'complete' ? 'آماده' : 'در حال بارگذاری';
+
+        $('na20-device').textContent = mobile ? 'موبایل' : 'دسکتاپ';
+
+        const checks = [
+          (viewport ? '✅ تنظیم viewport وجود دارد.' :
+            '⚠️ تگ viewport پیدا نشد؛ نمایش موبایل ممکن است مشکل داشته باشد.'),
+          (width > 0 ? '✅ اندازه صفحه قابل خواندن است.' :
+            '⚠️ اندازه صفحه مشخص نیست.'),
+          (document.documentElement ? '✅ ساختار اصلی HTML در دسترس است.' :
+            '⚠️ ساختار اصلی HTML پیدا نشد.'),
+          (missingIds.length
+            ? '⚠️ شناسه تکراری پیدا شد: ' +
+              [...new Set(missingIds)].slice(0, 5).join(', ')
+            : '✅ شناسه تکراری در صفحه پیدا نشد.')
+        ];
+
+        $('na20-report').textContent = checks.join('\n');
+      }
+
+      // فقط خطاهای جدید بعد از نصب این بخش ثبت می‌شوند.
+      window.addEventListener('error', event => {
+        if (event.target && event.target !== window) {
+          addError('خطای بارگذاری منبع: ' +
+            (event.target.src || event.target.href || event.target.tagName));
+        } else {
+          addError('JavaScript: ' + (event.message || 'خطای ناشناخته'));
+        }
+      });
+
+      window.addEventListener('unhandledrejection', event => {
+        let reason = 'خطای Promise';
+        try {
+          reason = String(event.reason?.message || event.reason || reason);
+        } catch (_) {}
+        addError('Promise: ' + reason);
+      });
+
+      $('na20-check').addEventListener('click', checkSystem);
+
+      $('na20-top').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      $('na20-width').addEventListener('click', () => {
+        $('na20-report').textContent =
+          'عرض صفحه: ' + window.innerWidth + 'px\n' +
+          'ارتفاع صفحه: ' + window.innerHeight + 'px\n' +
+          'نوع نمایش: ' +
+          (window.innerWidth <= 768 ? 'موبایل یا تبلت' : 'دسکتاپ');
+      });
+
+      $('na20-clear').addEventListener('click', () => {
+        errors.length = 0;
+        totalErrors = 0;
+        renderErrors();
+      });
+
+      checkSystem();
+    })();
+  </script>
+</section>
+<!-- END SECTION 20 -->
+
+<!-- NEON ARENA - SECTION 21: BUTTON & MENU DIAGNOSTICS -->
+<section id="na-fix-21" dir="rtl">
+  <style>
+    #na-fix-21 {
+      color: #f5f5ff;
+      font-family: inherit;
+      max-width: 1000px;
+      margin: 14px auto;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+
+    #na-fix-21 * {
+      box-sizing: border-box;
+    }
+
+    #na-fix-21 .na21-card {
+      padding: 18px;
+      background: #0d1020;
+      border: 1px solid #292f49;
+      border-radius: 18px;
+    }
+
+    #na-fix-21 .na21-title {
+      font-size: 21px;
+      font-weight: 900;
+      margin: 0 0 8px;
+    }
+
+    #na-fix-21 .na21-desc {
+      font-size: 13px;
+      line-height: 1.9;
+      color: #a8b0ca;
+      margin: 0 0 16px;
+    }
+
+    #na-fix-21 .na21-status {
+      padding: 13px;
+      border: 1px solid #292f49;
+      background: #14192a;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      line-height: 2;
+      overflow-wrap: anywhere;
+    }
+
+    #na-fix-21 .na21-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    #na-fix-21 .na21-btn {
+      min-width: 0;
+      min-height: 44px;
+      padding: 11px;
+      color: white;
+      background: #191f35;
+      border: 1px solid #343b59;
+      border-radius: 11px;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      touch-action: manipulation;
+      overflow-wrap: anywhere;
+    }
+
+    #na-fix-21 .na21-btn:focus-visible {
+      outline: 2px solid #22d3ee;
+      outline-offset: 3px;
+    }
+
+    #na-fix-21 .na21-primary {
+      background: linear-gradient(110deg, #7c3aed, #2563eb);
+      border-color: transparent;
+    }
+
+    #na-fix-21 .na21-log {
+      margin-top: 12px;
+      max-height: 230px;
+      overflow: auto;
+      padding: 12px;
+      border-radius: 10px;
+      background: #080b14;
+      color: #cbd5e1;
+      font-size: 12px;
+      line-height: 1.9;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    #na-fix-21 .na21-note {
+      margin-top: 12px;
+      color: #8993b0;
+      font-size: 11px;
+      line-height: 1.9;
+    }
+
+    @media(max-width:480px) {
+      #na-fix-21 { padding: 7px; }
+      #na-fix-21 .na21-card { padding: 13px; }
+      #na-fix-21 .na21-actions { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <div class="na21-card">
+    <h2 class="na21-title">🛠️ NEON REPAIR CENTER</h2>
+    <p class="na21-desc">
+      مرکز بررسی دکمه‌ها، منوها و خطاهای قابل تشخیص در صفحه.
+      این پنل اطلاعات قبلی سایت را تغییر نمی‌دهد.
+    </p>
+
+    <div class="na21-status" id="na21-status" aria-live="polite">
+      آماده بررسی سیستم
+    </div>
+
+    <div class="na21-actions">
+      <button type="button" class="na21-btn na21-primary"
+        id="na21-scan">🔍 بررسی سایت</button>
+
+      <button type="button" class="na21-btn"
+        id="na21-buttons">🖱️ بررسی دکمه‌ها</button>
+
+      <button type="button" class="na21-btn"
+        id="na21-ids">🧩 بررسی شناسه‌های تکراری</button>
+
+      <button type="button" class="na21-btn"
+        id="na21-clear">🧹 پاک کردن گزارش</button>
+    </div>
+
+    <pre class="na21-log" id="na21-log">هنوز بررسی انجام نشده است.</pre>
+
+    <div class="na21-note">
+      توجه: این ابزار مشکلات احتمالی را گزارش می‌کند؛
+      برای تعمیر قطعی یک دکمه خراب باید کد همان بخش بررسی و اصلاح شود.
+      دکمه‌های مخفی یا غیرفعال نیز ممکن است در گزارش ظاهر شوند.
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('na-fix-21');
+      if (!root || root.dataset.ready === '1') return;
+      root.dataset.ready = '1';
+
+      const $ = id => root.querySelector('#' + id);
+      const log = $('na21-log');
+      const status = $('na21-status');
+
+      function write(title, lines) {
+        status.textContent = title;
+        log.textContent = lines.length
+          ? lines.join('\n')
+          : 'بررسی انجام شد؛ موردی برای گزارش پیدا نشد.';
+      }
+
+      function scanButtons() {
+        const buttons = Array.from(document.querySelectorAll(
+          'button, input[type="button"], input[type="submit"], [role="button"]'
+        )).filter(el => !root.contains(el));
+
+        const findings = [];
+        let unnamed = 0;
+        let disabled = 0;
+        let noActionAttribute = 0;
+
+        buttons.forEach((el, index) => {
+          const name = (
+            el.innerText ||
+            el.value ||
+            el.getAttribute('aria-label') ||
+            el.title ||
+            ''
+          ).trim();
+
+          if (!name) {
+            unnamed++;
+            findings.push(
+              `${index + 1}. دکمه بدون عنوان قابل تشخیص` +
+              (el.id ? ` (id: ${el.id})` : '')
+            );
+          }
+
+          if (el.disabled || el.getAttribute('aria-disabled') === 'true') {
+            disabled++;
+          }
+
+          if (
+            el.tagName === 'BUTTON' &&
+            !el.hasAttribute('onclick') &&
+            !el.closest('form')
+          ) {
+            noActionAttribute++;
+          }
+        });
+
+        findings.unshift(
+          `تعداد کنترل‌های پیدا شده: ${buttons.length}`,
+          `بدون عنوان قابل تشخیص: ${unnamed}`,
+          `غیرفعال: ${disabled}`,
+          `بدون onclick مستقیم و خارج از فرم: ${noActionAttribute}`,
+          '',
+          'نکته: نبودن onclick به معنی خراب بودن نیست؛ ممکن است رویداد با JavaScript وصل شده باشد.'
+        );
+
+        write('✅ بررسی کنترل‌ها تمام شد', findings);
+      }
+
+      function scanIds() {
+        const seen = new Set();
+        const duplicates = new Set();
+
+        document.querySelectorAll('[id]').forEach(el => {
+          if (seen.has(el.id)) duplicates.add(el.id);
+          seen.add(el.id);
+        });
+
+        const findings = duplicates.size
+          ? [
+              `⚠️ تعداد شناسه‌های تکراری: ${duplicates.size}`,
+              '',
+              ...Array.from(duplicates).map(id => `- ${id}`),
+              '',
+              'شناسه‌های تکراری می‌توانند باعث انتخاب عنصر اشتباه شوند.'
+            ]
+          : ['✅ شناسه تکراری پیدا نشد.'];
+
+        write('🧩 بررسی شناسه‌ها تمام شد', findings);
+      }
+
+      function scanAll() {
+        const findings = [];
+        const viewport = document.querySelector(
+          'meta[name="viewport"]'
+        );
+
+        findings.push(
+          `عرض صفحه: ${window.innerWidth}px`,
+          `نمایش: ${window.innerWidth <= 768 ? 'موبایل/تبلت' : 'دسکتاپ'}`,
+          `Viewport: ${viewport ? 'وجود دارد' : 'پیدا نشد'}`,
+          `دکمه‌های بخش‌های دیگر: ${
+            document.querySelectorAll(
+              'button, input[type="button"], input[type="submit"], [role="button"]'
+            ).length
+          }`,
+          ''
+        );
+
+        const ids = new Set();
+        const duplicates = new Set();
+
+        document.querySelectorAll('[id]').forEach(el => {
+          if (ids.has(el.id)) duplicates.add(el.id);
+          ids.add(el.id);
+        });
+
+        findings.push(
+          duplicates.size
+            ? `⚠️ شناسه‌های تکراری: ${Array.from(duplicates).join(', ')}`
+            : '✅ شناسه‌های تکراری پیدا نشد.'
+        );
+
+        write('🔍 بررسی اولیه تمام شد', findings);
+      }
+
+      $('na21-scan').addEventListener('click', scanAll);
+      $('na21-buttons').addEventListener('click', scanButtons);
+      $('na21-ids').addEventListener('click', scanIds);
+
+      $('na21-clear').addEventListener('click', () => {
+        status.textContent = 'گزارش پاک شد';
+        log.textContent = 'برای بررسی دوباره یکی از دکمه‌ها را بزن.';
+      });
+
+      scanAll();
+    })();
+  </script>
+</section>
+<!-- END SECTION 21 -->
+
+<!-- NEON ARENA - SECTION 22: MOBILE RESPONSIVE FIX -->
+<style id="na-responsive-22">
+  /* جلوگیری از ایجاد عرض اضافه در صفحه */
+  html {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  /* محاسبه صحیح عرض عناصر */
+  #na-optimizer-20,
+  #na-fix-21,
+  #na-optimizer-20 *,
+  #na-fix-21 * {
+    box-sizing: border-box;
+  }
+
+  /* تصاویر و رسانه‌ها از محدوده صفحه بیرون نزنند */
+  img,
+  video,
+  canvas,
+  iframe {
+    max-width: 100%;
+  }
+
+  /* جدول‌های عریض در موبایل */
+  table {
+    max-width: 100%;
+  }
+
+  /* اندازه لمس بهتر برای کنترل‌ها */
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  select {
+    touch-action: manipulation;
+  }
+
+  /* اصلاح چیدمان در صفحه‌های کوچک */
+  @media (max-width: 768px) {
+    body {
+      min-width: 0;
+    }
+
+    img,
+    video {
+      height: auto;
+    }
+
+    input,
+    select,
+    textarea {
+      max-width: 100%;
+    }
+
+    pre,
+    code {
+      overflow-wrap: anywhere;
+    }
+
+    /* جلوگیری از بزرگ‌نمایی خودکار ورودی‌ها در iOS */
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
+
+  /* گوشی‌های کوچک */
+  @media (max-width: 420px) {
+    button,
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"] {
+      max-width: 100%;
+      white-space: normal;
+    }
+
+    img,
+    video,
+    canvas {
+      max-width: 100%;
+    }
+  }
+</style>
+
+<script id="na-responsive-check-22">
+(() => {
+  if (window.__naResponsive22Initialized) return;
+  window.__naResponsive22Initialized = true;
+
+  function checkMobileLayout() {
+    const width = document.documentElement.clientWidth;
+    const overflowing = [];
+
+    document.querySelectorAll('body *').forEach(el => {
+      if (el.closest('#na-optimizer-20, #na-fix-21')) return;
+
+      const style = getComputedStyle(el);
+      if (style.position === 'fixed' &&
+          style.right === 'auto' &&
+          style.left === 'auto') return;
+
+      const rect = el.getBoundingClientRect();
+
+      if (
+        rect.width > 0 &&
+        (rect.left < -2 || rect.right > width + 2) &&
+        style.position !== 'absolute' &&
+        style.position !== 'fixed'
+      ) {
+        overflowing.push(el);
+      }
+    });
+
+    console.info(
+      '[NEON ARENA] Mobile layout check:',
+      width <= 768 ? 'mobile/tablet' : 'desktop',
+      '| possible overflow:',
+      overflowing.length
+    );
+
+    if (overflowing.length) {
+      console.warn(
+        '[NEON ARENA] Elements possibly outside viewport:',
+        overflowing.slice(0, 10)
+      );
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkMobileLayout, {
+      once: true
+    });
+  } else {
+    checkMobileLayout();
+  }
+
+  window.addEventListener('resize', checkMobileLayout, { passive: true });
+})();
+</script>
+<!-- END SECTION 22 -->
+
+<!-- NEON ARENA - SECTION 23: PERFORMANCE OPTIMIZER -->
+<script id="na-performance-23">
+(() => {
+  'use strict';
+
+  // جلوگیری از نصب چندباره همین بخش
+  if (window.__NA_PERFORMANCE_23__) return;
+  window.__NA_PERFORMANCE_23__ = true;
+
+  const startedAt = performance.now();
+  let resizeTimer = null;
+  let lastWidth = window.innerWidth;
+
+  // گزارش سبک برای عیب‌یابی عملکرد
+  function reportPerformance() {
+    const images = document.images;
+    let unloadedImages = 0;
+
+    for (let i = 0; i < images.length; i++) {
+      if (!images[i].complete) unloadedImages++;
+    }
+
+    console.info('[NEON ARENA / Performance 23]', {
+      pageReady: document.readyState,
+      viewportWidth: window.innerWidth,
+      totalImages: images.length,
+      imagesStillLoading: unloadedImages,
+      scriptInstalledOnce: true
+    });
+  }
+
+  // بررسی اولیه پس از آماده شدن صفحه
+  function initialize() {
+    reportPerformance();
+
+    // تصویرهای خارج از صفحه، در صورت امکان، تنبل بارگذاری شوند.
+    // تصاویر حساس به نمایش اولیه صفحه تغییر نمی‌کنند.
+    document.querySelectorAll('img').forEach(img => {
+      if (
+        !img.hasAttribute('loading') &&
+        !img.closest('header') &&
+        !img.closest('[data-eager-image]')
+      ) {
+        img.loading = 'lazy';
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize, {
+      once: true
+    });
+  } else {
+    initialize();
+  }
+
+  // جلوگیری از اجرای بررسی در تک‌تک رویدادهای resize
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastWidth) return;
+    lastWidth = window.innerWidth;
+
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      console.info(
+        '[NEON ARENA] اندازه صفحه تغییر کرد:',
+        window.innerWidth,
+        '×',
+        window.innerHeight
+      );
+    }, 180);
+  }, { passive: true });
+
+  // گزارش زمان بارگذاری، بدون دستکاری عملکرد سایت
+  window.addEventListener('load', () => {
+    const elapsed = Math.round(performance.now() - startedAt);
+    console.info(
+      '[NEON ARENA] صفحه بارگذاری شد؛ زمان از نصب اسکریپت:',
+      elapsed,
+      'ms'
+    );
+  }, { once: true });
+
+})();
+</script>
+<!-- END SECTION 23 -->
+
+<!-- NEON ARENA - SECTION 24: SECURITY CHECK -->
+<section id="na-security-24" dir="rtl">
+  <style>
+    #na-security-24 {
+      max-width: 1000px;
+      margin: 16px auto;
+      padding: 12px;
+      color: #f4f5ff;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    #na-security-24 * { box-sizing: border-box; }
+
+    #na-security-24 .na24-card {
+      background: #0c1020;
+      border: 1px solid #29314d;
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    #na-security-24 h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    #na-security-24 .na24-desc {
+      color: #a8b1cb;
+      font-size: 13px;
+      line-height: 1.9;
+      margin: 0 0 16px;
+    }
+
+    #na-security-24 .na24-result {
+      background: #151b2e;
+      border: 1px solid #303854;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 9px 0;
+      font-size: 13px;
+      line-height: 1.9;
+      overflow-wrap: anywhere;
+    }
+
+    #na-security-24 .na24-label {
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    #na-security-24 .na24-detail {
+      color: #a8b1cb;
+    }
+
+    #na-security-24 .na24-btn {
+      width: 100%;
+      min-height: 46px;
+      border: 0;
+      border-radius: 11px;
+      padding: 12px;
+      background: linear-gradient(110deg, #7c3aed, #2563eb);
+      color: white;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+      margin-top: 8px;
+    }
+
+    #na-security-24 .na24-note {
+      color: #929db8;
+      font-size: 11px;
+      line-height: 1.9;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 480px) {
+      #na-security-24 { padding: 7px; }
+      #na-security-24 .na24-card { padding: 13px; }
+    }
+  </style>
+
+  <div class="na24-card">
+    <h2>🛡️ NEON SECURITY CHECK</h2>
+    <p class="na24-desc">
+      بررسی‌های اولیه مرورگر برای پیدا کردن چند مورد مشکوک.
+      این ابزار جایگزین بررسی سرور و تنظیمات دیتابیس نیست.
+    </p>
+
+    <div id="na24-results" aria-live="polite">
+      در حال آماده‌سازی بررسی...
+    </div>
+
+    <button class="na24-btn" id="na24-run" type="button">
+      🔍 اجرای دوباره بررسی امنیتی
+    </button>
+
+    <div class="na24-note">
+      هیچ رمز یا کلیدی به سرور ارسال نمی‌شود. این بررسی فقط اطلاعات قابل
+      مشاهده در همین صفحه را می‌سنجد و امنیت واقعی Supabase را تأیید نمی‌کند.
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('na-security-24');
+      if (!root || root.dataset.ready === '1') return;
+      root.dataset.ready = '1';
+
+      const output = root.querySelector('#na24-results');
+      const runButton = root.querySelector('#na24-run');
+
+      function addResult(title, detail) {
+        const card = document.createElement('div');
+        card.className = 'na24-result';
+
+        const heading = document.createElement('div');
+        heading.className = 'na24-label';
+        heading.textContent = title;
+
+        const description = document.createElement('div');
+        description.className = 'na24-detail';
+        description.textContent = detail;
+
+        card.append(heading, description);
+        output.appendChild(card);
+      }
+
+      function runCheck() {
+        output.replaceChildren();
+
+        // بررسی HTTPS
+        const secure = location.protocol === 'https:' ||
+          location.hostname === 'localhost' ||
+          location.hostname === '127.0.0.1';
+
+        addResult(
+          secure ? 'بررسی اتصال: مناسب برای محیط امن' :
+            'هشدار اتصال: HTTPS فعال نیست',
+          secure
+            ? 'صفحه از HTTPS یا محیط محلی استفاده می‌کند. این مورد به‌تنهایی امنیت سایت را تضمین نمی‌کند.'
+            : 'برای سایت منتشرشده، HTTPS را از طریق میزبان سایت فعال کن.'
+        );
+
+        // بررسی سیاست‌های امنیتی قابل مشاهده
+        const csp = document.querySelector(
+          'meta[http-equiv="Content-Security-Policy" i]'
+        );
+
+        addResult(
+          csp ? 'سیاست CSP در HTML پیدا شد' :
+            'سیاست CSP در HTML پیدا نشد',
+          csp
+            ? 'وجود تگ به‌تنهایی کافی نیست؛ مقدار و نحوه اجرای سیاست باید بررسی شود.'
+            : 'سیاست CSP معمولاً بهتر است از طریق هدر HTTP سرور تنظیم شود.'
+        );
+
+        // بررسی اینکه آیا کد، نام متغیرهای رایج را آشکار کرده است.
+        // این بررسی صرفاً نشانه‌ی اولیه است و رازها را تشخیص قطعی نمی‌دهد.
+        const source = Array.from(document.scripts)
+          .filter(script => !script.src)
+          .map(script => script.textContent || '')
+          .join('\n');
+
+        const suspiciousPatterns = [
+          /\bservice_role\b/i,
+          /\bsupabase_service_role\b/i,
+          /\bsecret_access_key\b/i,
+          /\bprivate_api_key\b/i
+        ];
+
+        const possibleSecret = suspiciousPatterns.some(pattern =>
+          pattern.test(source)
+        );
+
+        addResult(
+          possibleSecret
+            ? 'هشدار: عبارت حساس احتمالی در اسکریپت‌ها'
+            : 'عبارت‌های حساس شناخته‌شده پیدا نشدند',
+          possibleSecret
+            ? 'کد را دستی بررسی کن. این نتیجه به معنی افشای قطعی کلید نیست.'
+            : 'این بررسی محدود است و وجود یا نبودن اطلاعات محرمانه را ثابت نمی‌کند.'
+        );
+
+        // بررسی فرم‌هایی که بدون HTTPS ارسال می‌شوند.
+        let insecureForms = 0;
+
+        document.querySelectorAll('form[action]').forEach(form => {
+          try {
+            const target = new URL(form.action, location.href);
+            if (
+              target.protocol !== 'https:' &&
+              target.hostname !== 'localhost' &&
+              target.hostname !== '127.0.0.1'
+            ) {
+              insecureForms++;
+            }
+          } catch (_) {
+            insecureForms++;
+          }
+        });
+
+        addResult(
+          insecureForms
+            ? 'هشدار: فرم با مقصد غیر HTTPS پیدا شد'
+            : 'بررسی مقصد فرم‌ها انجام شد',
+          insecureForms
+            ? `${insecureForms} فرم نیازمند بررسی مقصد ارسال است.`
+            : 'مقصد غیر HTTPS در فرم‌های دارای action پیدا نشد.'
+        );
+
+        addResult(
+          'بررسی اصلی موردنیاز: Supabase',
+          'در Supabase باید RLS برای جدول‌های حساس فعال باشد و سیاست‌ها دسترسی هر کاربر را محدود کنند. کلید service_role نباید در index.html قرار بگیرد.'
+        );
+      }
+
+      runButton.addEventListener('click', runCheck);
+      runCheck();
+    })();
+  </script>
+</section>
+<!-- END SECTION 24 -->
+
+<!-- NEON ARENA - SECTION 25: SUPABASE CONNECTION CHECK -->
+<section id="na-data-25" dir="rtl">
+  <style>
+    #na-data-25 {
+      max-width: 1000px;
+      margin: 16px auto;
+      padding: 12px;
+      color: #f5f5ff;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    #na-data-25 * { box-sizing: border-box; }
+
+    #na-data-25 .na25-card {
+      background: #0c1020;
+      border: 1px solid #29314d;
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    #na-data-25 h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    #na-data-25 .na25-desc {
+      color: #a8b1cb;
+      font-size: 13px;
+      line-height: 1.9;
+      margin: 0 0 16px;
+    }
+
+    #na-data-25 .na25-item {
+      background: #151b2e;
+      border: 1px solid #303854;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 9px 0;
+    }
+
+    #na-data-25 .na25-name {
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    #na-data-25 .na25-detail {
+      font-size: 12px;
+      line-height: 1.9;
+      color: #a8b1cb;
+      overflow-wrap: anywhere;
+    }
+
+    #na-data-25 .na25-btn {
+      width: 100%;
+      min-height: 46px;
+      border: 0;
+      border-radius: 11px;
+      padding: 12px;
+      background: linear-gradient(110deg, #7c3aed, #2563eb);
+      color: white;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+      margin-top: 10px;
+    }
+
+    #na-data-25 .na25-note {
+      color: #929db8;
+      font-size: 11px;
+      line-height: 1.9;
+      margin-top: 14px;
+    }
+
+    @media(max-width:480px) {
+      #na-data-25 { padding: 7px; }
+      #na-data-25 .na25-card { padding: 13px; }
+    }
+  </style>
+
+  <div class="na25-card">
+    <h2>🔗 NEON DATA CENTER</h2>
+    <p class="na25-desc">
+      بررسی اولیه اتصال و وضعیت داده‌های سایت.
+      این بخش هیچ رکوردی را ایجاد، حذف یا ویرایش نمی‌کند.
+    </p>
+
+    <div id="na25-results" aria-live="polite"></div>
+
+    <button id="na25-check" class="na25-btn" type="button">
+      🔄 بررسی دوباره اتصال
+    </button>
+
+    <div class="na25-note">
+      اتصال کتابخانه به معنی اتصال واقعی همه قابلیت‌ها نیست.
+      برای تأیید خواندن یا نوشتن اطلاعات باید ساختار جدول‌ها و سیاست‌های
+      دسترسی Supabase بررسی شوند.
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('na-data-25');
+      if (!root || root.dataset.ready === '1') return;
+      root.dataset.ready = '1';
+
+      const output = root.querySelector('#na25-results');
+      const button = root.querySelector('#na25-check');
+
+      function addItem(name, detail) {
+        const item = document.createElement('div');
+        item.className = 'na25-item';
+
+        const title = document.createElement('div');
+        title.className = 'na25-name';
+        title.textContent = name;
+
+        const text = document.createElement('div');
+        text.className = 'na25-detail';
+        text.textContent = detail;
+
+        item.append(title, text);
+        output.appendChild(item);
+      }
+
+      function checkConnection() {
+        output.replaceChildren();
+
+        const client =
+          window.supabaseClient ||
+          window.supabase ||
+          null;
+
+        const looksLikeClient =
+          client && typeof client.from === 'function';
+
+        addItem(
+          looksLikeClient
+            ? '🟡 کتابخانه Supabase پیدا شد'
+            : '⚪ کلاینت Supabase شناسایی نشد',
+          looksLikeClient
+            ? 'یک شیء سازگار با کلاینت پیدا شد؛ اتصال شبکه و دسترسی جدول‌ها هنوز تأیید نشده است.'
+            : 'اگر قبلاً Supabase را راه‌اندازی کرده‌ای، نام متغیر کلاینت را با کد اصلی سایت مقایسه کن.'
+        );
+
+        addItem(
+          '👤 پروفایل',
+          'برای اطلاعات واقعی باید منبع داده، شناسه کاربر و سیاست‌های RLS مشخص شوند.'
+        );
+
+        addItem(
+          '🏆 امتیازها و رتبه‌بندی',
+          'رتبه‌بندی واقعی باید از داده‌های معتبر سرور یا دیتابیس محاسبه شود؛ امتیازهای محلی قابل اعتماد نیستند.'
+        );
+
+        addItem(
+          '🎮 مسابقات و تاریخچه',
+          'برای همگام‌سازی بین دستگاه‌ها، اطلاعات باید در جدول‌های واقعی ذخیره و از همان‌جا خوانده شوند.'
+        );
+
+        addItem(
+          '🔐 امنیت',
+          'کلید محرمانه service_role را در مرورگر قرار نده. سیاست‌های RLS باید جلوی تغییر امتیاز و اطلاعات کاربران دیگر را بگیرند.'
+        );
+      }
+
+      button.addEventListener('click', checkConnection);
+      checkConnection();
+    })();
+  </script>
+</section>
+<!-- END SECTION 25 -->
+
+<!-- NEON ARENA - SECTION 26: ONLINE ROOMS -->
+<section id="na-online-rooms-26" dir="rtl">
+  <style>
+    #na-online-rooms-26 {
+      max-width: 1000px;
+      margin: 16px auto;
+      padding: 12px;
+      color: #f5f5ff;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    #na-online-rooms-26 * { box-sizing: border-box; }
+
+    #na-online-rooms-26 .na26-card {
+      padding: 18px;
+      border: 1px solid #29314d;
+      border-radius: 18px;
+      background: #0c1020;
+    }
+
+    #na-online-rooms-26 h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    #na-online-rooms-26 .na26-desc {
+      color: #a8b1cb;
+      font-size: 13px;
+      line-height: 1.9;
+      margin: 0 0 16px;
+    }
+
+    #na-online-rooms-26 .na26-field {
+      width: 100%;
+      min-height: 45px;
+      border: 1px solid #343b59;
+      border-radius: 11px;
+      padding: 12px;
+      background: #151b2e;
+      color: white;
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+
+    #na-online-rooms-26 .na26-field:focus {
+      border-color: #22d3ee;
+    }
+
+    #na-online-rooms-26 .na26-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    #na-online-rooms-26 .na26-btn {
+      min-width: 0;
+      min-height: 45px;
+      padding: 11px;
+      border: 1px solid #343b59;
+      border-radius: 11px;
+      background: #191f35;
+      color: white;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+      overflow-wrap: anywhere;
+    }
+
+    #na-online-rooms-26 .na26-primary {
+      background: linear-gradient(110deg, #7c3aed, #2563eb);
+      border: none;
+    }
+
+    #na-online-rooms-26 .na26-status {
+      margin-top: 14px;
+      padding: 13px;
+      border: 1px solid #303854;
+      border-radius: 12px;
+      background: #151b2e;
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.9;
+      overflow-wrap: anywhere;
+    }
+
+    #na-online-rooms-26 .na26-small {
+      margin-top: 12px;
+      color: #929db8;
+      font-size: 11px;
+      line-height: 1.9;
+    }
+
+    @media(max-width:480px) {
+      #na-online-rooms-26 { padding: 7px; }
+      #na-online-rooms-26 .na26-card { padding: 13px; }
+      #na-online-rooms-26 .na26-actions { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <div class="na26-card">
+    <h2>🎮 ONLINE ROOM CENTER</h2>
+    <p class="na26-desc">
+      مرکز روم‌های NEON ARENA. ساخت و ورود آنلاین واقعی به اتصال
+      دیتابیس و تنظیمات امن سرور نیاز دارد.
+    </p>
+
+    <label for="na26-room-code" style="display:block;margin-bottom:7px;font-size:13px">
+      کد روم
+    </label>
+
+    <input
+      id="na26-room-code"
+      class="na26-field"
+      type="text"
+      maxlength="32"
+      autocomplete="off"
+      placeholder="کد روم را وارد کن"
+    />
+
+    <div class="na26-actions">
+      <button type="button" id="na26-create" class="na26-btn na26-primary">
+        ＋ ساخت روم آنلاین
+      </button>
+
+      <button type="button" id="na26-join" class="na26-btn">
+        ↗ ورود به روم
+      </button>
+
+      <button type="button" id="na26-copy" class="na26-btn">
+        📋 کپی کد روم
+      </button>
+
+      <button type="button" id="na26-refresh" class="na26-btn">
+        🔄 بررسی اتصال
+      </button>
+    </div>
+
+    <div id="na26-status" class="na26-status" aria-live="polite">
+      برای شروع، اتصال Supabase سایت باید بررسی شود.
+    </div>
+
+    <div class="na26-small">
+      این پنل تا وقتی اتصال واقعی و توابع امن سرور تنظیم نشده باشند،
+      روم جعلی نمی‌سازد و کد آزمایشی را به‌عنوان روم آنلاین نمایش نمی‌دهد.
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('na-online-rooms-26');
+      if (!root || root.dataset.ready === '1') return;
+      root.dataset.ready = '1';
+
+      const $ = id => root.querySelector('#' + id);
+      const codeInput = $('na26-room-code');
+      const status = $('na26-status');
+
+      function getClient() {
+        const client = window.supabaseClient || window.supabase;
+
+        if (!client || typeof client.from !== 'function') {
+          return null;
+        }
+
+        return client;
+      }
+
+      function setStatus(message) {
+        status.textContent = message;
+      }
+
+      function checkConnection() {
+        const client = getClient();
+
+        if (client) {
+          setStatus(
+            'کلاینت Supabase پیدا شد؛ اما وجود کلاینت به‌تنهایی اتصال شبکه، ' +
+            'جدول روم‌ها یا مجوز ساخت و ورود را تأیید نمی‌کند. ' +
+            'برای فعال‌سازی واقعی باید ساختار دیتابیس بررسی شود.'
+          );
+        } else {
+          setStatus(
+            'کلاینت Supabase شناسایی نشد. نام متغیر اتصال را در کد اصلی ' +
+            'بررسی کن. هنوز هیچ روم آنلاینی ساخته یا وارد نشده است.'
+          );
+        }
+      }
+
+      $('na26-create').addEventListener('click', () => {
+        setStatus(
+          'ساخت روم هنوز فعال نشده؛ باید جدول روم‌ها و تابع امن ساخت روم ' +
+          'در Supabase مطابق ساختار واقعی پروژه تنظیم شوند.'
+        );
+      });
+
+      $('na26-join').addEventListener('click', () => {
+        const code = codeInput.value.trim();
+
+        if (!code) {
+          setStatus('اول کد رومی را وارد کن.');
+          codeInput.focus();
+          return;
+        }
+
+        setStatus(
+          'کد وارد شد؛ برای بررسی عضویت باید تابع امن ورود و مجوزهای ' +
+          'Supabase تنظیم شوند. هنوز وارد هیچ رومی نشده‌ای.'
+        );
+      });
+
+      $('na26-copy').addEventListener('click', async () => {
+        const code = codeInput.value.trim();
+
+        if (!code) {
+          setStatus('کدی برای کپی وجود ندارد.');
+          return;
+        }
+
+        try {
+          if (!navigator.clipboard || !window.isSecureContext) {
+            throw new Error('clipboard unavailable');
+          }
+
+          await navigator.clipboard.writeText(code);
+          setStatus('کد روم کپی شد.');
+        } catch (_) {
+          codeInput.focus();
+          codeInput.select();
+
+          setStatus(
+            'کپی خودکار در این مرورگر در دسترس نیست؛ کد انتخاب شده و ' +
+            'می‌توانی با گزینه Copy آن را کپی کنی.'
+          );
+        }
+      });
+
+      $('na26-refresh').addEventListener('click', checkConnection);
+
+      checkConnection();
+    })();
+  </script>
+</section>
+<!-- END SECTION 26 -->
+
+<!-- NEON ARENA - SECTION 27: DIAGNOSTICS -->
+<section id="na-diagnostics-27" dir="rtl">
+  <style>
+    #na-diagnostics-27 {
+      max-width: 1000px;
+      margin: 12px auto;
+      padding: 10px;
+      color: #f5f5ff;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    #na-diagnostics-27 * { box-sizing: border-box; }
+
+    #na-diagnostics-27 .na27-card {
+      padding: 17px;
+      background: #0c1020;
+      border: 1px solid #29314d;
+      border-radius: 17px;
+    }
+
+    #na-diagnostics-27 h2 {
+      font-size: 21px;
+      margin: 0 0 7px;
+    }
+
+    #na-diagnostics-27 .na27-desc {
+      color: #a8b1cb;
+      font-size: 13px;
+      line-height: 1.9;
+      margin: 0 0 14px;
+    }
+
+    #na-diagnostics-27 .na27-item {
+      padding: 11px 12px;
+      margin: 8px 0;
+      background: #151b2e;
+      border: 1px solid #303854;
+      border-radius: 11px;
+      font-size: 13px;
+      line-height: 1.9;
+      overflow-wrap: anywhere;
+    }
+
+    #na-diagnostics-27 .na27-ok { color: #86efac; }
+    #na-diagnostics-27 .na27-warn { color: #fcd34d; }
+
+    #na-diagnostics-27 .na27-btn {
+      width: 100%;
+      min-height: 45px;
+      padding: 11px;
+      border: 0;
+      border-radius: 11px;
+      background: linear-gradient(110deg, #7c3aed, #2563eb);
+      color: white;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+      margin-top: 9px;
+    }
+
+    #na-diagnostics-27 .na27-note {
+      color: #929db8;
+      font-size: 11px;
+      line-height: 1.9;
+      margin-top: 12px;
+    }
+
+    @media(max-width:480px) {
+      #na-diagnostics-27 { padding: 6px; }
+      #na-diagnostics-27 .na27-card { padding: 12px; }
+    }
+  </style>
+
+  <div class="na27-card">
+    <h2>🧪 NEON DIAGNOSTICS</h2>
+    <p class="na27-desc">
+      بررسی سبک ساختار صفحه، اتصال کتابخانه و مشکلات قابل تشخیص؛
+      بدون حذف یا تغییر اطلاعات سایت.
+    </p>
+
+    <div id="na27-results" aria-live="polite"></div>
+
+    <button type="button" class="na27-btn" id="na27-run">
+      🔄 اجرای بررسی
+    </button>
+
+    <div class="na27-note">
+      این گزارش تشخیصی است؛ نبودن هشدار به معنی سالم بودن کامل سایت نیست.
+      خطاهای سرور و مشکلاتی که فقط در شرایط خاص رخ می‌دهند ممکن است شناسایی نشوند.
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('na-diagnostics-27');
+      if (!root || root.dataset.ready === '1') return;
+      root.dataset.ready = '1';
+
+      const output = root.querySelector('#na27-results');
+      const runButton = root.querySelector('#na27-run');
+
+      function addItem(title, detail, warning = false) {
+        const item = document.createElement('div');
+        item.className = 'na27-item';
+
+        const heading = document.createElement('div');
+        heading.className = warning ? 'na27-warn' : 'na27-ok';
+        heading.textContent = title;
+
+        const description = document.createElement('div');
+        description.textContent = detail;
+
+        item.append(heading, description);
+        output.appendChild(item);
+      }
+
+      function runDiagnostics() {
+        output.replaceChildren();
+
+        const viewport = document.querySelector(
+          'meta[name="viewport"]'
+        );
+
+        addItem(
+          viewport ? '✅ تنظیم نمایش صفحه پیدا شد' : '⚠️ تنظیم viewport پیدا نشد',
+          viewport
+            ? 'تگ viewport در HTML وجود دارد.'
+            : 'نمایش روی موبایل ممکن است نیاز به بررسی داشته باشد.',
+          !viewport
+        );
+
+        const ids = new Set();
+        const duplicates = new Set();
+
+        document.querySelectorAll('[id]').forEach(element => {
+          if (ids.has(element.id)) duplicates.add(element.id);
+          ids.add(element.id);
+        });
+
+        addItem(
+          duplicates.size
+            ? '⚠️ شناسه‌های تکراری پیدا شدند'
+            : '✅ شناسه‌های تکراری پیدا نشدند',
+          duplicates.size
+            ? Array.from(duplicates).slice(0, 8).join(', ')
+            : 'در بررسی شناسه‌های صفحه موردی پیدا نشد.',
+          duplicates.size > 0
+        );
+
+        const client = window.supabaseClient || window.supabase;
+        const hasClient = !!client &&
+          typeof client.from === 'function';
+
+        addItem(
+          hasClient
+            ? '🟡 کلاینت Supabase شناسایی شد'
+            : '⚠️ کلاینت Supabase شناسایی نشد',
+          hasClient
+            ? 'این فقط شناسایی شیء کلاینت است؛ اتصال واقعی و مجوزهای دیتابیس هنوز آزمایش نشده‌اند.'
+            : 'اگر از Supabase استفاده می‌کنی، نام متغیر اتصال را در کد اصلی بررسی کن.',
+          !hasClient
+        );
+
+        const brokenImages = Array.from(document.images).filter(img =>
+          img.complete && img.naturalWidth === 0 && img.src
+        );
+
+        addItem(
+          brokenImages.length
+            ? '⚠️ احتمال وجود تصویر خراب'
+            : '✅ تصویر خرابِ قابل تشخیص پیدا نشد',
+          brokenImages.length
+            ? `${brokenImages.length} تصویر بارگذاری نشده؛ آدرس آن‌ها را بررسی کن.`
+            : 'این بررسی فقط وضعیت فعلی تصویرها را می‌سنجد.',
+          brokenImages.length > 0
+        );
+
+        const unnamed = Array.from(document.querySelectorAll(
+          'button, input[type="button"], [role="button"]'
+        )).filter(el =>
+          !el.innerText.trim() &&
+          !el.value &&
+          !el.getAttribute('aria-label') &&
+          !el.title
+        );
+
+        addItem(
+          unnamed.length
+            ? '⚠️ کنترل‌های بدون عنوان قابل تشخیص'
+            : '✅ کنترل بدون عنوان پیدا نشد',
+          unnamed.length
+            ? `${unnamed.length} کنترل ممکن است برای کاربر یا صفحه‌خوان نام مشخصی نداشته باشد.`
+            : 'عنوان کنترل‌ها در بررسی اولیه مناسب به نظر می‌رسد.',
+          unnamed.length > 0
+        );
+
+        addItem(
+          'ℹ️ بررسی نهایی',
+          'برای تشخیص خطاهای واقعی دکمه‌ها، روم‌ها، پروفایل و دیتابیس، باید کد همان قابلیت و گزارش Console بررسی شود.'
+        );
+      }
+
+      runButton.addEventListener('click', runDiagnostics);
+      runDiagnostics();
+    })();
+  </script>
+</section>
+<!-- END SECTION 27 -->
+
+<!-- NEON ARENA - SECTION 28: LIVE ERROR MONITOR -->
+<section id="na-errors-28" dir="rtl">
+  <style>
+    #na-errors-28 {
+      max-width: 1000px;
+      margin: 12px auto;
+      padding: 10px;
+      color: #f5f5ff;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    #na-errors-28 * { box-sizing: border-box; }
+
+    #na-errors-28 .na28-card {
+      background: #0c1020;
+      border: 1px solid #29314d;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    #na-errors-28 h2 {
+      font-size: 20px;
+      margin: 0 0 7px;
+    }
+
+    #na-errors-28 .na28-desc,
+    #na-errors-28 .na28-note {
+      color: #a8b1cb;
+      font-size: 12px;
+      line-height: 1.9;
+    }
+
+    #na-errors-28 .na28-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin: 14px 0;
+    }
+
+    #na-errors-28 .na28-stat {
+      background: #151b2e;
+      border: 1px solid #303854;
+      border-radius: 11px;
+      padding: 12px;
+    }
+
+    #na-errors-28 .na28-number {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    #na-errors-28 .na28-label {
+      font-size: 11px;
+      color: #a8b1cb;
+      margin-top: 4px;
+    }
+
+    #na-errors-28 .na28-log {
+      max-height: 230px;
+      overflow: auto;
+      background: #080b14;
+      border: 1px solid #29314d;
+      border-radius: 11px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.9;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      color: #cbd5e1;
+    }
+
+    #na-errors-28 .na28-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    #na-errors-28 .na28-btn {
+      min-width: 0;
+      min-height: 44px;
+      border: 1px solid #343b59;
+      border-radius: 10px;
+      padding: 10px;
+      background: #191f35;
+      color: white;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    #na-errors-28 .na28-primary {
+      background: linear-gradient(110deg, #7c3aed, #2563eb);
+      border: 0;
+    }
+
+    @media(max-width:480px) {
+      #na-errors-28 { padding: 6px; }
+      #na-errors-28 .na28-card { padding: 12px; }
+      #na-errors-28 .na28-actions { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <div class="na28-card">
+    <h2>🧰 NEON ERROR MONITOR</h2>
+    <div class="na28-desc">
+      گزارش خطاهایی که بعد از فعال شدن این بخش در مرورگر رخ می‌دهند.
+    </div>
+
+    <div class="na28-stats">
+      <div class="na28-stat">
+        <div class="na28-number" id="na28-js-count">۰</div>
+        <div class="na28-label">خطاهای JavaScript</div>
+      </div>
+      <div class="na28-stat">
+        <div class="na28-number" id="na28-resource-count">۰</div>
+        <div class="na28-label">خطاهای بارگذاری منابع</div>
+      </div>
+    </div>
+
+    <div class="na28-log" id="na28-log" aria-live="polite">
+      هنوز خطایی ثبت نشده است.
+    </div>
+
+    <div class="na28-actions">
+      <button type="button" class="na28-btn na28-primary" id="na28-copy">
+        📋 کپی گزارش
+      </button>
+      <button type="button" class="na28-btn" id="na28-clear">
+        🧹 پاک کردن گزارش
+      </button>
+    </div>
+
+    <div class="na28-note">
+      این ابزار خطاهای قبل از نصب را بازیابی نمی‌کند و تضمین نمی‌کند همه خطاها
+      شناسایی شوند. گزارش را پیش از ارسال بررسی کن و اطلاعات خصوصی را حذف کن.
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('na-errors-28');
+      if (!root || root.dataset.ready === '1') return;
+      root.dataset.ready = '1';
+
+      const logEl = root.querySelector('#na28-log');
+      const jsCount = root.querySelector('#na28-js-count');
+      const resourceCount = root.querySelector('#na28-resource-count');
+
+      const entries = [];
+      let jsErrors = 0;
+      let resourceErrors = 0;
+
+      function formatNumber(value) {
+        return new Intl.NumberFormat('fa-IR').format(value);
+      }
+
+      function render() {
+        jsCount.textContent = formatNumber(jsErrors);
+        resourceCount.textContent = formatNumber(resourceErrors);
+
+        logEl.textContent = entries.length
+          ? entries.slice(-30).join('\n\n')
+          : 'هنوز خطایی ثبت نشده است.';
+      }
+
+      function add(type, message) {
+        const time = new Date().toLocaleTimeString('fa-IR');
+
+        entries.push(`[${time}] ${type}: ${String(message).slice(0, 400)}`);
+
+        if (entries.length > 30) entries.shift();
+        render();
+      }
+
+      // رویدادهای خطای JavaScript و منابع
+      window.addEventListener('error', event => {
+        if (event.target && event.target !== window) {
+          resourceErrors++;
+          const target = event.target;
+          const url = target.src || target.href || target.tagName;
+          add('RESOURCE', url || 'منبع نامشخص');
+        } else {
+          jsErrors++;
+          add(
+            'JAVASCRIPT',
+            `${event.message || 'خطای ناشناخته'} | خط ${event.lineno || '?'}`
+          );
+        }
+      }, true);
+
+      window.addEventListener('unhandledrejection', event => {
+        jsErrors++;
+        let message = 'خطای Promise';
+
+        try {
+          message = String(event.reason?.message || event.reason || message);
+        } catch (_) {}
+
+        add('PROMISE', message);
+      });
+
+      root.querySelector('#na28-clear').addEventListener('click', () => {
+        entries.length = 0;
+        jsErrors = 0;
+        resourceErrors = 0;
+        render();
+      });
+
+      root.querySelector('#na28-copy').addEventListener('click', async () => {
+        const report = entries.join('\n\n') ||
+          'هیچ خطایی در گزارش فعلی ثبت نشده است.';
+
+        try {
+          if (!navigator.clipboard || !window.isSecureContext) {
+            throw new Error('Clipboard unavailable');
+          }
+
+          await navigator.clipboard.writeText(report);
+          add('INFO', 'گزارش کپی شد.');
+        } catch (_) {
+          const temp = document.createElement('textarea');
+          temp.value = report;
+          temp.setAttribute('readonly', '');
+          temp.style.position = 'fixed';
+          temp.style.opacity = '0';
+          root.appendChild(temp);
+          temp.select();
+
+          let copied = false;
+          try {
+            copied = document.execCommand('copy');
+          } catch (_) {}
+
+          temp.remove();
+
+          if (copied) {
+            add('INFO', 'گزارش کپی شد.');
+          } else {
+            add('INFO', 'کپی خودکار ممکن نبود؛ متن گزارش را دستی انتخاب کن.');
+          }
+        }
+      });
+
+      render();
+    })();
+  </script>
+</section>
+<!-- END SECTION 28 -->
+
+<!-- NEON ARENA - SECTION 29: LOCAL BACKUP CENTER -->
+<section id="na-backup-29" dir="rtl">
+  <style>
+    #na-backup-29 {
+      max-width: 900px;
+      margin: 18px auto;
+      padding: 12px;
+      color: #f5f3ff;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    #na-backup-29 * { box-sizing: border-box; }
+
+    #na-backup-29 .b29-card {
+      background: #0b1020;
+      border: 1px solid #303958;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 35px #0003;
+    }
+
+    #na-backup-29 h2 {
+      margin: 0 0 8px;
+      font-size: 21px;
+    }
+
+    #na-backup-29 .b29-desc {
+      color: #aeb9d4;
+      font-size: 13px;
+      line-height: 1.9;
+    }
+
+    #na-backup-29 .b29-status {
+      margin: 15px 0;
+      padding: 12px;
+      background: #151c30;
+      border: 1px solid #303958;
+      border-radius: 12px;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    #na-backup-29 .b29-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    #na-backup-29 button,
+    #na-backup-29 .b29-file {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 11px;
+      border: 1px solid #3b4567;
+      border-radius: 11px;
+      background: #1a2340;
+      color: #fff;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    #na-backup-29 .b29-main {
+      background: linear-gradient(110deg, #7c3aed, #2563eb);
+      border: 0;
+    }
+
+    #na-backup-29 .b29-file input {
+      display: none;
+    }
+
+    #na-backup-29 .b29-warning {
+      margin-top: 13px;
+      color: #fbbf24;
+      font-size: 12px;
+      line-height: 1.9;
+    }
+
+    @media(max-width: 480px) {
+      #na-backup-29 { padding: 6px; }
+      #na-backup-29 .b29-card { padding: 13px; }
+      #na-backup-29 .b29-actions { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <div class="b29-card">
+    <h2>💾 NEON BACKUP CENTER</h2>
+    <div class="b29-desc">
+      از بعضی اطلاعات ذخیره‌شده در همین مرورگر نسخه پشتیبان بگیر
+      و بعداً فایل را برای بازیابی انتخاب کن.
+    </div>
+
+    <div class="b29-status" id="b29-status" aria-live="polite">
+      آماده تهیه نسخه پشتیبان
+    </div>
+
+    <div class="b29-actions">
+      <button type="button" class="b29-main" id="b29-export">
+        📦 ساخت فایل پشتیبان
+      </button>
+
+      <label class="b29-file">
+        📂 انتخاب فایل برای بازیابی
+        <input type="file" id="b29-import" accept=".json,application/json">
+      </label>
+
+      <button type="button" id="b29-refresh">
+        🔄 بررسی اطلاعات محلی
+      </button>
+
+      <button type="button" id="b29-clear">
+        🧹 پاک کردن وضعیت
+      </button>
+    </div>
+
+    <div class="b29-warning">
+      ⚠️ این ابزار فقط اطلاعات localStorage همین سایت را پشتیبان می‌گیرد؛
+      اطلاعات Supabase، حساب‌های سرور و اطلاعات کاربران دیگر شامل آن نیست.
+      بازیابی می‌تواند اطلاعات محلی فعلی را جایگزین کند. فایل پشتیبان را
+      با دیگران به اشتراک نگذار، چون ممکن است اطلاعات خصوصی داشته باشد.
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('na-backup-29');
+      if (!root || root.dataset.ready === '1') return;
+      root.dataset.ready = '1';
+
+      const status = root.querySelector('#b29-status');
+      const exportBtn = root.querySelector('#b29-export');
+      const importInput = root.querySelector('#b29-import');
+
+      function say(message) {
+        status.textContent = message;
+      }
+
+      function getBackup() {
+        const data = {};
+
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key) continue;
+
+          // موارد حساس یا مرتبط با احراز هویت را وارد پشتیبان نکن
+          if (/token|auth|session|password|secret|supabase/i.test(key)) {
+            continue;
+          }
+
+          data[key] = localStorage.getItem(key);
+        }
+
+        return {
+          app: 'NEON ARENA',
+          formatVersion: 1,
+          createdAt: new Date().toISOString(),
+          storage: data
+        };
+      }
+
+      function refreshStatus() {
+        let count = 0;
+
+        for (let i = 0; i < localStorage.length; i++) {
+          if (localStorage.key(i)) count++;
+        }
+
+        say(`تعداد کلیدهای ذخیره‌شده در مرورگر: ${count} — آماده تهیه نسخه پشتیبان`);
+      }
+
+      exportBtn.addEventListener('click', () => {
+        try {
+          const backup = getBackup();
+          const blob = new Blob(
+            [JSON.stringify(backup, null, 2)],
+            { type: 'application/json;charset=utf-8' }
+          );
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'neon-arena-backup-' +
+            new Date().toISOString().slice(0, 10) + '.json';
+
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(url);
+
+          say('✅ فایل پشتیبان ساخته شد. آن را در جای امن نگه دار.');
+        } catch (error) {
+          say('❌ ساخت پشتیبان ناموفق بود: ' + String(error.message || error));
+        }
+      });
+
+      importInput.addEventListener('change', async () => {
+        const file = importInput.files && importInput.files[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+          say('❌ فایل بیش از حد بزرگ است. حداکثر اندازه ۲ مگابایت است.');
+          importInput.value = '';
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(await file.text());
+
+          if (
+            !parsed ||
+            parsed.app !== 'NEON ARENA' ||
+            parsed.formatVersion !== 1 ||
+            !parsed.storage ||
+            typeof parsed.storage !== 'object' ||
+            Array.isArray(parsed.storage)
+          ) {
+            throw new Error('ساختار فایل پشتیبان معتبر نیست.');
+          }
+
+          const entries = Object.entries(parsed.storage);
+
+          if (entries.length > 5000) {
+            throw new Error('تعداد اطلاعات فایل بیش از حد مجاز است.');
+          }
+
+          for (const [key, value] of entries) {
+            if (
+              typeof key !== 'string' ||
+              typeof value !== 'string' ||
+              /token|auth|session|password|secret|supabase/i.test(key)
+            ) {
+              throw new Error('فایل دارای داده نامعتبر یا غیرمجاز است.');
+            }
+          }
+
+          if (!confirm(
+            'این عملیات اطلاعات محلی فعلی را با اطلاعات فایل جایگزین می‌کند. ادامه می‌دهی؟'
+          )) {
+            say('بازیابی لغو شد.');
+            return;
+          }
+
+          // ابتدا اطلاعات فعلی را موقتاً نگه می‌داریم تا در صورت خطا برگردانیم.
+          const previous = {};
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key !== null) previous[key] = localStorage.getItem(key);
+          }
+
+          try {
+            for (const key of Object.keys(previous)) {
+              localStorage.removeItem(key);
+            }
+
+            for (const [key, value] of entries) {
+              localStorage.setItem(key, value);
+            }
+          } catch (error) {
+            localStorage.clear();
+            for (const [key, value] of Object.entries(previous)) {
+              localStorage.setItem(key, value);
+            }
+            throw error;
+          }
+
+          say('✅ بازیابی انجام شد. صفحه را تازه‌سازی کن.');
+        } catch (error) {
+          say('❌ بازیابی ناموفق بود: ' + String(error.message || error));
+        } finally {
+          importInput.value = '';
+        }
+      });
+
+      root.querySelector('#b29-refresh').addEventListener('click', refreshStatus);
+
+      root.querySelector('#b29-clear').addEventListener('click', () => {
+        say('وضعیت گزارش پاک شد؛ هیچ اطلاعاتی حذف نشده است.');
+      });
+
+      refreshStatus();
+    })();
+  </script>
+</section>
+<!-- END SECTION 29 -->
+
+<!-- NEON ARENA - SECTION 30: GAMING FOCUS MODE -->
+<section id="na-focus-30" dir="rtl">
+  <style>
+    #na-focus-30 {
+      --n30-bg: #0a0b14;
+      --n30-panel: #121528;
+      --n30-border: #303253;
+      --n30-purple: #a78bfa;
+      --n30-cyan: #67e8f9;
+      max-width: 950px;
+      margin: 24px auto;
+      padding: 12px;
+      color: #f5f3ff;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    #na-focus-30 * { box-sizing: border-box; }
+
+    #na-focus-30 .n30-card {
+      padding: 22px;
+      overflow: hidden;
+      text-align: center;
+      border-radius: 22px;
+      border: 1px solid var(--n30-border);
+      background:
+        radial-gradient(ellipse at top, #4c1d9550, transparent 60%),
+        var(--n30-bg);
+      box-shadow: 0 12px 45px #0005;
+    }
+
+    #na-focus-30 .n30-tag {
+      display: inline-block;
+      padding: 7px 12px;
+      border: 1px solid #8b5cf655;
+      border-radius: 999px;
+      color: var(--n30-cyan);
+      background: #312e811f;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    #na-focus-30 h2 {
+      margin: 15px 0 5px;
+      font-size: clamp(23px, 5vw, 34px);
+      font-weight: 950;
+    }
+
+    #na-focus-30 .n30-sub {
+      color: #a5acc8;
+      font-size: 13px;
+      line-height: 1.9;
+    }
+
+    #na-focus-30 .n30-clock {
+      margin: 25px 0 7px;
+      font-size: clamp(42px, 10vw, 76px);
+      font-weight: 950;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 2px;
+      color: var(--n30-cyan);
+      text-shadow: 0 0 25px #67e8f955;
+    }
+
+    #na-focus-30 .n30-date {
+      color: #a5acc8;
+      font-size: 12px;
+    }
+
+    #na-focus-30 .n30-timer {
+      margin: 25px auto 15px;
+      padding: 18px;
+      max-width: 520px;
+      background: var(--n30-panel);
+      border: 1px solid var(--n30-border);
+      border-radius: 17px;
+    }
+
+    #na-focus-30 .n30-timer-label {
+      color: #c4b5fd;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    #na-focus-30 .n30-countdown {
+      margin: 8px 0 14px;
+      font-size: clamp(36px, 8vw, 55px);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #na-focus-30 .n30-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    #na-focus-30 .n30-btn,
+    #na-focus-30 .n30-select {
+      min-height: 43px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #424568;
+      background: #1c2038;
+      color: #fff;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    #na-focus-30 .n30-primary {
+      background: linear-gradient(110deg, #7c3aed, #2563eb);
+      border: 0;
+    }
+
+    #na-focus-30 .n30-btn:focus-visible,
+    #na-focus-30 .n30-select:focus-visible {
+      outline: 2px solid var(--n30-cyan);
+      outline-offset: 3px;
+    }
+
+    #na-focus-30 .n30-status {
+      margin-top: 15px;
+      color: #a5acc8;
+      font-size: 12px;
+      min-height: 22px;
+    }
+
+    #na-focus-30 .n30-card.n30-active {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 35px #7c3aed30;
+    }
+
+    @media (max-width: 480px) {
+      #na-focus-30 { padding: 5px; }
+      #na-focus-30 .n30-card { padding: 16px 10px; }
+      #na-focus-30 .n30-btn,
+      #na-focus-30 .n30-select { flex: 1 1 42%; }
+    }
+  </style>
+
+  <div class="n30-card" id="n30-card">
+    <div class="n30-tag">NEON ARENA · FOCUS MODE</div>
+
+    <h2>🎮 GAME ON</h2>
+    <div class="n30-sub">
+      تمرکز کن، آماده شو و با قدرت وارد مسابقه شو!
+    </div>
+
+    <div class="n30-clock" id="n30-clock">--:--:--</div>
+    <div class="n30-date" id="n30-date">در حال دریافت زمان دستگاه...</div>
+
+    <div class="n30-timer">
+      <div class="n30-timer-label">⏱️ تایمر تمرکز</div>
+      <div class="n30-countdown" id="n30-countdown">25:00</div>
+
+      <div class="n30-row">
+        <select class="n30-select" id="n30-duration" aria-label="مدت تایمر">
+          <option value="5">۵ دقیقه</option>
+          <option value="15">۱۵ دقیقه</option>
+          <option value="25" selected>۲۵ دقیقه</option>
+          <option value="45">۴۵ دقیقه</option>
+          <option value="60">۶۰ دقیقه</option>
+        </select>
+
+        <button type="button" class="n30-btn n30-primary" id="n30-start">
+          ▶ شروع
+        </button>
+
+        <button type="button" class="n30-btn" id="n30-reset">
+          ↺ ریست
+        </button>
+      </div>
+    </div>
+
+    <div class="n30-row">
+      <button type="button" class="n30-btn" id="n30-fullscreen">
+        ⛶ تمام‌صفحه
+      </button>
+
+      <button type="button" class="n30-btn" id="n30-focus">
+        ✨ فعال‌کردن افکت
+      </button>
+    </div>
+
+    <div class="n30-status" id="n30-status" aria-live="polite">
+      آماده‌ای، قهرمان؟ 🚀
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('na-focus-30');
+      if (!root || root.dataset.ready === '1') return;
+      root.dataset.ready = '1';
+
+      const $ = selector => root.querySelector(selector);
+
+      const clock = $('#n30-clock');
+      const date = $('#n30-date');
+      const countdown = $('#n30-countdown');
+      const duration = $('#n30-duration');
+      const start = $('#n30-start');
+      const status = $('#n30-status');
+      const card = $('#n30-card');
+
+      let remaining = Number(duration.value) * 60;
+      let deadline = 0;
+      let running = false;
+      let timerId = null;
+      let effectOn = false;
+
+      function updateClock() {
+        const now = new Date();
+
+        clock.textContent = [
+          now.getHours(),
+          now.getMinutes(),
+          now.getSeconds()
+        ].map(n => String(n).padStart(2, '0')).join(':');
+
+        date.textContent = new Intl.DateTimeFormat('fa-IR', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }).format(now);
+      }
+
+      function drawCountdown() {
+        const minutes = Math.floor(remaining / 60);
+        const seconds = remaining % 60;
+
+        countdown.textContent =
+          String(minutes).padStart(2, '0') + ':' +
+          String(seconds).padStart(2, '0');
+      }
+
+      function stopTimer() {
+        running = false;
+        deadline = 0;
+
+        if (timerId !== null) {
+          clearInterval(timerId);
+          timerId = null;
+        }
+
+        start.textContent = '▶ شروع';
+      }
+
+      function tick() {
+        remaining = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+        drawCountdown();
+
+        if (remaining <= 0) {
+          stopTimer();
+          status.textContent = '⏰ زمان تمرکز تموم شد! استراحت کوتاهی کن.';
+        }
+      }
+
+      start.addEventListener('click', () => {
+        if (running) {
+          stopTimer();
+          status.textContent = 'تایمر متوقف شد.';
+          return;
+        }
+
+        if (remaining <= 0) {
+          remaining = Number(duration.value) * 60;
+        }
+
+        deadline = Date.now() + remaining * 1000;
+        running = true;
+        start.textContent = '⏸ توقف';
+        status.textContent = '🔥 تایمر فعاله؛ با تمرکز ادامه بده!';
+        tick();
+
+        if (running) {
+          timerId = setInterval(tick, 250);
+        }
+      });
+
+      $('#n30-reset').addEventListener('click', () => {
+        stopTimer();
+        remaining = Number(duration.value) * 60;
+        drawCountdown();
+        status.textContent = 'تایمر از نو تنظیم شد.';
+      });
+
+      duration.addEventListener('change', () => {
+        if (running) stopTimer();
+        remaining = Number(duration.value) * 60;
+        drawCountdown();
+        status.textContent = 'مدت تایمر تغییر کرد.';
+      });
+
+      $('#n30-fullscreen').addEventListener('click', async () => {
+        try {
+          if (!document.fullscreenElement) {
+            await card.requestFullscreen();
+            status.textContent = 'حالت تمام‌صفحه فعال شد.';
+          } else {
+            await document.exitFullscreen();
+            status.textContent = 'از حالت تمام‌صفحه خارج شدی.';
+          }
+        } catch (_) {
+          status.textContent =
+            'تمام‌صفحه در این مرورگر در دسترس نیست یا اجازه داده نشد.';
+        }
+      });
+
+      $('#n30-focus').addEventListener('click', () => {
+        effectOn = !effectOn;
+        card.classList.toggle('n30-active', effectOn);
+
+        $('#n30-focus').textContent = effectOn
+          ? '🌙 خاموش‌کردن افکت'
+          : '✨ فعال‌کردن افکت';
+
+        status.textContent = effectOn
+          ? 'افکت نئونی فعال شد!'
+          : 'افکت نئونی خاموش شد.';
+      });
+
+      updateClock();
+      drawCountdown();
+      const clockId = setInterval(updateClock, 1000);
+
+      window.addEventListener('pagehide', () => {
+        clearInterval(clockId);
+        if (timerId !== null) clearInterval(timerId);
+      }, { once: true });
+    })();
+  </script>
+</section>
+<!-- END SECTION 30 -->
