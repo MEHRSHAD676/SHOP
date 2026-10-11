@@ -5191,4 +5191,2622 @@
 })();
 </script>
 <!-- ================= END SECTION 10 ================= -->
-           
+  
+<!-- NEON ARENA - SECTION 11: ONLINE ROOMS -->
+<section id="arena-online-rooms" dir="rtl">
+  <style>
+    #arena-online-rooms {
+      font-family: Tahoma, sans-serif;
+      color: #f5f3ff;
+      background: linear-gradient(145deg, #100d25, #17102e);
+      border: 1px solid #763cff;
+      border-radius: 20px;
+      padding: 22px;
+      margin: 24px auto;
+      max-width: 1000px;
+      box-shadow: 0 0 28px #713bff25;
+    }
+
+    #arena-online-rooms * { box-sizing: border-box; }
+
+    #arena-online-rooms h2 {
+      color: #bc91ff;
+      margin-top: 0;
+    }
+
+    #arena-online-rooms .arena-room-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 18px 0;
+    }
+
+    #arena-online-rooms input {
+      flex: 1;
+      min-width: 160px;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid #6242a8;
+      background: #0d0a1b;
+      color: white;
+      outline: none;
+    }
+
+    #arena-online-rooms button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 10px;
+      color: white;
+      background: linear-gradient(100deg, #763cff, #b13cff);
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #arena-online-rooms button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    #arena-online-rooms .arena-room-card {
+      background: #21183b;
+      border: 1px solid #47316e;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #arena-online-rooms .arena-muted {
+      color: #b8acd4;
+      font-size: 13px;
+    }
+
+    #arena-online-rooms #arena-room-status {
+      color: #c8a8ff;
+      margin: 12px 0;
+      overflow-wrap: anywhere;
+    }
+  </style>
+
+  <h2>⚡ روم‌های آنلاین NEON ARENA</h2>
+  <p class="arena-muted">
+    روم بساز، کد اختصاصی بگیر و دوستانت را دعوت کن.
+  </p>
+
+  <div class="arena-room-form">
+    <input id="arena-room-name"
+           maxlength="40"
+           placeholder="نام روم..." />
+    <button id="arena-create-room">＋ ساخت روم</button>
+  </div>
+
+  <div class="arena-room-form">
+    <input id="arena-join-code"
+           maxlength="6"
+           placeholder="کد ۶ کاراکتری روم"
+           style="text-transform:uppercase" />
+    <button id="arena-join-room">ورود به روم</button>
+  </div>
+
+  <p id="arena-room-status" role="status">
+    در انتظار اتصال به سرور...
+  </p>
+
+  <h3>🌐 روم‌های فعال</h3>
+  <div id="arena-room-list">
+    <p class="arena-muted">در حال دریافت روم‌ها...</p>
+  </div>
+
+  <script>
+  (() => {
+    const root = document.getElementById('arena-online-rooms');
+    if (root.dataset.initialized) return;
+    root.dataset.initialized = '1';
+
+    const status = root.querySelector('#arena-room-status');
+    const list = root.querySelector('#arena-room-list');
+    const createBtn = root.querySelector('#arena-create-room');
+    const joinBtn = root.querySelector('#arena-join-room');
+
+    // از کلاینت موجود سایت استفاده کن.
+    // اگر متغیر Supabase سایتت نام دیگری دارد، این قسمت
+    // باید با همان متغیر هماهنگ شود.
+    const db = window.supabaseClient ||
+               window.supabase ||
+               null;
+
+    let channel = null;
+    let rooms = [];
+    let busy = false;
+
+    function message(text) {
+      status.textContent = text;
+    }
+
+    function safeText(value) {
+      return String(value ?? '');
+    }
+
+    function renderRooms() {
+      list.replaceChildren();
+
+      if (!rooms.length) {
+        const empty = document.createElement('p');
+        empty.className = 'arena-muted';
+        empty.textContent = 'هنوز رومی ثبت نشده است.';
+        list.appendChild(empty);
+        return;
+      }
+
+      rooms.forEach(room => {
+        const card = document.createElement('div');
+        card.className = 'arena-room-card';
+
+        const info = document.createElement('div');
+        const title = document.createElement('strong');
+        const details = document.createElement('p');
+
+        title.textContent = '🎮 ' + safeText(room.name);
+        details.className = 'arena-muted';
+        details.textContent =
+          'کد: ' + safeText(room.code) +
+          ' · بازیکنان: ' + safeText(room.players_count ?? 1) +
+          ' · ' + (room.status === 'waiting' ? 'در انتظار بازیکن' : 'در حال بازی');
+
+        info.append(title, details);
+
+        const button = document.createElement('button');
+        button.textContent = 'ورود';
+        button.addEventListener('click', () => {
+          root.querySelector('#arena-join-code').value = room.code;
+          joinRoom();
+        });
+
+        card.append(info, button);
+        list.appendChild(card);
+      });
+    }
+
+    async function loadRooms() {
+      if (!db) {
+        message('کلاینت Supabase پیدا نشد؛ تنظیمات اتصال را بررسی کن.');
+        return;
+      }
+
+      const { data, error } = await db
+        .from('arena_rooms')
+        .select('id,name,code,status,players_count,created_at')
+        .eq('status', 'waiting')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        message('خطای دریافت روم‌ها: ' + error.message);
+        return;
+      }
+
+      rooms = data || [];
+      renderRooms();
+      message('اتصال برقرار شد؛ روم‌ها به‌روزرسانی شدند.');
+    }
+
+    async function ensureSession() {
+      const { data: sessionData, error: sessionError } =
+        await db.auth.getSession();
+
+      if (sessionError) throw sessionError;
+      if (sessionData.session) return sessionData.session;
+
+      const { data, error } = await db.auth.signInAnonymously();
+      if (error) throw error;
+
+      return data.session;
+    }
+
+    async function createRoom() {
+      if (!db || busy) return;
+      busy = true;
+      createBtn.disabled = true;
+
+      try {
+        const name = root.querySelector('#arena-room-name')
+          .value.trim();
+
+        if (!name) {
+          message('اول نام روم را وارد کن.');
+          return;
+        }
+
+        await ensureSession();
+
+        const { data, error } = await db.rpc('create_arena_room', {
+          p_name: name
+        });
+
+        if (error) throw error;
+
+        const room = Array.isArray(data) ? data[0] : data;
+        if (!room || !room.code) {
+          throw new Error('پاسخ ساخت روم معتبر نیست.');
+        }
+
+        root.querySelector('#arena-join-code').value = room.code;
+        message('روم ساخته شد! کد دعوت: ' + room.code);
+        await loadRooms();
+      } catch (error) {
+        message('ساخت روم ناموفق بود: ' + error.message);
+      } finally {
+        busy = false;
+        createBtn.disabled = false;
+      }
+    }
+
+    async function joinRoom() {
+      if (!db || busy) return;
+      busy = true;
+      joinBtn.disabled = true;
+
+      try {
+        const code = root.querySelector('#arena-join-code')
+          .value.trim().toUpperCase();
+
+        if (!/^[A-Z0-9]{6}$/.test(code)) {
+          message('کد روم باید دقیقاً ۶ حرف یا عدد باشد.');
+          return;
+        }
+
+        await ensureSession();
+
+        const { data, error } = await db.rpc('join_arena_room', {
+          p_code: code
+        });
+
+        if (error) throw error;
+
+        message('درخواست ورود ثبت شد. کد روم: ' + code);
+
+        // این بخش فقط ورود به روم را درخواست می‌کند؛
+        // همگام‌سازی فهرست بازیکنان و شروع مسابقه
+        // باید با ساختار فعلی بازی یکپارچه شود.
+        await loadRooms();
+      } catch (error) {
+        message('ورود به روم ناموفق بود: ' + error.message);
+      } finally {
+        busy = false;
+        joinBtn.disabled = false;
+      }
+    }
+
+    createBtn.addEventListener('click', createRoom);
+    joinBtn.addEventListener('click', joinRoom);
+
+    if (!db) {
+      message('کلاینت Supabase پیدا نشد. متغیر اتصال سایت را بررسی کن.');
+      return;
+    }
+
+    loadRooms();
+
+    channel = db.channel('neon-arena-rooms-live')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'arena_rooms'
+      }, loadRooms)
+      .subscribe();
+
+    window.addEventListener('beforeunload', () => {
+      if (channel) db.removeChannel(channel);
+    });
+  })();
+  </script>
+</section>
+
+<!-- NEON ARENA | SECTION 12 -->
+<section id="na-section-12" dir="rtl">
+<style>
+#na-section-12 {
+  font-family: Tahoma, sans-serif;
+  color: #f5f0ff;
+  background: linear-gradient(145deg,#100b20,#1b1034);
+  border: 1px solid #713cff;
+  border-radius: 20px;
+  padding: 20px;
+  max-width: 950px;
+  margin: 25px auto;
+  box-shadow: 0 0 35px #792cff20;
+}
+#na-section-12 * { box-sizing: border-box; }
+#na-section-12 .na12-heading {
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:12px;
+}
+#na-section-12 h2 { color:#c8a5ff; margin-top:0; }
+#na-section-12 .na12-tag {
+  background:#243c31; color:#8effc1;
+  padding:7px 11px; border-radius:20px; font-size:12px;
+}
+#na-section-12 .na12-grid {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px; margin-top:18px;
+}
+#na-section-12 .na12-card {
+  background:#171027; border:1px solid #38245b;
+  border-radius:15px; padding:16px; min-width:0;
+}
+#na-section-12 .na12-full { grid-column:1/-1; }
+#na-section-12 .na12-muted { color:#b7a9d0; font-size:13px; }
+#na-section-12 input,#na-section-12 textarea {
+  display:block; width:100%; margin:10px 0;
+  padding:12px; border-radius:9px;
+  border:1px solid #51347c; background:#0c0818;
+  color:#fff; font:inherit;
+}
+#na-section-12 button {
+  padding:11px 14px; border:0; border-radius:9px;
+  background:linear-gradient(100deg,#743aff,#b23cff);
+  color:white; font-weight:bold; cursor:pointer;
+}
+#na-section-12 button:disabled { opacity:.5; cursor:not-allowed; }
+#na-section-12 .na12-secondary { background:#302044; }
+#na-section-12 .na12-player {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 0; border-bottom:1px solid #302044;
+}
+#na-section-12 .na12-avatar {
+  width:37px; height:37px; border-radius:50%;
+  display:grid; place-items:center;
+  background:#3a2161; font-size:19px;
+}
+#na-section-12 .na12-msg {
+  background:#211737; border-radius:10px;
+  padding:10px; margin:8px 0; overflow-wrap:anywhere;
+}
+#na-section-12 #na12-status {
+  color:#d1b7ff; margin:12px 0; overflow-wrap:anywhere;
+}
+@media(max-width:560px) {
+  #na-section-12 { padding:13px; }
+  #na-section-12 .na12-grid { grid-template-columns:1fr; }
+  #na-section-12 .na12-full { grid-column:auto; }
+}
+</style>
+
+<div class="na12-heading">
+  <div>
+    <h2>⚔️ مرکز فرماندهی روم</h2>
+    <p class="na12-muted">NEON ARENA · MATCH CONTROL</p>
+  </div>
+  <span class="na12-tag" id="na12-badge">آماده اتصال</span>
+</div>
+
+<div class="na12-card">
+  <strong>🔑 ورود به اتاق مسابقه</strong>
+  <p class="na12-muted">کد روم را وارد کن یا یک روم آزمایشی محلی بساز.</p>
+  <input id="na12-code" maxlength="20" placeholder="کد روم">
+  <input id="na12-name" maxlength="24" placeholder="نام بازیکن">
+  <div style="display:flex;gap:9px;flex-wrap:wrap">
+    <button id="na12-join">ورود به روم</button>
+    <button id="na12-create" class="na12-secondary">ساخت روم محلی</button>
+  </div>
+  <p id="na12-status" role="status">برای شروع یک روم بساز.</p>
+</div>
+
+<div class="na12-grid">
+  <div class="na12-card">
+    <strong>👥 اعضای روم</strong>
+    <p class="na12-muted" id="na12-count">۰ بازیکن</p>
+    <div id="na12-players"></div>
+  </div>
+
+  <div class="na12-card">
+    <strong>🎯 اطلاعات مسابقه</strong>
+    <p>کد دعوت: <b id="na12-room-code">---</b></p>
+    <p>وضعیت: <b id="na12-game-status">بدون روم</b></p>
+    <button id="na12-copy" class="na12-secondary">کپی کد دعوت</button>
+    <button id="na12-start" style="margin-top:8px">شروع مسابقه</button>
+    <p class="na12-muted">شروع در این نسخه فقط وضعیت محلی را تغییر می‌دهد.</p>
+  </div>
+
+  <div class="na12-card na12-full">
+    <strong>💬 چت داخل روم</strong>
+    <div id="na12-chat" style="height:180px;overflow:auto;margin:12px 0">
+      <p class="na12-muted">هنوز پیامی وجود ندارد.</p>
+    </div>
+    <form id="na12-chat-form">
+      <input id="na12-message" maxlength="300" placeholder="پیامت را بنویس...">
+      <button type="submit">ارسال پیام</button>
+    </form>
+  </div>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('na-section-12');
+  if (root.dataset.ready) return;
+  root.dataset.ready = '1';
+
+  const $ = id => root.querySelector('#' + id);
+  const state = {
+    code: '',
+    name: '',
+    players: [],
+    messages: [],
+    started: false
+  };
+
+  const randomCode = () =>
+    Math.random().toString(36).slice(2, 8).toUpperCase();
+
+  const setStatus = text => $('na12-status').textContent = text;
+
+  function render() {
+    $('na12-room-code').textContent = state.code || '---';
+    $('na12-game-status').textContent =
+      state.started ? 'مسابقه شروع شده' :
+      state.code ? 'در انتظار بازیکن' : 'بدون روم';
+
+    $('na12-badge').textContent =
+      state.started ? 'در حال مسابقه' :
+      state.code ? 'روم فعال محلی' : 'آماده اتصال';
+
+    $('na12-count').textContent =
+      state.players.length + ' بازیکن';
+
+    const players = $('na12-players');
+    players.replaceChildren();
+
+    if (!state.players.length) {
+      const empty = document.createElement('p');
+      empty.className = 'na12-muted';
+      empty.textContent = 'هنوز بازیکنی وارد نشده.';
+      players.appendChild(empty);
+    }
+
+    state.players.forEach((name, i) => {
+      const row = document.createElement('div');
+      row.className = 'na12-player';
+
+      const avatar = document.createElement('span');
+      avatar.className = 'na12-avatar';
+      avatar.textContent = '🎮';
+
+      const label = document.createElement('span');
+      label.textContent = name + (i === 0 ? ' · میزبان' : '');
+
+      row.append(avatar, label);
+      players.appendChild(row);
+    });
+
+    const chat = $('na12-chat');
+    chat.replaceChildren();
+
+    if (!state.messages.length) {
+      const empty = document.createElement('p');
+      empty.className = 'na12-muted';
+      empty.textContent = 'چت روم آماده است.';
+      chat.appendChild(empty);
+    }
+
+    state.messages.forEach(msg => {
+      const item = document.createElement('div');
+      item.className = 'na12-msg';
+
+      const author = document.createElement('strong');
+      author.textContent = msg.name + ': ';
+
+      const body = document.createElement('span');
+      body.textContent = msg.text;
+
+      item.append(author, body);
+      chat.appendChild(item);
+    });
+
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function enterRoom(code) {
+    const name = $('na12-name').value.trim().slice(0, 24);
+    if (!name) {
+      setStatus('اول نام بازیکن را وارد کن.');
+      return;
+    }
+    if (!code || !/^[A-Z0-9-]{3,20}$/.test(code)) {
+      setStatus('کد روم معتبر نیست.');
+      return;
+    }
+
+    // این نسخه فقط در همین مرورگر کار می‌کند.
+    // ورود از دستگاه‌های دیگر نیازمند بک‌اند است.
+    if (state.code && state.code !== code) {
+      setStatus('ابتدا از روم فعلی خارج شو یا صفحه را تازه کن.');
+      return;
+    }
+
+    state.code = code;
+    state.name = name;
+
+    if (!state.players.includes(name)) {
+      state.players.push(name);
+    }
+
+    render();
+    setStatus('وارد روم محلی شدی؛ این نسخه هنوز آنلاین نیست.');
+  }
+
+  $('na12-create').addEventListener('click', () => {
+    if (state.code) {
+      setStatus('ابتدا صفحه را تازه کن تا روم جدید بسازی.');
+      return;
+    }
+    const code = randomCode();
+    $('na12-code').value = code;
+    enterRoom(code);
+  });
+
+  $('na12-join').addEventListener('click', () => {
+    enterRoom($('na12-code').value.trim().toUpperCase());
+  });
+
+  $('na12-copy').addEventListener('click', async () => {
+    if (!state.code) {
+      setStatus('اول یک روم بساز.');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(state.code);
+      setStatus('کد روم کپی شد: ' + state.code);
+    } catch {
+      $('na12-code').value = state.code;
+      $('na12-code').select();
+      setStatus('کد روم را از کادر بالا کپی کن.');
+    }
+  });
+
+  $('na12-start').addEventListener('click', () => {
+    if (!state.code) {
+      setStatus('ابتدا وارد یک روم شو.');
+      return;
+    }
+    if (state.players.length < 2) {
+      setStatus('برای شروع، حداقل دو بازیکن لازم است.');
+      return;
+    }
+    state.started = true;
+    render();
+    setStatus('وضعیت مسابقه در همین مرورگر تغییر کرد.');
+  });
+
+  $('na12-chat-form').addEventListener('submit', event => {
+    event.preventDefault();
+    const text = $('na12-message').value.trim();
+
+    if (!state.code || !state.name) {
+      setStatus('ابتدا وارد روم شو.');
+      return;
+    }
+    if (!text) return;
+
+    state.messages.push({ name: state.name, text });
+    state.messages = state.messages.slice(-60);
+    $('na12-message').value = '';
+    render();
+  });
+
+  render();
+})();
+</script>
+</section>
+<!-- END SECTION 12 -->
+
+<!-- NEON ARENA | SECTION 13: PLAYER PROFILE -->
+<section id="na-profile-13" dir="rtl">
+<style>
+#na-profile-13 {
+  font-family: Tahoma,sans-serif;
+  color:#f5f1ff;
+  background:linear-gradient(140deg,#100b20,#21113b,#111126);
+  border:1px solid #7040ff;
+  border-radius:22px;
+  padding:22px;
+  max-width:950px;
+  margin:25px auto;
+  box-shadow:0 0 35px #763cff20;
+}
+#na-profile-13 * {box-sizing:border-box}
+#na-profile-13 .p13-head {
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+#na-profile-13 .p13-avatar {
+  width:82px;height:82px;border-radius:22px;
+  display:grid;place-items:center;font-size:39px;
+  background:linear-gradient(135deg,#713bff,#e13cff);
+  box-shadow:0 0 24px #8b4dff55;
+}
+#na-profile-13 h2 {color:#c7a6ff;margin:0 0 9px}
+#na-profile-13 .p13-muted {color:#b7a9d0;font-size:13px}
+#na-profile-13 .p13-level {
+  margin-right:auto;background:#302047;
+  padding:10px 14px;border-radius:12px;
+}
+#na-profile-13 .p13-grid {
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;margin-top:22px;
+}
+#na-profile-13 .p13-stat {
+  background:#19122c;border:1px solid #39265b;
+  border-radius:14px;padding:16px 10px;text-align:center;
+}
+#na-profile-13 .p13-stat strong {
+  display:block;font-size:23px;color:#d2b5ff;margin-bottom:8px;
+}
+#na-profile-13 .p13-card {
+  margin-top:16px;background:#19122c;
+  border:1px solid #39265b;border-radius:14px;padding:17px;
+}
+#na-profile-13 .p13-bar {
+  height:11px;background:#34244b;border-radius:20px;
+  overflow:hidden;margin:12px 0;
+}
+#na-profile-13 .p13-fill {
+  height:100%;width:0;
+  background:linear-gradient(90deg,#753cff,#ed48ff);
+  border-radius:20px;transition:width .4s;
+}
+#na-profile-13 input {
+  min-width:0;width:100%;padding:12px;margin:7px 0;
+  border-radius:9px;border:1px solid #4c3474;
+  background:#0e0a1a;color:white;font:inherit;
+}
+#na-profile-13 button {
+  border:0;border-radius:10px;padding:12px 15px;
+  background:linear-gradient(100deg,#743aff,#b23cff);
+  color:white;font-weight:bold;cursor:pointer;
+}
+#na-profile-13 .p13-secondary {background:#302044}
+#na-profile-13 .p13-actions {
+  display:flex;gap:9px;flex-wrap:wrap;margin-top:12px;
+}
+#na-profile-13 .p13-achievement {
+  display:inline-block;background:#302044;
+  border:1px solid #523878;border-radius:10px;
+  padding:10px;margin:5px 4px 0 0;font-size:13px;
+}
+#na-profile-13 .p13-status {
+  color:#c8a8ff;font-size:13px;overflow-wrap:anywhere;
+}
+@media(max-width:600px) {
+  #na-profile-13{padding:14px}
+  #na-profile-13 .p13-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #na-profile-13 .p13-level{margin-right:0}
+}
+</style>
+
+<div class="p13-head">
+  <div class="p13-avatar" id="p13-avatar">🎮</div>
+  <div>
+    <h2 id="p13-title">پروفایل بازیکن</h2>
+    <div class="p13-muted" id="p13-username">@player</div>
+    <div class="p13-muted">عضو NEON ARENA</div>
+  </div>
+  <div class="p13-level">
+    <div class="p13-muted">سطح بازیکن</div>
+    <strong id="p13-level">LV. 1</strong>
+  </div>
+</div>
+
+<div class="p13-grid">
+  <div class="p13-stat">
+    <strong id="p13-xp">0</strong>
+    <span class="p13-muted">امتیاز XP</span>
+  </div>
+  <div class="p13-stat">
+    <strong id="p13-wins">0</strong>
+    <span class="p13-muted">تعداد برد</span>
+  </div>
+  <div class="p13-stat">
+    <strong id="p13-matches">0</strong>
+    <span class="p13-muted">مسابقات</span>
+  </div>
+  <div class="p13-stat">
+    <strong id="p13-rate">0%</strong>
+    <span class="p13-muted">نرخ برد</span>
+  </div>
+</div>
+
+<div class="p13-card">
+  <strong>⚡ پیشرفت سطح</strong>
+  <div class="p13-bar"><div class="p13-fill" id="p13-progress"></div></div>
+  <div class="p13-muted" id="p13-progress-text">۰ از ۱۰۰ XP تا سطح بعد</div>
+</div>
+
+<div class="p13-card">
+  <strong>🏆 دستاوردها</strong>
+  <div id="p13-achievements">
+    <span class="p13-achievement">🎯 شروع ماجراجویی</span>
+  </div>
+</div>
+
+<div class="p13-card">
+  <strong>✏️ ویرایش پروفایل</strong>
+  <p class="p13-muted">نام و نماد پروفایلت را انتخاب کن.</p>
+
+  <label for="p13-name">نام بازیکن</label>
+  <input id="p13-name" maxlength="24" placeholder="نام دلخواه">
+
+  <label for="p13-icon">انتخاب آواتار</label>
+  <div class="p13-actions" id="p13-avatar-options">
+    <button type="button" data-avatar="🎮">🎮</button>
+    <button type="button" data-avatar="👾">👾</button>
+    <button type="button" data-avatar="🐉">🐉</button>
+    <button type="button" data-avatar="🥷">🥷</button>
+    <button type="button" data-avatar="🤖">🤖</button>
+    <button type="button" data-avatar="⚡">⚡</button>
+  </div>
+
+  <div class="p13-actions">
+    <button type="button" id="p13-save">ذخیره پروفایل</button>
+    <button type="button" class="p13-secondary" id="p13-reset">بازنشانی فرم</button>
+  </div>
+  <p class="p13-status" id="p13-status" role="status"></p>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('na-profile-13');
+  if (root.dataset.ready) return;
+  root.dataset.ready = '1';
+
+  const $ = id => root.querySelector('#' + id);
+  const storageKey = 'neonArenaProfile13';
+  const defaults = {
+    name:'Player',
+    avatar:'🎮',
+    xp:0,
+    wins:0,
+    matches:0
+  };
+
+  let profile = {...defaults};
+  let selectedAvatar = defaults.avatar;
+
+  try {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) profile = {...defaults, ...JSON.parse(saved)};
+  } catch (_) {}
+
+  function render() {
+    const xp = Math.max(0, Number(profile.xp) || 0);
+    const wins = Math.max(0, Number(profile.wins) || 0);
+    const matches = Math.max(wins, Number(profile.matches) || 0);
+    const level = Math.floor(xp / 100) + 1;
+    const progress = xp % 100;
+
+    $('p13-title').textContent = profile.name || 'Player';
+    $('p13-username').textContent =
+      '@' + (profile.name || 'player')
+        .toLowerCase().replace(/\s+/g, '_');
+    $('p13-avatar').textContent = profile.avatar || '🎮';
+    $('p13-level').textContent = 'LV. ' + level;
+    $('p13-xp').textContent = xp;
+    $('p13-wins').textContent = wins;
+    $('p13-matches').textContent = matches;
+    $('p13-rate').textContent =
+      (matches ? Math.round(wins / matches * 100) : 0) + '%';
+    $('p13-progress').style.width = progress + '%';
+    $('p13-progress-text').textContent =
+      progress + ' از ۱۰۰ XP تا سطح بعد';
+
+    const achievements = $('p13-achievements');
+    achievements.replaceChildren();
+
+    const badges = [];
+    badges.push('🎯 شروع ماجراجویی');
+    if (wins >= 1) badges.push('🥇 اولین برد');
+    if (wins >= 10) badges.push('🔥 ۱۰ برد');
+    if (matches >= 20) badges.push('⚔️ بازیکن باتجربه');
+    if (level >= 5) badges.push('💎 سطح ۵');
+
+    badges.forEach(label => {
+      const item = document.createElement('span');
+      item.className = 'p13-achievement';
+      item.textContent = label;
+      achievements.appendChild(item);
+    });
+  }
+
+  $('p13-name').value = profile.name;
+  selectedAvatar = profile.avatar || '🎮';
+
+  root.querySelectorAll('[data-avatar]').forEach(button => {
+    button.addEventListener('click', () => {
+      selectedAvatar = button.dataset.avatar;
+      $('p13-avatar').textContent = selectedAvatar;
+      $('p13-status').textContent = 'آواتار انتخاب شد؛ ذخیره را بزن.';
+    });
+  });
+
+  $('p13-save').addEventListener('click', () => {
+    const name = $('p13-name').value.trim();
+
+    if (!name) {
+      $('p13-status').textContent = 'لطفاً نام بازیکن را وارد کن.';
+      return;
+    }
+
+    profile.name = name.slice(0, 24);
+    profile.avatar = selectedAvatar;
+
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(profile));
+      $('p13-status').textContent =
+        'پروفایل در همین مرورگر ذخیره شد.';
+    } catch (_) {
+      $('p13-status').textContent =
+        'ذخیره‌سازی مرورگر در دسترس نیست.';
+    }
+
+    render();
+  });
+
+  $('p13-reset').addEventListener('click', () => {
+    $('p13-name').value = profile.name;
+    selectedAvatar = profile.avatar;
+    $('p13-avatar').textContent = profile.avatar;
+    $('p13-status').textContent = 'فرم به اطلاعات ذخیره‌شده برگشت.';
+  });
+
+  render();
+})();
+</script>
+</section>
+<!-- END SECTION 13 -->
+
+<!-- NEON ARENA | SECTION 14: LEADERBOARD -->
+<section id="na-leaderboard-14" dir="rtl">
+<style>
+#na-leaderboard-14 {
+  font-family:Tahoma,sans-serif;
+  color:#f5f1ff;
+  background:linear-gradient(145deg,#100b20,#1c1234);
+  border:1px solid #7040ff;
+  border-radius:22px;
+  padding:22px;
+  max-width:1000px;
+  margin:25px auto;
+  box-shadow:0 0 35px #763cff20;
+}
+#na-leaderboard-14 * {box-sizing:border-box}
+#na-leaderboard-14 h2 {color:#c7a6ff;margin:0 0 8px}
+#na-leaderboard-14 .lb14-muted {color:#b7a9d0;font-size:13px}
+#na-leaderboard-14 .lb14-top {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;margin:22px 0;
+}
+#na-leaderboard-14 .lb14-podium {
+  background:#19122c;border:1px solid #47316c;
+  border-radius:15px;padding:16px 8px;text-align:center;
+}
+#na-leaderboard-14 .lb14-podium:first-child {border-color:#c9a347}
+#na-leaderboard-14 .lb14-podium:nth-child(2) {border-color:#aab7ce}
+#na-leaderboard-14 .lb14-podium:nth-child(3) {border-color:#b98055}
+#na-leaderboard-14 .lb14-medal {font-size:30px;margin-bottom:9px}
+#na-leaderboard-14 .lb14-podium strong {
+  display:block;overflow-wrap:anywhere;margin:8px 0
+}
+#na-leaderboard-14 input,
+#na-leaderboard-14 select {
+  min-width:0;width:100%;padding:12px;
+  border-radius:10px;border:1px solid #49326e;
+  background:#100b20;color:white;font:inherit;
+}
+#na-leaderboard-14 .lb14-tools {
+  display:grid;grid-template-columns:2fr 1fr;
+  gap:10px;margin-bottom:14px;
+}
+#na-leaderboard-14 .lb14-table-wrap {overflow-x:auto}
+#na-leaderboard-14 table {
+  width:100%;border-collapse:collapse;min-width:450px;
+}
+#na-leaderboard-14 th {
+  color:#bba0f5;text-align:right;background:#201537;
+  padding:13px 10px;font-size:13px;
+}
+#na-leaderboard-14 td {
+  padding:14px 10px;border-bottom:1px solid #302044;
+  font-size:13px;
+}
+#na-leaderboard-14 .lb14-player {
+  display:flex;align-items:center;gap:9px;
+}
+#na-leaderboard-14 .lb14-avatar {
+  display:grid;place-items:center;flex-shrink:0;
+  width:35px;height:35px;background:#34214f;
+  border-radius:11px;font-size:18px;
+}
+#na-leaderboard-14 .lb14-xp {color:#d4b2ff;font-weight:bold}
+#na-leaderboard-14 .lb14-tag {
+  display:inline-block;padding:5px 8px;
+  border-radius:8px;background:#302044;color:#d7bdff;
+}
+#na-leaderboard-14 .lb14-empty {
+  text-align:center;padding:28px;color:#b7a9d0;
+}
+#na-leaderboard-14 .lb14-foot {
+  margin-top:14px;padding:14px;background:#19122c;
+  border-radius:12px;color:#b7a9d0;font-size:12px;
+}
+@media(max-width:560px) {
+  #na-leaderboard-14 {padding:13px}
+  #na-leaderboard-14 .lb14-top {gap:6px}
+  #na-leaderboard-14 .lb14-podium {padding:12px 5px}
+  #na-leaderboard-14 .lb14-tools {grid-template-columns:1fr}
+}
+</style>
+
+<h2>🏆 تالار افتخار NEON ARENA</h2>
+<p class="lb14-muted">بهترین بازیکن‌ها؛ رقابت برای رسیدن به رتبه اول</p>
+
+<div class="lb14-top" id="lb14-podium"></div>
+
+<div class="lb14-tools">
+  <input id="lb14-search" maxlength="40"
+         placeholder="🔎 جست‌وجوی نام بازیکن">
+  <select id="lb14-sort">
+    <option value="xp">مرتب‌سازی بر اساس XP</option>
+    <option value="wins">بیشترین برد</option>
+    <option value="rate">بهترین نرخ برد</option>
+  </select>
+</div>
+
+<div class="lb14-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>رتبه</th>
+        <th>بازیکن</th>
+        <th>سطح</th>
+        <th>برد</th>
+        <th>امتیاز XP</th>
+      </tr>
+    </thead>
+    <tbody id="lb14-rows"></tbody>
+  </table>
+</div>
+
+<div class="lb14-foot" id="lb14-status" role="status">
+  رتبه‌بندی نمایشی؛ اطلاعات هنوز از سرور دریافت نشده است.
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('na-leaderboard-14');
+  if (root.dataset.ready) return;
+  root.dataset.ready = '1';
+
+  const $ = id => root.querySelector('#' + id);
+
+  // داده‌های نمایشی؛ بعداً با اطلاعات واقعی Supabase جایگزین شوند.
+  const players = [
+    {name:'Shadow',avatar:'🥷',xp:4850,wins:42,matches:55},
+    {name:'NeonWolf',avatar:'🐺',xp:4210,wins:36,matches:48},
+    {name:'DarkAce',avatar:'♠️',xp:3890,wins:32,matches:44},
+    {name:'PixelKing',avatar:'👾',xp:3100,wins:25,matches:39},
+    {name:'Thunder',avatar:'⚡',xp:2750,wins:21,matches:35},
+    {name:'Ghost',avatar:'👻',xp:2200,wins:18,matches:30},
+    {name:'Dragon',avatar:'🐉',xp:1800,wins:14,matches:25},
+    {name:'Rookie',avatar:'🎮',xp:950,wins:7,matches:18}
+  ];
+
+  function level(xp) {
+    return Math.floor(xp / 100) + 1;
+  }
+
+  function rate(player) {
+    return player.matches
+      ? player.wins / player.matches
+      : 0;
+  }
+
+  function render() {
+    const query = $('lb14-search').value.trim().toLowerCase();
+    const sort = $('lb14-sort').value;
+
+    const sorted = players
+      .filter(p => p.name.toLowerCase().includes(query))
+      .sort((a,b) => {
+        if (sort === 'wins') return b.wins - a.wins;
+        if (sort === 'rate') return rate(b) - rate(a);
+        return b.xp - a.xp;
+      });
+
+    const podium = $('lb14-podium');
+    podium.replaceChildren();
+
+    const medals = ['🥇','🥈','🥉'];
+    const top = [...players]
+      .sort((a,b) => b.xp - a.xp)
+      .slice(0,3);
+
+    top.forEach((p,i) => {
+      const card = document.createElement('div');
+      card.className = 'lb14-podium';
+
+      const medal = document.createElement('div');
+      medal.className = 'lb14-medal';
+      medal.textContent = medals[i];
+
+      const avatar = document.createElement('div');
+      avatar.textContent = p.avatar;
+      avatar.style.fontSize = '25px';
+
+      const name = document.createElement('strong');
+      name.textContent = p.name;
+
+      const xp = document.createElement('span');
+      xp.className = 'lb14-xp';
+      xp.textContent = p.xp.toLocaleString('en-US') + ' XP';
+
+      card.append(medal,avatar,name,xp);
+      podium.appendChild(card);
+    });
+
+    const body = $('lb14-rows');
+    body.replaceChildren();
+
+    if (!sorted.length) {
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.className = 'lb14-empty';
+      td.textContent = 'بازیکنی با این نام پیدا نشد.';
+      tr.appendChild(td);
+      body.appendChild(tr);
+    }
+
+    sorted.forEach((p,index) => {
+      const tr = document.createElement('tr');
+
+      const rank = document.createElement('td');
+      rank.textContent = '#' + (index + 1);
+
+      const playerCell = document.createElement('td');
+      const player = document.createElement('div');
+      player.className = 'lb14-player';
+
+      const avatar = document.createElement('span');
+      avatar.className = 'lb14-avatar';
+      avatar.textContent = p.avatar;
+
+      const name = document.createElement('strong');
+      name.textContent = p.name;
+
+      player.append(avatar,name);
+      playerCell.appendChild(player);
+
+      const lvl = document.createElement('td');
+      const tag = document.createElement('span');
+      tag.className = 'lb14-tag';
+      tag.textContent = 'LV. ' + level(p.xp);
+      lvl.appendChild(tag);
+
+      const wins = document.createElement('td');
+      wins.textContent = p.wins;
+
+      const xp = document.createElement('td');
+      xp.className = 'lb14-xp';
+      xp.textContent = p.xp.toLocaleString('en-US');
+
+      tr.append(rank,playerCell,lvl,wins,xp);
+      body.appendChild(tr);
+    });
+
+    $('lb14-status').textContent =
+      sorted.length + ' بازیکن نمایشی · اطلاعات هنوز به Supabase متصل نیست.';
+  }
+
+  $('lb14-search').addEventListener('input',render);
+  $('lb14-sort').addEventListener('change',render);
+  render();
+})();
+</script>
+</section>
+<!-- END SECTION 14 -->
+
+<!-- NEON ARENA | SECTION 15: TOURNAMENT SYSTEM -->
+<section id="na-tournaments-15" dir="rtl">
+<style>
+#na-tournaments-15 {
+  font-family:Tahoma,sans-serif;color:#f7f2ff;
+  background:linear-gradient(145deg,#0c0918,#19102c);
+  border:1px solid #653bba;border-radius:22px;
+  padding:22px;max-width:1000px;margin:25px auto;
+  box-shadow:0 0 30px #6b35ff18;
+}
+#na-tournaments-15 * {box-sizing:border-box}
+#na-tournaments-15 h2 {color:#c7a3ff;margin:0 0 8px}
+#na-tournaments-15 .t15-muted {color:#b9accd;font-size:13px;line-height:1.8}
+#na-tournaments-15 .t15-banner {
+  margin:20px 0;padding:20px;border-radius:17px;
+  background:linear-gradient(120deg,#32145d,#15102a);
+  border:1px solid #7d4be4;
+}
+#na-tournaments-15 .t15-banner h3 {margin:0 0 10px}
+#na-tournaments-15 .t15-grid {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;margin:18px 0;
+}
+#na-tournaments-15 .t15-card {
+  padding:17px;border-radius:15px;
+  border:1px solid #392750;background:#171024;
+  min-width:0;
+}
+#na-tournaments-15 .t15-card h3 {font-size:16px;margin:10px 0}
+#na-tournaments-15 .t15-pill {
+  display:inline-block;border-radius:20px;padding:6px 9px;
+  background:#2c2040;color:#d5bcff;font-size:11px;
+}
+#na-tournaments-15 .t15-stats {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;margin:14px 0;
+}
+#na-tournaments-15 .t15-stat {
+  background:#211632;padding:10px;border-radius:10px;
+}
+#na-tournaments-15 .t15-stat small {
+  display:block;color:#b9accd;font-size:11px;margin-bottom:7px;
+}
+#na-tournaments-15 .t15-stat strong {font-size:14px}
+#na-tournaments-15 .t15-btn {
+  border:0;border-radius:10px;padding:12px 15px;
+  width:100%;font:inherit;font-weight:bold;cursor:pointer;
+  background:#9c65ff;color:white;
+  transition:transform .15s,filter .15s;
+}
+#na-tournaments-15 .t15-btn:hover {
+  filter:brightness(1.12);transform:translateY(-1px);
+}
+#na-tournaments-15 .t15-btn:disabled {
+  opacity:.55;cursor:not-allowed;transform:none;
+}
+#na-tournaments-15 .t15-secondary {
+  background:#302143;border:1px solid #64438a;margin-top:9px;
+}
+#na-tournaments-15 .t15-progress {
+  height:7px;background:#30223e;border-radius:10px;overflow:hidden;
+  margin:10px 0 14px;
+}
+#na-tournaments-15 .t15-progress span {
+  display:block;height:100%;background:#a779ff;width:0;
+  transition:width .3s;
+}
+#na-tournaments-15 .t15-bracket {
+  display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));
+  gap:12px;overflow-x:auto;padding:5px 0 15px;
+}
+#na-tournaments-15 .t15-round {
+  border:1px solid #38254d;border-radius:12px;padding:10px;
+  background:#130d20;min-width:130px;
+}
+#na-tournaments-15 .t15-round h4 {color:#c7a3ff;margin:4px 0 12px}
+#na-tournaments-15 .t15-match {
+  padding:10px;margin-bottom:9px;border-radius:9px;
+  background:#241831;font-size:12px;line-height:2;
+  overflow-wrap:anywhere;
+}
+#na-tournaments-15 .t15-match b {color:#e0caff}
+#na-tournaments-15 .t15-note {
+  padding:13px;border-radius:10px;background:#171024;
+  color:#b9accd;font-size:12px;line-height:1.9;margin-top:15px;
+}
+#na-tournaments-15 .t15-message {
+  min-height:20px;margin-top:10px;color:#d8c1ff;
+  font-size:12px;line-height:1.8;
+}
+#na-tournaments-15 .t15-player {
+  display:flex;justify-content:space-between;gap:10px;
+  padding:10px;border-bottom:1px solid #332440;font-size:12px;
+}
+@media(max-width:600px) {
+  #na-tournaments-15 {padding:13px}
+  #na-tournaments-15 .t15-grid {grid-template-columns:1fr}
+}
+</style>
+
+<h2>🏆 میدان نبرد NEON ARENA</h2>
+<p class="t15-muted">
+تورنمنتت رو انتخاب کن، ثبت‌نام کن و برای قهرمانی بجنگ!
+</p>
+
+<div class="t15-banner">
+  <span class="t15-pill">⚡ بخش رقابتی</span>
+  <h3>قهرمان بعدی تویی؟</h3>
+  <p class="t15-muted">
+    وارد رقابت شو، بازیکن‌های دیگه رو به چالش بکش و به سمت فینال برو.
+  </p>
+</div>
+
+<div class="t15-grid" id="t15-cards"></div>
+
+<h3>⚔️ جدول حذفی نمایشی</h3>
+<p class="t15-muted">
+این جدول نمونه است و نتایج واقعی مسابقات را نشان نمی‌دهد.
+</p>
+
+<div class="t15-bracket">
+  <div class="t15-round">
+    <h4>مرحله اول</h4>
+    <div class="t15-match">🥷 Shadow<br>VS<br>🐺 NeonWolf</div>
+    <div class="t15-match">👾 PixelKing<br>VS<br>⚡ Thunder</div>
+    <div class="t15-match">👻 Ghost<br>VS<br>🐉 Dragon</div>
+    <div class="t15-match">♠️ DarkAce<br>VS<br>🎮 Rookie</div>
+  </div>
+  <div class="t15-round">
+    <h4>نیمه‌نهایی</h4>
+    <div class="t15-match">برنده مسابقه ۱<br>VS<br>برنده مسابقه ۲</div>
+    <div class="t15-match">برنده مسابقه ۳<br>VS<br>برنده مسابقه ۴</div>
+  </div>
+  <div class="t15-round">
+    <h4>فینال</h4>
+    <div class="t15-match">🏆 فینالیست اول<br>VS<br>فینالیست دوم</div>
+  </div>
+</div>
+
+<h3>👥 ثبت‌نام‌های این مرورگر</h3>
+<div id="t15-my-entries"></div>
+
+<div class="t15-note">
+  توجه: ثبت‌نام این نسخه در همین مرورگر ذخیره می‌شود.
+  برای ثبت‌نام آنلاین واقعی بین دستگاه‌های مختلف، باید آن را به
+  Supabase و احراز هویت کاربران متصل کنیم.
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('na-tournaments-15');
+  if (root.dataset.ready) return;
+  root.dataset.ready = '1';
+
+  const $ = id => root.querySelector('#' + id);
+  const storageKey = 'neonArenaTournaments15';
+
+  const tournaments = [
+    {
+      id:'cs16-night',
+      title:'CS 1.6 Night Cup',
+      game:'🎯 Counter-Strike 1.6',
+      format:'حذفی',
+      capacity:16,
+      prize:'جایزه اعلام‌نشده',
+      status:'ثبت‌نام آزاد'
+    },
+    {
+      id:'arena-duel',
+      title:'Neon Duel',
+      game:'⚔️ رقابت دوئل',
+      format:'تک‌به‌تک',
+      capacity:8,
+      prize:'جایزه اعلام‌نشده',
+      status:'ثبت‌نام آزاد'
+    },
+    {
+      id:'squad-battle',
+      title:'Squad Battle',
+      game:'🛡️ رقابت تیمی',
+      format:'تیمی',
+      capacity:8,
+      prize:'جایزه اعلام‌نشده',
+      status:'به‌زودی'
+    },
+    {
+      id:'weekend-cup',
+      title:'Weekend Cup',
+      game:'🔥 جام آخر هفته',
+      format:'حذفی',
+      capacity:32,
+      prize:'جایزه اعلام‌نشده',
+      status:'به‌زودی'
+    }
+  ];
+
+  function readEntries() {
+    try {
+      const data = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      return Array.isArray(data) ? data : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveEntries(entries) {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(entries));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function renderEntries() {
+    const entries = readEntries();
+    const box = $('t15-my-entries');
+    box.replaceChildren();
+
+    if (!entries.length) {
+      const empty = document.createElement('p');
+      empty.className = 't15-muted';
+      empty.textContent = 'هنوز در هیچ تورنمنتی ثبت‌نام نکردی.';
+      box.appendChild(empty);
+      return;
+    }
+
+    entries.forEach(entry => {
+      const row = document.createElement('div');
+      row.className = 't15-player';
+
+      const name = document.createElement('span');
+      name.textContent = '🎮 ' + entry.title;
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = 'لغو ثبت‌نام';
+      remove.style.cssText =
+        'background:#382044;color:#ffd7e5;border:0;border-radius:7px;padding:7px;cursor:pointer';
+
+      remove.addEventListener('click', () => {
+        const updated = readEntries().filter(x => x.id !== entry.id);
+        if (!saveEntries(updated)) {
+          alert('ذخیره‌سازی مرورگر در دسترس نیست.');
+          return;
+        }
+        renderCards();
+        renderEntries();
+      });
+
+      row.append(name,remove);
+      box.appendChild(row);
+    });
+  }
+
+  function renderCards() {
+    const entries = readEntries();
+    const box = $('t15-cards');
+    box.replaceChildren();
+
+    tournaments.forEach(t => {
+      const card = document.createElement('article');
+      card.className = 't15-card';
+
+      const pill = document.createElement('span');
+      pill.className = 't15-pill';
+      pill.textContent = t.status;
+
+      const title = document.createElement('h3');
+      title.textContent = t.title;
+
+      const game = document.createElement('p');
+      game.className = 't15-muted';
+      game.textContent = t.game;
+
+      const stats = document.createElement('div');
+      stats.className = 't15-stats';
+
+      const count = document.createElement('div');
+      count.className = 't15-stat';
+      const countLabel = document.createElement('small');
+      countLabel.textContent = 'ظرفیت';
+      const countValue = document.createElement('strong');
+      countValue.textContent = '۰ / ' + t.capacity;
+      count.append(countLabel,countValue);
+
+      const format = document.createElement('div');
+      format.className = 't15-stat';
+      const formatLabel = document.createElement('small');
+      formatLabel.textContent = 'فرمت';
+      const formatValue = document.createElement('strong');
+      formatValue.textContent = t.format;
+      format.append(formatLabel,formatValue);
+
+      const prize = document.createElement('div');
+      prize.className = 't15-stat';
+      const prizeLabel = document.createElement('small');
+      prizeLabel.textContent = 'جایزه';
+      const prizeValue = document.createElement('strong');
+      prizeValue.textContent = t.prize;
+      prize.append(prizeLabel,prizeValue);
+
+      const capacity = document.createElement('div');
+      capacity.className = 't15-stat';
+      const capacityLabel = document.createElement('small');
+      capacityLabel.textContent = 'ظرفیت کل';
+      const capacityValue = document.createElement('strong');
+      capacityValue.textContent = t.capacity + ' نفر';
+      capacity.append(capacityLabel,capacityValue);
+
+      stats.append(count,format,prize,capacity);
+
+      const progress = document.createElement('div');
+      progress.className = 't15-progress';
+      const bar = document.createElement('span');
+      progress.appendChild(bar);
+
+      const message = document.createElement('div');
+      message.className = 't15-message';
+      message.setAttribute('role','status');
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 't15-btn';
+
+      const registered = entries.some(e => e.id === t.id);
+      const comingSoon = t.status === 'به‌زودی';
+
+      button.textContent = registered
+        ? '✅ ثبت‌نام شده‌ای'
+        : comingSoon ? 'به‌زودی' : 'ثبت‌نام در تورنمنت';
+
+      button.disabled = registered || comingSoon;
+
+      button.addEventListener('click', () => {
+        const current = readEntries();
+
+        if (current.some(e => e.id === t.id)) return;
+
+        if (t.status === 'به‌زودی') {
+          message.textContent = 'ثبت‌نام این تورنمنت هنوز شروع نشده است.';
+          return;
+        }
+
+        current.push({
+          id:t.id,
+          title:t.title,
+          joinedAt:new Date().toISOString()
+        });
+
+        if (!saveEntries(current)) {
+          message.textContent = 'ذخیره‌سازی ممکن نشد؛ فضای مرورگر را بررسی کن.';
+          return;
+        }
+
+        message.textContent =
+          'ثبت‌نام آزمایشی انجام شد! این ثبت‌نام فقط در همین مرورگر ذخیره شده است.';
+
+        renderCards();
+        renderEntries();
+      });
+
+      card.append(pill,title,game,stats,progress,button,message);
+      box.appendChild(card);
+    });
+  }
+
+  renderCards();
+  renderEntries();
+})();
+</script>
+</section>
+<!-- END SECTION 15 -->
+
+<!-- NEON ARENA | SECTION 16: MATCH HISTORY -->
+<section id="na-history-16" dir="rtl">
+<style>
+#na-history-16 {
+  font-family:Tahoma,sans-serif;
+  color:#f6f0ff;
+  background:linear-gradient(145deg,#0b0916,#1a1030);
+  border:1px solid #6740b4;
+  border-radius:22px;
+  padding:22px;
+  max-width:1000px;
+  margin:25px auto;
+  box-shadow:0 0 30px #713cff18;
+}
+#na-history-16 * {box-sizing:border-box}
+#na-history-16 h2 {color:#c7a5ff;margin:0 0 8px}
+#na-history-16 .h16-muted {
+  color:#b8aaca;font-size:13px;line-height:1.8;
+}
+#na-history-16 .h16-stats {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;margin:20px 0;
+}
+#na-history-16 .h16-stat {
+  background:#1b132b;border:1px solid #39264e;
+  border-radius:13px;padding:14px 10px;
+}
+#na-history-16 .h16-stat small {
+  display:block;color:#b8aaca;font-size:11px;margin-bottom:9px;
+}
+#na-history-16 .h16-stat strong {font-size:20px}
+#na-history-16 .h16-toolbar {
+  display:grid;grid-template-columns:2fr 1fr;gap:10px;
+  margin-bottom:15px;
+}
+#na-history-16 input,
+#na-history-16 select {
+  width:100%;min-width:0;
+  background:#100b1c;color:#fff;
+  border:1px solid #483365;border-radius:10px;
+  padding:12px;font:inherit;
+}
+#na-history-16 .h16-list {
+  display:grid;gap:11px;
+}
+#na-history-16 .h16-match {
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;gap:13px;
+  padding:15px;background:#171022;
+  border:1px solid #382747;border-radius:14px;
+}
+#na-history-16 .h16-icon {
+  display:grid;place-items:center;
+  width:44px;height:44px;border-radius:12px;
+  background:#302044;font-size:22px;
+}
+#na-history-16 .h16-match h3 {
+  margin:0 0 8px;font-size:14px;
+}
+#na-history-16 .h16-meta {
+  color:#b8aaca;font-size:11px;line-height:2;
+}
+#na-history-16 .h16-result {
+  display:inline-block;padding:6px 9px;
+  border-radius:8px;font-size:11px;font-weight:bold;
+}
+#na-history-16 .h16-win {background:#123a2c;color:#7cf0b4}
+#na-history-16 .h16-loss {background:#401b2b;color:#ff9eb3}
+#na-history-16 .h16-draw {background:#392c16;color:#ffdb88}
+#na-history-16 .h16-xp {
+  color:#d4b3ff;font-weight:bold;font-size:12px;margin-top:8px;
+}
+#na-history-16 .h16-empty {
+  text-align:center;padding:30px 12px;
+  color:#b8aaca;background:#171022;border-radius:12px;
+}
+#na-history-16 .h16-footer {
+  margin-top:15px;background:#171022;
+  border-radius:12px;padding:13px;
+  color:#b8aaca;font-size:12px;line-height:1.9;
+}
+@media(max-width:650px) {
+  #na-history-16 {padding:13px}
+  #na-history-16 .h16-stats {grid-template-columns:repeat(2,minmax(0,1fr))}
+  #na-history-16 .h16-toolbar {grid-template-columns:1fr}
+  #na-history-16 .h16-match {grid-template-columns:auto 1fr;gap:10px}
+  #na-history-16 .h16-match > div:last-child {
+    grid-column:2;display:flex;align-items:center;
+    justify-content:space-between;gap:10px;
+  }
+}
+</style>
+
+<h2>📜 تاریخچه مسابقات</h2>
+<p class="h16-muted">
+تمام نتایج بازی‌ها، بردها و امتیازهای کسب‌شده در یک نگاه.
+</p>
+
+<div class="h16-stats">
+  <div class="h16-stat">
+    <small>کل مسابقات</small>
+    <strong id="h16-total">۰</strong>
+  </div>
+  <div class="h16-stat">
+    <small>تعداد برد</small>
+    <strong id="h16-wins">۰</strong>
+  </div>
+  <div class="h16-stat">
+    <small>تعداد باخت</small>
+    <strong id="h16-losses">۰</strong>
+  </div>
+  <div class="h16-stat">
+    <small>مجموع XP</small>
+    <strong id="h16-xp">۰</strong>
+  </div>
+</div>
+
+<div class="h16-toolbar">
+  <input id="h16-search" maxlength="60"
+         placeholder="🔎 جست‌وجوی بازی یا حریف">
+  <select id="h16-filter">
+    <option value="all">همه نتایج</option>
+    <option value="win">فقط بردها</option>
+    <option value="loss">فقط باخت‌ها</option>
+    <option value="draw">فقط مساوی‌ها</option>
+  </select>
+</div>
+
+<div class="h16-list" id="h16-list"></div>
+
+<div class="h16-footer" id="h16-note" role="status">
+  این صفحه در حالت نمایشی است و هنوز نتایج واقعی سرور را دریافت نمی‌کند.
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('na-history-16');
+  if (root.dataset.ready) return;
+  root.dataset.ready = '1';
+
+  const $ = id => root.querySelector('#' + id);
+
+  // مسابقات نمونه؛ برای آزمایش ظاهر صفحه
+  const matches = [
+    {
+      game:'CS 1.6',
+      opponent:'Shadow',
+      result:'win',
+      score:'16 - 10',
+      xp:120,
+      date:'۱۴۰۵/۰۷/۱۵',
+      icon:'🎯'
+    },
+    {
+      game:'Neon Duel',
+      opponent:'DarkAce',
+      result:'loss',
+      score:'8 - 13',
+      xp:20,
+      date:'۱۴۰۵/۰۷/۱۴',
+      icon:'⚔️'
+    },
+    {
+      game:'CS 1.6',
+      opponent:'Thunder',
+      result:'win',
+      score:'16 - 12',
+      xp:100,
+      date:'۱۴۰۵/۰۷/۱۳',
+      icon:'🎯'
+    },
+    {
+      game:'Squad Battle',
+      opponent:'PixelKing',
+      result:'draw',
+      score:'10 - 10',
+      xp:40,
+      date:'۱۴۰۵/۰۷/۱۲',
+      icon:'🛡️'
+    },
+    {
+      game:'Neon Duel',
+      opponent:'Ghost',
+      result:'win',
+      score:'13 - 6',
+      xp:90,
+      date:'۱۴۰۵/۰۷/۱۱',
+      icon:'⚔️'
+    }
+  ];
+
+  const labels = {
+    win:'برد',
+    loss:'باخت',
+    draw:'مساوی'
+  };
+
+  function render() {
+    const query = $('h16-search').value.trim().toLowerCase();
+    const filter = $('h16-filter').value;
+
+    const filtered = matches.filter(m => {
+      const text = (m.game + ' ' + m.opponent).toLowerCase();
+      return text.includes(query) &&
+        (filter === 'all' || m.result === filter);
+    });
+
+    $('h16-total').textContent = matches.length.toLocaleString('fa-IR');
+    $('h16-wins').textContent =
+      matches.filter(m => m.result === 'win').length.toLocaleString('fa-IR');
+    $('h16-losses').textContent =
+      matches.filter(m => m.result === 'loss').length.toLocaleString('fa-IR');
+    $('h16-xp').textContent =
+      matches.reduce((sum,m) => sum + m.xp,0).toLocaleString('fa-IR');
+
+    const list = $('h16-list');
+    list.replaceChildren();
+
+    if (!filtered.length) {
+      const empty = document.createElement('div');
+      empty.className = 'h16-empty';
+      empty.textContent = 'مسابقه‌ای با این مشخصات پیدا نشد.';
+      list.appendChild(empty);
+    }
+
+    filtered.forEach(m => {
+      const card = document.createElement('article');
+      card.className = 'h16-match';
+
+      const icon = document.createElement('div');
+      icon.className = 'h16-icon';
+      icon.textContent = m.icon;
+
+      const info = document.createElement('div');
+
+      const title = document.createElement('h3');
+      title.textContent = m.game;
+
+      const meta = document.createElement('div');
+      meta.className = 'h16-meta';
+      meta.textContent = 'حریف: ' + m.opponent + ' · ' + m.date;
+
+      info.append(title,meta);
+
+      const resultBox = document.createElement('div');
+
+      const badge = document.createElement('span');
+      badge.className = 'h16-result h16-' + m.result;
+      badge.textContent = labels[m.result];
+
+      const score = document.createElement('div');
+      score.className = 'h16-meta';
+      score.textContent = 'نتیجه: ' + m.score;
+
+      const xp = document.createElement('div');
+      xp.className = 'h16-xp';
+      xp.textContent = '+' + m.xp + ' XP';
+
+      resultBox.append(badge,score,xp);
+      card.append(icon,info,resultBox);
+      list.appendChild(card);
+    });
+
+    $('h16-note').textContent =
+      filtered.length + ' مسابقه نمایش داده می‌شود. ' +
+      'اطلاعات فعلی نمونه هستند و از سرور دریافت نشده‌اند.';
+  }
+
+  $('h16-search').addEventListener('input',render);
+  $('h16-filter').addEventListener('change',render);
+
+  render();
+})();
+</script>
+</section>
+<!-- END SECTION 16 -->
+
+<!-- NEON ARENA | SECTION 17: GAMING SHOP -->
+<section id="na-shop-17" dir="rtl">
+<style>
+#na-shop-17 {
+  font-family:Tahoma,sans-serif;color:#f7f2ff;
+  background:linear-gradient(145deg,#0b0917,#1c1031);
+  border:1px solid #7140bd;border-radius:22px;
+  padding:22px;max-width:1000px;margin:25px auto;
+  box-shadow:0 0 35px #773cff1c;
+}
+#na-shop-17 * {box-sizing:border-box}
+#na-shop-17 h2 {margin:0 0 8px;color:#d0b0ff}
+#na-shop-17 .s17-muted {color:#b9aaca;font-size:12px;line-height:1.9}
+#na-shop-17 .s17-wallet {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;margin:20px 0;
+}
+#na-shop-17 .s17-wallet-card {
+  padding:15px;border-radius:13px;
+  background:#1b132c;border:1px solid #493064;
+}
+#na-shop-17 .s17-wallet-card small {
+  display:block;color:#b9aaca;font-size:11px;margin-bottom:8px;
+}
+#na-shop-17 .s17-wallet-card strong {font-size:18px}
+#na-shop-17 .s17-tabs {
+  display:flex;gap:8px;flex-wrap:wrap;margin:20px 0;
+}
+#na-shop-17 .s17-tab {
+  border:1px solid #50356e;background:#1c132b;color:#d9c6ff;
+  border-radius:10px;padding:10px 13px;cursor:pointer;font:inherit;
+}
+#na-shop-17 .s17-tab.active {
+  background:#8850db;color:white;border-color:#b38aff;
+}
+#na-shop-17 .s17-grid {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:13px;
+}
+#na-shop-17 .s17-item {
+  background:#171022;border:1px solid #382647;
+  border-radius:15px;padding:15px;min-width:0;
+  transition:transform .2s,border-color .2s;
+}
+#na-shop-17 .s17-item:hover {
+  transform:translateY(-3px);border-color:#9861e8;
+}
+#na-shop-17 .s17-art {
+  height:105px;display:grid;place-items:center;
+  background:radial-gradient(circle,#3b215d,#181024 70%);
+  border-radius:12px;font-size:47px;margin-bottom:13px;
+}
+#na-shop-17 .s17-item h3 {font-size:14px;margin:8px 0}
+#na-shop-17 .s17-rarity {
+  display:inline-block;padding:5px 8px;border-radius:7px;
+  background:#2d2040;color:#d7baff;font-size:10px;
+}
+#na-shop-17 .s17-price {
+  margin:14px 0;color:#e0c4ff;font-size:13px;font-weight:bold;
+}
+#na-shop-17 .s17-btn {
+  width:100%;padding:11px;border:0;border-radius:10px;
+  background:#9658ed;color:#fff;font-weight:bold;
+  font:inherit;cursor:pointer;
+}
+#na-shop-17 .s17-btn:hover {filter:brightness(1.12)}
+#na-shop-17 .s17-btn:disabled {
+  opacity:.55;cursor:not-allowed;
+}
+#na-shop-17 .s17-owned {
+  background:#17402e;color:#9ff5c8;
+}
+#na-shop-17 .s17-bottom {
+  margin-top:20px;padding:15px;border-radius:13px;
+  background:#171022;border:1px solid #382647;
+}
+#na-shop-17 .s17-bottom h3 {margin:0 0 12px;font-size:15px}
+#na-shop-17 .s17-inventory {
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+#na-shop-17 .s17-inventory-item {
+  background:#2a1b3d;border:1px solid #533773;
+  border-radius:9px;padding:9px 11px;font-size:12px;
+}
+#na-shop-17 .s17-message {
+  min-height:20px;color:#d4b5ff;font-size:12px;
+  margin-top:12px;line-height:1.8;
+}
+#na-shop-17 .s17-reset {
+  background:#30213f;border:1px solid #604278;
+  color:#e2d1f5;margin-top:10px;
+}
+@media(max-width:700px) {
+  #na-shop-17 .s17-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:440px) {
+  #na-shop-17 {padding:13px}
+  #na-shop-17 .s17-grid {grid-template-columns:1fr}
+  #na-shop-17 .s17-wallet-card {padding:10px 7px}
+  #na-shop-17 .s17-wallet-card strong {font-size:14px}
+}
+</style>
+
+<h2>🛒 فروشگاه NEON ARENA</h2>
+<p class="s17-muted">
+با امتیازهایت آیتم بخر، کلکسیون بساز و پروفایلت را خاص کن!
+</p>
+
+<div class="s17-wallet">
+  <div class="s17-wallet-card">
+    <small>🪙 سکه آزمایشی</small>
+    <strong id="s17-coins">۰</strong>
+  </div>
+  <div class="s17-wallet-card">
+    <small>⚡ امتیاز XP</small>
+    <strong id="s17-xp">۰</strong>
+  </div>
+  <div class="s17-wallet-card">
+    <small>🎁 آیتم‌های خریداری‌شده</small>
+    <strong id="s17-owned-count">۰</strong>
+  </div>
+</div>
+
+<div class="s17-tabs" id="s17-tabs">
+  <button class="s17-tab active" type="button" data-category="all">همه آیتم‌ها</button>
+  <button class="s17-tab" type="button" data-category="skin">اسکین‌ها</button>
+  <button class="s17-tab" type="button" data-category="avatar">آواتارها</button>
+  <button class="s17-tab" type="button" data-category="effect">افکت‌ها</button>
+</div>
+
+<div class="s17-grid" id="s17-grid"></div>
+
+<div class="s17-bottom">
+  <h3>🎒 کلکسیون من</h3>
+  <div class="s17-inventory" id="s17-inventory"></div>
+  <p class="s17-muted" id="s17-empty">هنوز آیتمی نخریده‌ای.</p>
+</div>
+
+<div class="s17-message" id="s17-message" role="status"></div>
+
+<button type="button" class="s17-btn s17-reset" id="s17-reset">
+  شروع دوباره فروشگاه آزمایشی
+</button>
+
+<p class="s17-muted">
+این فروشگاه آزمایشی است. سکه‌ها و XP آن مستقل از آمار واقعی سایت هستند.
+خریدها فقط در همین مرورگر ذخیره می‌شوند.
+</p>
+
+<script>
+(() => {
+  const root = document.getElementById('na-shop-17');
+  if (root.dataset.ready) return;
+  root.dataset.ready = '1';
+
+  const $ = id => root.querySelector('#' + id);
+  const KEY = 'neonArenaShop17';
+
+  const items = [
+    {id:'skin-neon',name:'Neon Warrior',icon:'⚔️',category:'skin',rarity:'حماسی',price:300},
+    {id:'skin-dragon',name:'Dragon Flame',icon:'🐉',category:'skin',rarity:'افسانه‌ای',price:500},
+    {id:'skin-ghost',name:'Ghost Mode',icon:'👻',category:'skin',rarity:'ویژه',price:250},
+    {id:'avatar-cyber',name:'Cyber Avatar',icon:'🤖',category:'avatar',rarity:'حماسی',price:180},
+    {id:'avatar-crown',name:'Royal Crown',icon:'👑',category:'avatar',rarity:'افسانه‌ای',price:400},
+    {id:'avatar-wolf',name:'Shadow Wolf',icon:'🐺',category:'avatar',rarity:'ویژه',price:220},
+    {id:'effect-lightning',name:'Lightning FX',icon:'⚡',category:'effect',rarity:'حماسی',price:350},
+    {id:'effect-fire',name:'Fire Aura',icon:'🔥',category:'effect',rarity:'افسانه‌ای',price:550},
+    {id:'effect-stars',name:'Star Trail',icon:'✨',category:'effect',rarity:'ویژه',price:200}
+  ];
+
+  function defaultState() {
+    return {
+      coins:1000,
+      xp:2500,
+      owned:[]
+    };
+  }
+
+  function loadState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (!saved || !Array.isArray(saved.owned) ||
+          !Number.isFinite(saved.coins) ||
+          !Number.isFinite(saved.xp) ||
+          saved.coins < 0 || saved.xp < 0) {
+        return defaultState();
+      }
+      return {
+        coins:Math.floor(saved.coins),
+        xp:Math.floor(saved.xp),
+        owned:[...new Set(saved.owned.filter(id =>
+          items.some(item => item.id === id)
+        ))]
+      };
+    } catch {
+      return defaultState();
+    }
+  }
+
+  let state = loadState();
+  let category = 'all';
+
+  function persist() {
+    try {
+      localStorage.setItem(KEY,JSON.stringify(state));
+      return true;
+    } catch {
+      $('s17-message').textContent =
+        'ذخیره‌سازی مرورگر ممکن نشد؛ فضای ذخیره‌سازی را بررسی کن.';
+      return false;
+    }
+  }
+
+  function make(tag,className,text) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  function renderWallet() {
+    $('s17-coins').textContent = state.coins.toLocaleString('fa-IR');
+    $('s17-xp').textContent = state.xp.toLocaleString('fa-IR');
+    $('s17-owned-count').textContent = state.owned.length.toLocaleString('fa-IR');
+  }
+
+  function renderInventory() {
+    const box = $('s17-inventory');
+    box.replaceChildren();
+
+    const owned = items.filter(item => state.owned.includes(item.id));
+    $('s17-empty').hidden = owned.length > 0;
+
+    owned.forEach(item => {
+      box.appendChild(make(
+        'span','s17-inventory-item',
+        item.icon + ' ' + item.name
+      ));
+    });
+  }
+
+  function renderItems() {
+    const box = $('s17-grid');
+    box.replaceChildren();
+
+    items.filter(item =>
+      category === 'all' || item.category === category
+    ).forEach(item => {
+      const owned = state.owned.includes(item.id);
+      const card = make('article','s17-item');
+
+      card.appendChild(make('div','s17-art',item.icon));
+      card.appendChild(make('span','s17-rarity',item.rarity));
+      card.appendChild(make('h3','',item.name));
+
+      const description = make('p','s17-muted',
+        item.category === 'skin' ? 'آیتم ظاهری گیمینگ' :
+        item.category === 'avatar' ? 'آواتار ویژه پروفایل' :
+        'افکت نمایشی ویژه'
+      );
+      card.appendChild(description);
+
+      card.appendChild(make(
+        'div','s17-price',
+        '🪙 ' + item.price.toLocaleString('fa-IR') + ' سکه'
+      ));
+
+      const button = make(
+        'button',
+        's17-btn' + (owned ? ' s17-owned' : ''),
+        owned ? '✅ خریداری شده' : 'خرید آیتم'
+      );
+      button.type = 'button';
+      button.disabled = owned;
+
+      button.addEventListener('click',() => {
+        if (state.owned.includes(item.id)) return;
+
+        if (state.coins < item.price) {
+          $('s17-message').textContent =
+            'سکه کافی نداری؛ این خرید انجام نشد.';
+          return;
+        }
+
+        const previous = {
+          coins:state.coins,
+          xp:state.xp,
+          owned:[...state.owned]
+        };
+
+        state.coins -= item.price;
+        state.owned.push(item.id);
+
+        if (!persist()) {
+          state = previous;
+          render();
+          return;
+        }
+
+        $('s17-message').textContent =
+          '🎉 ' + item.name + ' با موفقیت در نسخه آزمایشی خریداری شد!';
+
+        render();
+      });
+
+      card.appendChild(button);
+      box.appendChild(card);
+    });
+  }
+
+  function render() {
+    renderWallet();
+    renderItems();
+    renderInventory();
+
+    root.querySelectorAll('.s17-tab').forEach(button => {
+      const active = button.dataset.category === category;
+      button.classList.toggle('active',active);
+      button.setAttribute('aria-pressed',String(active));
+    });
+  }
+
+  $('s17-tabs').addEventListener('click',event => {
+    const button = event.target.closest('button[data-category]');
+    if (!button) return;
+    category = button.dataset.category;
+    render();
+  });
+
+  $('s17-reset').addEventListener('click',() => {
+    if (!confirm('موجودی آزمایشی و کلکسیون این بخش از اول شروع شود؟')) {
+      return;
+    }
+
+    const previous = state;
+    state = defaultState();
+
+    if (!persist()) {
+      state = previous;
+      render();
+      return;
+    }
+
+    $('s17-message').textContent =
+      'موجودی آزمایشی دوباره تنظیم شد.';
+    render();
+  });
+
+  render();
+})();
+</script>
+</section>
+<!-- END SECTION 17 -->
+
+<!-- NEON ARENA | SECTION 18: ADMIN PANEL -->
+<section id="na-admin-18" dir="rtl">
+<style>
+#na-admin-18 {
+  font-family:Tahoma,sans-serif;color:#f5f0ff;
+  background:linear-gradient(145deg,#0a0815,#1b1030);
+  border:1px solid #7542ce;border-radius:22px;
+  padding:22px;max-width:1000px;margin:25px auto;
+  box-shadow:0 0 35px #713cff20;
+}
+#na-admin-18 * {box-sizing:border-box}
+#na-admin-18 h2 {margin:0 0 9px;color:#d0b1ff}
+#na-admin-18 .a18-muted {color:#b9aaca;font-size:12px;line-height:1.9}
+#na-admin-18 .a18-login {
+  max-width:420px;margin:15px auto;padding:24px;
+  border:1px solid #50316e;border-radius:18px;
+  background:#171022;text-align:center;
+}
+#na-admin-18 .a18-logo {font-size:43px;margin-bottom:12px}
+#na-admin-18 input,
+#na-admin-18 select {
+  width:100%;min-width:0;padding:12px;margin:7px 0;
+  color:white;background:#0e0a19;border:1px solid #493260;
+  border-radius:10px;font:inherit;
+}
+#na-admin-18 button {
+  font:inherit;cursor:pointer;border:0;border-radius:10px;
+  padding:11px 14px;background:#9257ed;color:white;
+}
+#na-admin-18 button:disabled {opacity:.5;cursor:not-allowed}
+#na-admin-18 .a18-primary {width:100%;margin-top:9px;font-weight:bold}
+#na-admin-18 .a18-danger {background:#64253c;color:#ffdce7}
+#na-admin-18 .a18-secondary {background:#30213f;border:1px solid #594070}
+#na-admin-18 .a18-message {min-height:20px;color:#e0c6ff;font-size:12px;line-height:1.8;margin-top:10px}
+#na-admin-18 .a18-dashboard[hidden],
+#na-admin-18 .a18-login[hidden] {display:none}
+#na-admin-18 .a18-top {
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;flex-wrap:wrap;margin-bottom:18px;
+}
+#na-admin-18 .a18-stats {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;margin:18px 0;
+}
+#na-admin-18 .a18-stat {
+  background:#191128;border:1px solid #39264e;
+  border-radius:13px;padding:15px;
+}
+#na-admin-18 .a18-stat small {
+  display:block;color:#b9aaca;font-size:11px;margin-bottom:8px;
+}
+#na-admin-18 .a18-stat strong {font-size:22px;color:#d6b8ff}
+#na-admin-18 .a18-tabs {display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+#na-admin-18 .a18-tab.active {background:#6d40b5}
+#na-admin-18 .a18-panel {
+  padding:16px;border:1px solid #39264e;
+  border-radius:14px;background:#151020;margin-top:12px;
+}
+#na-admin-18 .a18-panel h3 {font-size:15px;margin:0 0 12px}
+#na-admin-18 .a18-form {
+  display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;
+}
+#na-admin-18 .a18-form input {margin:0}
+#na-admin-18 .a18-table-wrap {overflow-x:auto}
+#na-admin-18 table {width:100%;border-collapse:collapse;min-width:420px}
+#na-admin-18 th,#na-admin-18 td {
+  text-align:right;padding:12px 9px;
+  border-bottom:1px solid #34233f;font-size:12px;
+}
+#na-admin-18 th {color:#c9a9ff}
+#na-admin-18 .a18-status {
+  display:inline-block;padding:5px 8px;border-radius:7px;
+  background:#2a2040;color:#d7baff;
+}
+#na-admin-18 .a18-row-actions {display:flex;gap:6px;flex-wrap:wrap}
+#na-admin-18 .a18-row-actions button {padding:7px 9px;font-size:11px}
+#na-admin-18 .a18-empty {text-align:center;color:#b9aaca;padding:20px}
+#na-admin-18 .a18-warning {
+  padding:12px;border-radius:10px;background:#302312;
+  color:#ffe0a2;font-size:12px;line-height:1.9;margin-top:16px;
+}
+@media(max-width:600px) {
+  #na-admin-18 {padding:13px}
+  #na-admin-18 .a18-stats {grid-template-columns:1fr}
+  #na-admin-18 .a18-form {grid-template-columns:1fr}
+  #na-admin-18 .a18-form button {width:100%}
+}
+</style>
+
+<div class="a18-login" id="a18-login">
+  <div class="a18-logo">🔐</div>
+  <h2>NEON ADMIN</h2>
+  <p class="a18-muted">پنل مدیریت NEON ARENA</p>
+  <form id="a18-login-form">
+    <input id="a18-password" type="password"
+      placeholder="رمز ورود مدیر" autocomplete="current-password"
+      maxlength="100" required>
+    <button class="a18-primary" type="submit">ورود به پنل 👑</button>
+  </form>
+  <div class="a18-message" id="a18-login-message" role="status"></div>
+</div>
+
+<div class="a18-dashboard" id="a18-dashboard" hidden>
+  <div class="a18-top">
+    <div>
+      <h2>👑 پنل مدیریت</h2>
+      <p class="a18-muted">خوش اومدی مدیر NEON ARENA</p>
+    </div>
+    <button type="button" class="a18-secondary" id="a18-logout">
+      خروج از پنل
+    </button>
+  </div>
+
+  <div class="a18-stats">
+    <div class="a18-stat">
+      <small>🏆 تورنمنت‌ها</small>
+      <strong id="a18-count-tournaments">۰</strong>
+    </div>
+    <div class="a18-stat">
+      <small>👥 بازیکنان ثبت‌شده در نمونه</small>
+      <strong id="a18-count-players">۰</strong>
+    </div>
+    <div class="a18-stat">
+      <small>⚔️ مسابقات نمونه</small>
+      <strong id="a18-count-matches">۰</strong>
+    </div>
+  </div>
+
+  <div class="a18-tabs">
+    <button type="button" class="a18-tab active" data-tab="tournaments">🏆 تورنمنت‌ها</button>
+    <button type="button" class="a18-tab" data-tab="players">👥 بازیکنان</button>
+    <button type="button" class="a18-tab" data-tab="overview">📊 گزارش کلی</button>
+  </div>
+
+  <div class="a18-panel" id="a18-tournaments-panel">
+    <h3>مدیریت تورنمنت‌ها</h3>
+    <form id="a18-add-tournament" class="a18-form">
+      <input id="a18-new-tournament" maxlength="60"
+        placeholder="نام تورنمنت جدید" required>
+      <select id="a18-new-status">
+        <option value="ثبت‌نام آزاد">ثبت‌نام آزاد</option>
+        <option value="به‌زودی">به‌زودی</option>
+        <option value="پایان‌یافته">پایان‌یافته</option>
+      </select>
+      <button type="submit">افزودن</button>
+    </form>
+    <div class="a18-table-wrap">
+      <table>
+        <thead><tr><th>نام تورنمنت</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+        <tbody id="a18-tournament-rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="a18-panel" id="a18-players-panel" hidden>
+    <h3>مدیریت فهرست نمایشی بازیکنان</h3>
+    <form id="a18-add-player" class="a18-form">
+      <input id="a18-new-player" maxlength="40"
+        placeholder="نام بازیکن" required>
+      <select id="a18-player-role">
+        <option value="بازیکن">بازیکن</option>
+        <option value="مدیر">مدیر</option>
+      </select>
+      <button type="submit">افزودن</button>
+    </form>
+    <div class="a18-table-wrap">
+      <table>
+        <thead><tr><th>نام</th><th>نقش</th><th>عملیات</th></tr></thead>
+        <tbody id="a18-player-rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="a18-panel" id="a18-overview-panel" hidden>
+    <h3>📊 گزارش کلی</h3>
+    <p class="a18-muted" id="a18-report"></p>
+    <button type="button" class="a18-secondary" id="a18-export">
+      خروجی گرفتن از داده‌های نمایشی (JSON)
+    </button>
+    <div class="a18-message" id="a18-export-message" role="status"></div>
+  </div>
+
+  <div class="a18-warning">
+    ⚠️ این نسخه نمایشی است: رمز داخل کد قرار دارد و امنیت واقعی ندارد.
+    اطلاعات پنل محلی هستند و هیچ کاربری در Supabase مسدود یا مدیریت نمی‌شود.
+  </div>
+  <div class="a18-message" id="a18-message" role="status"></div>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('na-admin-18');
+  if (root.dataset.ready) return;
+  root.dataset.ready = '1';
+
+  const $ = id => root.querySelector('#' + id);
+  const ADMIN_PASSWORD = 'Admin1333';
+  const DATA_KEY = 'neonArenaAdmin18Data';
+
+  const initialData = {
+    tournaments: [
+      {id:1,name:'CS 1.6 Night Cup',status:'ثبت‌نام آزاد'},
+      {id:2,name:'Neon Duel',status:'ثبت‌نام آزاد'},
+      {id:3,name:'Weekend Cup',status:'به‌زودی'}
+    ],
+    players: [
+      {id:1,name:'Shadow',role:'بازیکن'},
+      {id:2,name:'NeonWolf',role:'بازیکن'},
+      {id:3,name:'DarkAce',role:'بازیکن'}
+    ],
+    matches:5,
+    nextId:4
+  };
+
+  function copyInitial() {
+    return JSON.parse(JSON.stringify(initialData));
+  }
+
+  function loadData() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DATA_KEY) || 'null');
+      if (!saved || !Array.isArray(saved.tournaments) ||
+          !Array.isArray(saved.players)) return copyInitial();
+
+      return {
+        tournaments:saved.tournaments,
+        players:saved.players,
+        matches:Number.isFinite(saved.matches) ? saved.matches : 0,
+        nextId:Number.isFinite(saved.nextId) ? saved.nextId : 100
+      };
+    } catch {
+      return copyInitial();
+    }
+  }
+
+  let data = loadData();
+
+  function persist() {
+    try {
+      localStorage.setItem(DATA_KEY,JSON.stringify(data));
+      return true;
+    } catch {
+      $('a18-message').textContent =
+        'ذخیره نشد؛ فضای ذخیره‌سازی مرورگر را بررسی کن.';
+      return false;
+    }
+  }
+
+  function make(tag,text) {
+    const el = document.createElement(tag);
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  function actionButton(text,className,callback) {
+    const button = make('button',text);
+    button.type = 'button';
+    if (className) button.className = className;
+    button.addEventListener('click',callback);
+    return button;
+  }
+
+  function login() {
+    $('a18-login').hidden = true;
+    $('a18-dashboard').hidden = false;
+    $('a18-login-message').textContent = '';
+    render();
+  }
+
+  function logout() {
+    $('a18-dashboard').hidden = true;
+    $('a18-login').hidden = false;
+    $('a18-password').value = '';
+    $('a18-message').textContent = '';
+    $('a18-password').focus();
+  }
+
+  $('a18-login-form').addEventListener('submit',event => {
+    event.preventDefault();
+
+    if ($('a18-password').value === ADMIN_PASSWORD) {
+      login();
+    } else {
+      $('a18-login-message').textContent = '❌ رمز ورود اشتباه است.';
+      $('a18-password').value = '';
+      $('a18-password').focus();
+    }
+  });
+
+  $('a18-logout').addEventListener('click',logout);
+
+  function renderTournaments() {
+    const tbody = $('a18-tournament-rows');
+    tbody.replaceChildren();
+
+    data.tournaments.forEach(tournament => {
+      const tr = make('tr');
+      const name = make('td',tournament.name);
+      const statusCell = make('td');
+      const status = make('span',tournament.status);
+      status.className = 'a18-status';
+      statusCell.appendChild(status);
+
+      const actions = make('td');
+      const group = make('div');
+      group.className = 'a18-row-actions';
+
+      const nextStatus = {
+        'ثبت‌نام آزاد':'به‌زودی',
+        'به‌زودی':'پایان‌یافته',
+        'پایان‌یافته':'ثبت‌نام آزاد'
+      };
+
+      group.appendChild(actionButton('تغییر وضعیت','',() => {
+        const old = tournament.status;
+        tournament.status = nextStatus[old] || 'ثبت‌نام آزاد';
+        if (!persist()) {
+          tournament.status = old;
+          return;
+        }
+        render();
+        $('a18-message').textContent = 'وضعیت تورنمنت در داده‌های محلی تغییر کرد.';
+      }));
+
+      group.appendChild(actionButton('حذف','a18-danger',() => {
+        if (!confirm('این تورنمنت نمایشی حذف شود؟')) return;
+        const old = data.tournaments;
+        data.tournaments = old.filter(t => t.id !== tournament.id);
+        if (!persist()) {
+          data.tournaments = old;
+          return;
+        }
+        render();
+      }));
+
+      actions.appendChild(group);
+      tr.append(name,statusCell,actions);
+      tbody.appendChild(tr);
+    });
+
+    if (!data.tournaments.length) {
+      const tr = make('tr');
+      const td = make('td','تورنمنتی وجود ندارد.');
+      td.colSpan = 3;
+      td.className = 'a18-empty';
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderPlayers() {
+    const tbody = $('a18-player-rows');
+    tbody.replaceChildren();
+
+    data.players.forEach(player => {
+      const tr = make('tr');
+      const name = make('td',player.name);
+      const role = make('td',player.role);
+      const actions = make('td');
+      const group = make('div');
+      group.className = 'a18-row-actions';
+
+      group.appendChild(actionButton('حذف','a18-danger',() => {
+        if (!confirm('این بازیکن نمایشی از فهرست حذف شود؟')) return;
+        const old = data.players;
+        data.players = old.filter(p => p.id !== player.id);
+        if (!persist()) {
+          data.players = old;
+          return;
+        }
+        render();
+      }));
+
+      actions.appendChild(group);
+      tr.append(name,role,actions);
+      tbody.appendChild(tr);
+    });
+
+    if (!data.players.length) {
+      const tr = make('tr');
+      const td = make('td','بازیکنی در فهرست نیست.');
+      td.colSpan = 3;
+      td.className = 'a18-empty';
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+  }
+
+  function render() {
+    $('a18-count-tournaments').textContent =
+      data.tournaments.length.toLocaleString('fa-IR');
+    $('a18-count-players').textContent =
+      data.players.length.toLocaleString('fa-IR');
+    $('a18-count-matches').textContent =
+      data.matches.toLocaleString('fa-IR');
+
+    $('a18-report').textContent =
+      'تعداد تورنمنت‌های نمایشی: ' + data.tournaments.length +
+      ' | تعداد بازیکنان نمایشی: ' + data.players.length +
+      ' | تعداد مسابقات نمونه: ' + data.matches +
+      '. این آمار از پایگاه داده واقعی دریافت نشده است.';
+
+    renderTournaments();
+    renderPlayers();
+  }
+
+  $('a18-add-tournament').addEventListener('submit',event => {
+    event.preventDefault();
+    const name = $('a18-new-tournament').value.trim();
+    if (!name) return;
+
+    const item = {
+      id:data.nextId++,
+      name,
+      status:$('a18-new-status').value
+    };
+    data.tournaments.push(item);
+
+    if (!persist()) {
+      data.tournaments.pop();
+      data.nextId--;
+      return;
+    }
+
+    $('a18-new-tournament').value = '';
+    $('a18-message').textContent = 'تورنمنت نمایشی اضافه شد.';
+    render();
+  });
+
+  $('a18-add-player').addEventListener('submit',event => {
+    event.preventDefault();
+    const name = $('a18-new-player').value.trim();
+    if (!name) return;
+
+    const player = {
+      id:data.nextId++,
+      name,
+      role:$('a18-player-role').value
+    };
+    data.players.push(player);
+
+    if (!persist()) {
+      data.players.pop();
+      data.nextId--;
+      return;
+    }
+
+    $('a18-new-player').value = '';
+    $('a18-message').textContent = 'بازیکن نمایشی اضافه شد.';
+    render();
+  });
+
+  root.querySelectorAll('.a18-tab').forEach(button => {
+    button.addEventListener('click',() => {
+      const tab = button.dataset.tab;
+
+      root.querySelectorAll('.a18-tab').forEach(b => {
+        b.classList.toggle('active',b === button);
+      });
+
+      ['tournaments','players','overview'].forEach(name => {
+        $('a18-' + name + '-panel').hidden = name !== tab;
+      });
+    });
+  });
+
+  $('a18-export').addEventListener('click',() => {
+    const json = JSON.stringify(data,null,2);
+    const blob = new Blob([json],{type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const link = make('a');
+    link.href = url;
+    link.download = 'neon-arena-demo-data.json';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    $('a18-export-message').textContent =
+      'خروجی اطلاعات نمایشی آماده شد.';
+  });
+
+  render();
+})();
+</script>
+</section>
+<!-- END SECTION 18 -->
+         
