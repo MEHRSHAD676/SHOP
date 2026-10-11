@@ -7809,4 +7809,361 @@
 </script>
 </section>
 <!-- END SECTION 18 -->
+
+<!-- NEON ARENA | SECTION 19: NOTIFICATION CENTER -->
+<section id="na-notifications-19" dir="rtl">
+<style>
+#na-notifications-19 {
+  font-family:Tahoma,sans-serif;
+  color:#f5f0ff;
+  background:linear-gradient(145deg,#0b0917,#1b1030);
+  border:1px solid #7140bd;
+  border-radius:22px;
+  padding:22px;
+  max-width:1000px;
+  margin:25px auto;
+  box-shadow:0 0 30px #713cff18;
+}
+#na-notifications-19 * {box-sizing:border-box}
+#na-notifications-19 h2 {margin:0 0 8px;color:#d0b0ff}
+#na-notifications-19 .n19-muted {
+  color:#b9aaca;font-size:12px;line-height:1.9;
+}
+#na-notifications-19 .n19-head {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;margin-bottom:18px;
+}
+#na-notifications-19 .n19-count {
+  display:inline-flex;align-items:center;gap:7px;
+  border:1px solid #654392;border-radius:20px;
+  background:#28183b;padding:8px 12px;
+  color:#dec9ff;font-size:12px;
+}
+#na-notifications-19 .n19-toolbar {
+  display:flex;gap:8px;flex-wrap:wrap;margin:18px 0;
+}
+#na-notifications-19 button {
+  font:inherit;cursor:pointer;border:0;border-radius:10px;
+  padding:10px 13px;background:#9257ed;color:#fff;
+}
+#na-notifications-19 .n19-secondary {
+  background:#2c203d;border:1px solid #51376c;
+}
+#na-notifications-19 .n19-filter.active {
+  background:#7542bf;border:1px solid #b08aff;
+}
+#na-notifications-19 .n19-list {display:grid;gap:10px}
+#na-notifications-19 .n19-card {
+  display:grid;grid-template-columns:48px minmax(0,1fr) auto;
+  align-items:start;gap:12px;padding:15px;
+  border:1px solid #382747;border-radius:14px;
+  background:#171022;
+}
+#na-notifications-19 .n19-card.unread {
+  border-color:#7650ad;background:#1d1230;
+}
+#na-notifications-19 .n19-icon {
+  width:45px;height:45px;display:grid;place-items:center;
+  background:#302044;border-radius:12px;font-size:23px;
+}
+#na-notifications-19 .n19-card h3 {
+  font-size:14px;margin:2px 0 8px;
+}
+#na-notifications-19 .n19-card p {
+  margin:0;color:#b9aaca;font-size:12px;line-height:1.9;
+  overflow-wrap:anywhere;
+}
+#na-notifications-19 .n19-time {
+  color:#9887b0;font-size:10px;margin-top:8px;
+}
+#na-notifications-19 .n19-actions {
+  display:flex;flex-direction:column;gap:7px;
+}
+#na-notifications-19 .n19-actions button {
+  font-size:10px;padding:8px;
+}
+#na-notifications-19 .n19-empty {
+  text-align:center;padding:28px;color:#b9aaca;
+  background:#171022;border-radius:12px;
+}
+#na-notifications-19 .n19-message {
+  min-height:20px;margin-top:12px;
+  font-size:12px;color:#d8c1ff;line-height:1.8;
+}
+#na-notifications-19 .n19-compose {
+  padding:16px;margin-top:22px;
+  border:1px solid #39264e;border-radius:14px;
+  background:#151020;
+}
+#na-notifications-19 .n19-compose h3 {
+  font-size:15px;margin:0 0 8px;
+}
+#na-notifications-19 input,
+#na-notifications-19 textarea,
+#na-notifications-19 select {
+  width:100%;min-width:0;padding:12px;margin:7px 0;
+  color:white;background:#0e0a19;
+  border:1px solid #493260;border-radius:10px;
+  font:inherit;
+}
+#na-notifications-19 textarea {resize:vertical;min-height:85px}
+#na-notifications-19 .n19-compose button {width:100%;margin-top:7px}
+@media(max-width:560px) {
+  #na-notifications-19 {padding:13px}
+  #na-notifications-19 .n19-card {
+    grid-template-columns:40px minmax(0,1fr);
+    gap:10px;padding:12px;
+  }
+  #na-notifications-19 .n19-icon {width:38px;height:38px;font-size:20px}
+  #na-notifications-19 .n19-actions {
+    grid-column:2;flex-direction:row;flex-wrap:wrap;
+  }
+}
+</style>
+
+<div class="n19-head">
+  <div>
+    <h2>🔔 مرکز اعلان‌ها</h2>
+    <p class="n19-muted">خبرهای مهم میدان رقابت رو از دست نده!</p>
+  </div>
+  <span class="n19-count">📩 خوانده‌نشده: <strong id="n19-unread">۰</strong></span>
+</div>
+
+<div class="n19-toolbar" id="n19-filters">
+  <button type="button" class="n19-filter active" data-filter="all">همه</button>
+  <button type="button" class="n19-filter n19-secondary" data-filter="unread">خوانده‌نشده</button>
+  <button type="button" class="n19-filter n19-secondary" data-filter="tournament">🏆 تورنمنت</button>
+  <button type="button" class="n19-filter n19-secondary" data-filter="system">⚙️ سیستم</button>
+  <button type="button" class="n19-secondary" id="n19-read-all">خواندن همه</button>
+</div>
+
+<div class="n19-list" id="n19-list"></div>
+<div class="n19-message" id="n19-message" role="status"></div>
+
+<div class="n19-compose">
+  <h3>✍️ ساخت اعلان آزمایشی</h3>
+  <p class="n19-muted">
+    برای آزمایش ظاهر و عملکرد مرکز پیام، اعلان جدید بساز.
+  </p>
+  <input id="n19-title" maxlength="70" placeholder="عنوان اعلان">
+  <textarea id="n19-body" maxlength="300" placeholder="متن اعلان"></textarea>
+  <select id="n19-category">
+    <option value="tournament">🏆 تورنمنت</option>
+    <option value="system">⚙️ سیستم</option>
+  </select>
+  <button type="button" id="n19-add">➕ ثبت اعلان آزمایشی</button>
+</div>
+
+<p class="n19-muted">
+  اعلان‌های این نسخه فقط در همین مرورگر ذخیره می‌شوند و هنوز به
+  سیستم اعلان آنلاین یا پنل مدیر واقعی متصل نیستند.
+</p>
+
+<script>
+(() => {
+  const root = document.getElementById('na-notifications-19');
+  if (root.dataset.ready) return;
+  root.dataset.ready = '1';
+
+  const $ = id => root.querySelector('#' + id);
+  const KEY = 'neonArenaNotifications19';
+
+  const initial = [
+    {
+      id:1,title:'به NEON ARENA خوش آمدی!',
+      body:'پروفایلت رو تکمیل کن و برای رقابت‌های بعدی آماده شو.',
+      category:'system',read:false,createdAt:Date.now()
+    },
+    {
+      id:2,title:'تورنمنت CS 1.6 Night Cup',
+      body:'بخش تورنمنت‌ها رو بررسی کن تا از وضعیت ثبت‌نام باخبر بشی.',
+      category:'tournament',read:false,createdAt:Date.now()-60000
+    },
+    {
+      id:3,title:'فروشگاه آیتم‌ها آماده است',
+      body:'از فروشگاه بازدید کن و آیتم‌های نمایشی رو بررسی کن.',
+      category:'system',read:true,createdAt:Date.now()-120000
+    }
+  ];
+
+  function load() {
+    try {
+      const value = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (Array.isArray(value)) {
+        return value.filter(n =>
+          n && Number.isFinite(n.id) &&
+          typeof n.title === 'string' &&
+          typeof n.body === 'string' &&
+          ['system','tournament'].includes(n.category) &&
+          typeof n.read === 'boolean'
+        ).slice(0,100);
+      }
+    } catch {}
+    return initial.map(n => ({...n}));
+  }
+
+  let notifications = load();
+  let filter = 'all';
+  let nextId = Math.max(0,...notifications.map(n => n.id))+1;
+
+  function save() {
+    try {
+      localStorage.setItem(KEY,JSON.stringify(notifications));
+      return true;
+    } catch {
+      $('n19-message').textContent =
+        'ذخیره‌سازی ممکن نشد؛ فضای مرورگر را بررسی کن.';
+      return false;
+    }
+  }
+
+  function timeLabel(timestamp) {
+    const minutes = Math.max(0,Math.floor((Date.now()-timestamp)/60000));
+    if (minutes < 1) return 'همین الان';
+    if (minutes < 60) return minutes + ' دقیقه پیش';
+    const hours = Math.floor(minutes/60);
+    if (hours < 24) return hours + ' ساعت پیش';
+    return Math.floor(hours/24) + ' روز پیش';
+  }
+
+  function make(tag,className,text) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  function render() {
+    $('n19-unread').textContent =
+      notifications.filter(n => !n.read).length.toLocaleString('fa-IR');
+
+    const list = $('n19-list');
+    list.replaceChildren();
+
+    const visible = notifications.filter(n => {
+      if (filter === 'unread') return !n.read;
+      if (filter === 'all') return true;
+      return n.category === filter;
+    });
+
+    if (!visible.length) {
+      list.appendChild(make('div','n19-empty','اعلانی برای نمایش وجود ندارد.'));
+    }
+
+    visible.forEach(n => {
+      const card = make('article','n19-card' + (n.read ? '' : ' unread'));
+      const icon = make('div','n19-icon',
+        n.category === 'tournament' ? '🏆' : '⚙️');
+
+      const content = make('div');
+      content.appendChild(make('h3','',n.title));
+      content.appendChild(make('p','',n.body));
+      content.appendChild(make('div','n19-time',timeLabel(n.createdAt)));
+
+      const actions = make('div','n19-actions');
+
+      if (!n.read) {
+        actions.appendChild(makeButton('خواندم','',() => {
+          const old = n.read;
+          n.read = true;
+          if (!save()) {
+            n.read = old;
+            return;
+          }
+          render();
+        }));
+      }
+
+      actions.appendChild(makeButton('حذف','n19-secondary',() => {
+        const old = notifications;
+        notifications = notifications.filter(x => x.id !== n.id);
+        if (!save()) {
+          notifications = old;
+          return;
+        }
+        render();
+      }));
+
+      card.append(icon,content,actions);
+      list.appendChild(card);
+    });
+
+    root.querySelectorAll('.n19-filter').forEach(button => {
+      const active = button.dataset.filter === filter;
+      button.classList.toggle('active',active);
+      button.classList.toggle('n19-secondary',!active);
+      button.setAttribute('aria-pressed',String(active));
+    });
+  }
+
+  function makeButton(label,className,callback) {
+    const button = make('button',className,label);
+    button.type = 'button';
+    button.addEventListener('click',callback);
+    return button;
+  }
+
+  $('n19-filters').addEventListener('click',event => {
+    const button = event.target.closest('button[data-filter]');
+    if (!button) return;
+    filter = button.dataset.filter;
+    render();
+  });
+
+  $('n19-read-all').addEventListener('click',() => {
+    const old = notifications.map(n => n.read);
+    notifications.forEach(n => n.read = true);
+    if (!save()) {
+      notifications.forEach((n,i) => n.read = old[i]);
+      return;
+    }
+    $('n19-message').textContent = 'همه اعلان‌ها خوانده شدند.';
+    render();
+  });
+
+  $('n19-add').addEventListener('click',() => {
+    const title = $('n19-title').value.trim();
+    const body = $('n19-body').value.trim();
+    const category = $('n19-category').value;
+
+    if (!title || !body) {
+      $('n19-message').textContent = 'عنوان و متن اعلان رو وارد کن.';
+      return;
+    }
+
+    if (notifications.length >= 100) {
+      $('n19-message').textContent =
+        'برای جلوگیری از بزرگ شدن اطلاعات، حداکثر ۱۰۰ اعلان نگهداری می‌شود.';
+      return;
+    }
+
+    const notification = {
+      id:nextId++,
+      title,
+      body,
+      category,
+      read:false,
+      createdAt:Date.now()
+    };
+
+    notifications.unshift(notification);
+
+    if (!save()) {
+      notifications = notifications.filter(n => n.id !== notification.id);
+      nextId--;
+      return;
+    }
+
+    $('n19-title').value = '';
+    $('n19-body').value = '';
+    filter = 'all';
+    $('n19-message').textContent = 'اعلان آزمایشی اضافه شد.';
+    render();
+  });
+
+  render();
+})();
+</script>
+</section>
+<!-- END SECTION 19 -->
          
