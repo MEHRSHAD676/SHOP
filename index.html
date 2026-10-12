@@ -470,6 +470,61 @@
       }
     }
   </style>
+
+  <style id="neon-arena-menu-admin-update">
+    /* One compact hamburger menu on desktop and mobile */
+    .navbar .nav-inner { position: relative; }
+    .navbar .nav-links {
+      display: none !important;
+      position: absolute !important;
+      z-index: 9999;
+      top: calc(100% + 12px);
+      inset-inline-end: 0;
+      inset-inline-start: auto;
+      width: min(340px, calc(100vw - 28px));
+      max-height: min(72vh, 560px);
+      overflow-y: auto;
+      padding: 12px !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 4px !important;
+      background: #10090b;
+      border: 1px solid rgba(255,48,72,.38);
+      border-radius: 16px;
+      box-shadow: 0 18px 55px #000b, 0 0 28px #ff30481c;
+    }
+    .navbar .nav-links.active { display: flex !important; }
+    .navbar .nav-links a {
+      display: block;
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: #f5e9eb;
+    }
+    .navbar .nav-links a:hover,
+    .navbar .nav-links a:focus-visible {
+      background: #2a0c12;
+      color: #ff6879;
+      outline: none;
+    }
+    .navbar .menu-toggle {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 44px;
+      min-width: 44px;
+      line-height: 1;
+      border: 1px solid rgba(255,48,72,.4) !important;
+      background: #17090c !important;
+      color: #fff !important;
+      box-shadow: 0 0 18px #ff30481a;
+    }
+    .navbar .nav-actions > .btn { display: none !important; }
+    #na-admin-18[hidden] { display: none !important; }
+    @media (max-width: 850px) {
+      .navbar .nav-links { top: calc(100% + 8px); }
+    }
+  </style>
+
 </head>
 
 <body>
@@ -486,6 +541,10 @@
         <a href="#tournaments">تورنمنت‌ها</a>
         <a href="#leaderboard">رتبه‌بندی</a>
         <a href="#register">ثبت‌نام تیم</a>
+        <a href="#match-center">مرکز مسابقه</a>
+        <a href="#match-rooms">روم‌های مسابقه</a>
+        <a href="#na-chat">چت زنده</a>
+        <a href="#na-admin-18" id="adminMenuLink">🔐 پنل مدیریت</a>
       </nav>
 
       <div class="nav-actions">
@@ -2835,23 +2894,37 @@
         if (menuToggle && navLinks) {
           menuToggle.setAttribute("aria-expanded", "false");
 
+          function closeMainMenu() {
+            navLinks.classList.remove("active");
+            menuToggle.setAttribute("aria-expanded", "false");
+          }
+
           menuToggle.addEventListener("click", function () {
             const isOpen = navLinks.classList.toggle("active");
             menuToggle.setAttribute("aria-expanded", String(isOpen));
+            menuToggle.setAttribute("aria-label", isOpen ? "بستن منو" : "باز کردن منو");
           });
 
           navLinks.querySelectorAll("a").forEach(function (link) {
-            link.addEventListener("click", function () {
-              navLinks.classList.remove("active");
-              menuToggle.setAttribute("aria-expanded", "false");
+            link.addEventListener("click", function (event) {
+              closeMainMenu();
+              if (link.id === "adminMenuLink") {
+                event.preventDefault();
+                const adminSection = document.getElementById("na-admin-18");
+                if (adminSection) {
+                  adminSection.hidden = false;
+                  adminSection.scrollIntoView({behavior: "smooth", block: "start"});
+                }
+              }
             });
           });
 
+          document.addEventListener("click", function (event) {
+            if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) closeMainMenu();
+          });
+
           document.addEventListener("keydown", function (event) {
-            if (event.key === "Escape") {
-              navLinks.classList.remove("active");
-              menuToggle.setAttribute("aria-expanded", "false");
-            }
+            if (event.key === "Escape") closeMainMenu();
           });
         }
 
@@ -7387,33 +7460,33 @@
 <!-- END SECTION 17 -->
 
 <!-- NEON ARENA | SECTION 18: ADMIN PANEL -->
-<section id="na-admin-18" dir="rtl">
+<section id="na-admin-18" dir="rtl" hidden>
 <style>
 #na-admin-18 {
-  font-family:Tahoma,sans-serif;color:#f5f0ff;
-  background:linear-gradient(145deg,#0a0815,#1b1030);
-  border:1px solid #7542ce;border-radius:22px;
+  font-family:Tahoma,sans-serif;color:#f5f0f0;
+  background:linear-gradient(145deg,#090708,#1b090d);
+  border:1px solid #6f1827;border-radius:22px;
   padding:22px;max-width:1000px;margin:25px auto;
   box-shadow:0 0 35px #713cff20;
 }
 #na-admin-18 * {box-sizing:border-box}
-#na-admin-18 h2 {margin:0 0 9px;color:#d0b1ff}
+#na-admin-18 h2 {margin:0 0 9px;color:#ff7b8b}
 #na-admin-18 .a18-muted {color:#b9aaca;font-size:12px;line-height:1.9}
 #na-admin-18 .a18-login {
   max-width:420px;margin:15px auto;padding:24px;
   border:1px solid #50316e;border-radius:18px;
-  background:#171022;text-align:center;
+  background:#15090c;text-align:center;
 }
 #na-admin-18 .a18-logo {font-size:43px;margin-bottom:12px}
 #na-admin-18 input,
 #na-admin-18 select {
   width:100%;min-width:0;padding:12px;margin:7px 0;
-  color:white;background:#0e0a19;border:1px solid #493260;
+  color:white;background:#0b0708;border:1px solid #57202a;
   border-radius:10px;font:inherit;
 }
 #na-admin-18 button {
   font:inherit;cursor:pointer;border:0;border-radius:10px;
-  padding:11px 14px;background:#9257ed;color:white;
+  padding:11px 14px;background:#c51f37;color:white;
 }
 #na-admin-18 button:disabled {opacity:.5;cursor:not-allowed}
 #na-admin-18 .a18-primary {width:100%;margin-top:9px;font-weight:bold}
@@ -7480,10 +7553,13 @@
   <h2>NEON ADMIN</h2>
   <p class="a18-muted">پنل مدیریت NEON ARENA</p>
   <form id="a18-login-form">
-    <input id="a18-password" type="password"
-      placeholder="رمز ورود مدیر" autocomplete="current-password"
+    <input id="a18-email" type="email" dir="ltr"
+      placeholder="ایمیل حساب مدیر Supabase" autocomplete="username"
+      maxlength="180" required>
+    <input id="a18-password" type="password" dir="ltr"
+      placeholder="رمز عبور حساب مدیر" autocomplete="current-password"
       maxlength="100" required>
-    <button class="a18-primary" type="submit">ورود به پنل 👑</button>
+    <button class="a18-primary" type="submit">ورود امن به پنل 👑</button>
   </form>
   <div class="a18-message" id="a18-login-message" role="status"></div>
 </div>
@@ -7569,8 +7645,8 @@
   </div>
 
   <div class="a18-warning">
-    ⚠️ این نسخه نمایشی است: رمز داخل کد قرار دارد و امنیت واقعی ندارد.
-    اطلاعات پنل محلی هستند و هیچ کاربری در Supabase مسدود یا مدیریت نمی‌شود.
+    ورود پنل با Supabase Auth بررسی می‌شود و فقط حسابی که در جدول امن neon_admins ثبت شده باشد اجازه ورود دارد.
+    داده‌های این داشبورد فعلاً نمونه و محلی هستند؛ برای مدیریت داده‌های واقعی باید جدول‌های اصلی و سیاست‌های RLS هم تنظیم شوند.
   </div>
   <div class="a18-message" id="a18-message" role="status"></div>
 </div>
@@ -7582,7 +7658,9 @@
   root.dataset.ready = '1';
 
   const $ = id => root.querySelector('#' + id);
-  const ADMIN_PASSWORD = 'Admin1333';
+  const ADMIN_SUPABASE_URL = 'https://zbwcfhlhzbljhuflkctw.supabase.co';
+  const ADMIN_SUPABASE_KEY = 'sb_publishable_nUBsv40eRwB8JgncQCTzWA_AisKU0Ux';
+  const adminDb = window.supabase ? window.supabase.createClient(ADMIN_SUPABASE_URL, ADMIN_SUPABASE_KEY) : null;
   const DATA_KEY = 'neonArenaAdmin18Data';
 
   const initialData = {
@@ -7648,34 +7726,78 @@
     return button;
   }
 
+  function showLoginMessage(text) {
+    $('a18-login-message').textContent = text;
+  }
+
   function login() {
+    root.hidden = false;
     $('a18-login').hidden = true;
     $('a18-dashboard').hidden = false;
     $('a18-login-message').textContent = '';
     render();
   }
 
-  function logout() {
+  async function logout() {
+    if (adminDb) await adminDb.auth.signOut();
     $('a18-dashboard').hidden = true;
     $('a18-login').hidden = false;
     $('a18-password').value = '';
     $('a18-message').textContent = '';
-    $('a18-password').focus();
+    root.hidden = true;
   }
 
-  $('a18-login-form').addEventListener('submit',event => {
-    event.preventDefault();
+  async function verifyAdminSession() {
+    if (!adminDb) return;
+    try {
+      const {data: sessionResult, error: sessionError} = await adminDb.auth.getSession();
+      if (sessionError || !sessionResult.session) return;
+      const userId = sessionResult.session.user.id;
+      const {data: adminRow, error: adminError} = await adminDb
+        .from('neon_admins').select('user_id').eq('user_id', userId).maybeSingle();
+      if (!adminError && adminRow) login();
+      else await adminDb.auth.signOut();
+    } catch (_) {
+      // Keep the dashboard closed if authorization cannot be confirmed.
+    }
+  }
 
-    if ($('a18-password').value === ADMIN_PASSWORD) {
-      login();
-    } else {
-      $('a18-login-message').textContent = '❌ رمز ورود اشتباه است.';
+  $('a18-login-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    const submit = $('a18-login-form').querySelector('button[type="submit"]');
+    const raw = $('a18-password').value.trim();
+    const email = $('a18-email') ? $('a18-email').value.trim() : '';
+    if (!adminDb) {
+      showLoginMessage('اتصال احراز هویت بارگذاری نشد؛ اینترنت را بررسی کن.');
+      return;
+    }
+    if (!email || !raw) {
+      showLoginMessage('ایمیل و رمز عبور اکانت مدیر را وارد کن.');
+      return;
+    }
+    submit.disabled = true;
+    showLoginMessage('در حال بررسی دسترسی مدیر…');
+    try {
+      const {data: authData, error: authError} = await adminDb.auth.signInWithPassword({email, password: raw});
+      if (authError) throw authError;
+      const {data: adminRow, error: adminError} = await adminDb
+        .from('neon_admins').select('user_id').eq('user_id', authData.user.id).maybeSingle();
+      if (adminError || !adminRow) {
+        await adminDb.auth.signOut();
+        throw new Error('این حساب در فهرست مدیران مجاز نیست.');
+      }
       $('a18-password').value = '';
-      $('a18-password').focus();
+      login();
+    } catch (error) {
+      showLoginMessage('ورود ناموفق: ' + (error.message || 'دسترسی تأیید نشد.') + ' اگر جدول neon_admins ساخته نشده، SQL راهنما را اجرا کن.');
+      $('a18-password').value = '';
+    } finally {
+      submit.disabled = false;
     }
   });
 
   $('a18-logout').addEventListener('click',logout);
+  verifyAdminSession();
 
   function renderTournaments() {
     const tbody = $('a18-tournament-rows');
