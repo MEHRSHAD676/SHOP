@@ -641,6 +641,10 @@
           <button class="filter-btn" data-filter="CS2">CS2</button>
           <button class="filter-btn" data-filter="Valorant">Valorant</button>
           <button class="filter-btn" data-filter="Dota 2">Dota 2</button>
+          <button class="filter-btn" data-filter="Minecraft">Minecraft</button>
+          <button class="filter-btn" data-filter="PUBG Mobile">PUBG Mobile</button>
+          <button class="filter-btn" data-filter="Call of Duty: Mobile">Call of Duty Mobile</button>
+          <button class="filter-btn" data-filter="Free Fire">Free Fire</button>
         </div>
 
         <div class="tournament-grid" id="tournamentGrid">
@@ -757,6 +761,63 @@
             </div>
           </article>
 
+          <article class="tournament-card" data-game="PUBG Mobile">
+            <div class="tournament-cover cover-pubg-mobile">
+              <span class="cover-icon">🪂</span>
+              <span class="cover-label">MOBILE BATTLE ROYALE</span>
+              <span class="game-tag">PUBG MOBILE</span>
+            </div>
+            <div class="tournament-info">
+              <div class="tournament-status"><span class="status-dot"></span> ثبت‌نام آزمایشی</div>
+              <h3>Neon Drop Zone</h3>
+              <p class="tournament-description">برای رقابت موبایلی، تیمت رو ثبت کن؛ بخش‌های قدیمی هم فعال می‌مونن.</p>
+              <div class="tournament-meta">
+                <div><span>👥</span><span>تیمی</span></div>
+                <div><span>📱</span><span>موبایل</span></div>
+                <div><span>🏆</span><span>آزمایشی</span></div>
+              </div>
+              <a class="btn btn-primary tournament-join" href="#register" data-game-select="PUBG Mobile">ثبت تیم برای PUBG Mobile ↗</a>
+            </div>
+          </article>
+
+          <article class="tournament-card" data-game="Call of Duty: Mobile">
+            <div class="tournament-cover cover-cod-mobile">
+              <span class="cover-icon">🎯</span>
+              <span class="cover-label">MOBILE FPS</span>
+              <span class="game-tag">COD MOBILE</span>
+            </div>
+            <div class="tournament-info">
+              <div class="tournament-status"><span class="status-dot"></span> ثبت‌نام آزمایشی</div>
+              <h3>Mobile Strike Ops</h3>
+              <p class="tournament-description">بازیکن‌ها و تیم‌های Call of Duty Mobile می‌تونن درخواست رقابت بفرستن.</p>
+              <div class="tournament-meta">
+                <div><span>👥</span><span>تیمی</span></div>
+                <div><span>📱</span><span>موبایل</span></div>
+                <div><span>🏆</span><span>آزمایشی</span></div>
+              </div>
+              <a class="btn btn-primary tournament-join" href="#register" data-game-select="Call of Duty: Mobile">ثبت تیم برای COD Mobile ↗</a>
+            </div>
+          </article>
+
+          <article class="tournament-card" data-game="Free Fire">
+            <div class="tournament-cover cover-free-fire">
+              <span class="cover-icon">🔥</span>
+              <span class="cover-label">MOBILE SURVIVAL</span>
+              <span class="game-tag">FREE FIRE</span>
+            </div>
+            <div class="tournament-info">
+              <div class="tournament-status"><span class="status-dot"></span> ثبت‌نام آزمایشی</div>
+              <h3>Free Fire Rush</h3>
+              <p class="tournament-description">بازی رو انتخاب کن و درخواست تیم Free Fire رو از فرم ثبت‌نام بفرست.</p>
+              <div class="tournament-meta">
+                <div><span>👥</span><span>تیمی</span></div>
+                <div><span>📱</span><span>موبایل</span></div>
+                <div><span>🏆</span><span>آزمایشی</span></div>
+              </div>
+              <a class="btn btn-primary tournament-join" href="#register" data-game-select="Free Fire">ثبت تیم برای Free Fire ↗</a>
+            </div>
+          </article>
+
         </div>
 
         <p class="demo-disclaimer">
@@ -869,6 +930,18 @@
 
       .cover-dota {
         background: linear-gradient(125deg, #78350f, #29203e 60%, #111827);
+      }
+
+      .cover-pubg-mobile {
+        background: linear-gradient(125deg, #854d0e, #422006 60%, #111827);
+      }
+
+      .cover-cod-mobile {
+        background: linear-gradient(125deg, #334155, #1e293b 60%, #7f1d1d);
+      }
+
+      .cover-free-fire {
+        background: linear-gradient(125deg, #c2410c, #7f1d1d 60%, #1f2937);
       }
 
       .cover-icon {
@@ -1646,6 +1719,9 @@
                   <option value="Valorant">Valorant</option>
                   <option value="Dota 2">Dota 2</option>
                   <option value="Minecraft">Minecraft</option>
+                  <option value="PUBG Mobile">PUBG Mobile</option>
+                  <option value="Call of Duty: Mobile">Call of Duty: Mobile</option>
+                  <option value="Free Fire">Free Fire</option>
                 </select>
               </div>
 
@@ -2022,7 +2098,10 @@
           "CS2",
           "Valorant",
           "Dota 2",
-          "Minecraft"
+          "Minecraft",
+          "PUBG Mobile",
+          "Call of Duty: Mobile",
+          "Free Fire"
         ];
 
         form.addEventListener("submit", async function (event) {
@@ -2075,10 +2154,14 @@
           } catch (error) {
             console.error("Supabase error:", error);
 
-            showMessage(
-              "ثبت‌نام انجام نشد. وجود جدول، نام ستون‌ها، اتصال پروژه و سیاست INSERT در RLS را بررسی کن.",
-              "error"
-            );
+            const errorCode = error && error.code ? String(error.code) : "";
+            if (errorCode === "42P01" || errorCode === "PGRST205") {
+              showMessage("ثبت‌نام هنوز تنظیم نشده: جدول ثبت‌نام در Supabase پیدا نشد. فایل SQL همراه سایت را در SQL Editor اجرا کن.", "error");
+            } else if (errorCode === "42501") {
+              showMessage("ثبت‌نام به‌دلیل مجوزهای دیتابیس انجام نشد. فایل SQL همراه سایت را در SQL Editor اجرا کن.", "error");
+            } else {
+              showMessage("ثبت‌نام انجام نشد. اتصال Supabase و ستون‌های جدول را بررسی کن؛ جزئیات خطا در Console مرورگر ثبت شده است.", "error");
+            }
           } finally {
             submitButton.disabled = false;
             submitButton.querySelector("span").textContent =
@@ -2102,7 +2185,7 @@
           <article class="dashboard-stat">
             <span class="dashboard-stat-icon">🎮</span>
             <span class="dashboard-stat-label">بازی‌های قابل انتخاب</span>
-            <strong>۵</strong>
+            <strong>۸</strong>
             <small>در فرم ثبت‌نام</small>
           </article>
 
