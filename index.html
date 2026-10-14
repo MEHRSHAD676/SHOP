@@ -7283,7 +7283,7 @@
   <p class="a18-muted">پنل مدیریت NEON ARENA</p>
   <form id="a18-login-form">
     <input id="a18-email" type="email" dir="ltr"
-      placeholder="ایمیل حساب مدیر Supabase" autocomplete="username"
+      placeholder="ایمیل مدیر" autocomplete="username"
       maxlength="180" required>
     <input id="a18-password" type="password" dir="ltr"
       placeholder="رمز عبور حساب مدیر" autocomplete="current-password"
@@ -7374,8 +7374,7 @@
   </div>
 
   <div class="a18-warning">
-    ورود پنل با Supabase Auth بررسی می‌شود و فقط حسابی که در جدول امن neon_admins ثبت شده باشد اجازه ورود دارد.
-    داده‌های این داشبورد فعلاً نمونه و محلی هستند؛ برای مدیریت داده‌های واقعی باید جدول‌های اصلی و سیاست‌های RLS هم تنظیم شوند.
+    ورود این نسخه با اطلاعاتی که داخل کد سایت تعریف شده بررسی می‌شود. اطلاعات پنل در همین مرورگر ذخیره می‌شوند و این روش برای سایت عمومی امن نیست.
   </div>
   <div class="a18-message" id="a18-message" role="status"></div>
 </div>
@@ -7387,9 +7386,10 @@
   root.dataset.ready = '1';
 
   const $ = id => root.querySelector('#' + id);
-  const ADMIN_SUPABASE_URL = 'https://zbwcfhlhzbljhuflkctw.supabase.co';
-  const ADMIN_SUPABASE_KEY = 'sb_publishable_nUBsv40eRwB8JgncQCTzWA_AisKU0Ux';
-  const adminDb = window.supabase ? window.supabase.createClient(ADMIN_SUPABASE_URL, ADMIN_SUPABASE_KEY) : null;
+  // ورود ساده و محلی ادمین؛ هر کسی سورس HTML را ببیند می‌تواند این مقادیر را پیدا کند.
+  // برای سایت عمومی/اطلاعات حساس، احراز هویت سمت سرور لازم است.
+  const ADMIN_EMAIL = 'mehrshadmlk57@gmail.com';
+  const ADMIN_PASSWORD = 'N3on!Arena_7Kp#42';
   const DATA_KEY = 'neonArenaAdmin18Data';
 
   const initialData = {
@@ -7468,7 +7468,6 @@
   }
 
   async function logout() {
-    if (adminDb) await adminDb.auth.signOut();
     $('a18-dashboard').hidden = true;
     $('a18-login').hidden = false;
     $('a18-password').value = '';
@@ -7476,53 +7475,24 @@
     root.hidden = true;
   }
 
-  async function verifyAdminSession() {
-    if (!adminDb) return;
-    try {
-      const {data: sessionResult, error: sessionError} = await adminDb.auth.getSession();
-      if (sessionError || !sessionResult.session) return;
-      const userId = sessionResult.session.user.id;
-      const {data: adminRow, error: adminError} = await adminDb
-        .from('neon_admins').select('user_id').eq('user_id', userId).maybeSingle();
-      if (!adminError && adminRow) login();
-      else await adminDb.auth.signOut();
-    } catch (_) {
-      // Keep the dashboard closed if authorization cannot be confirmed.
-    }
+  function verifyAdminSession() {
+    // در این نسخه ورود قبلی به‌صورت خودکار حفظ نمی‌شود.
   }
 
-  $('a18-login-form').addEventListener('submit', async event => {
+  $('a18-login-form').addEventListener('submit', event => {
     event.preventDefault();
     const submit = $('a18-login-form').querySelector('button[type="submit"]');
     const raw = $('a18-password').value.trim();
-    const email = $('a18-email') ? $('a18-email').value.trim() : '';
-    if (!adminDb) {
-      showLoginMessage('اتصال احراز هویت بارگذاری نشد؛ اینترنت را بررسی کن.');
-      return;
-    }
-    if (!email || !raw) {
-      showLoginMessage('ایمیل و رمز عبور اکانت مدیر را وارد کن.');
-      return;
-    }
+    const email = $('a18-email') ? $('a18-email').value.trim().toLowerCase() : '';
     submit.disabled = true;
-    showLoginMessage('در حال بررسی دسترسی مدیر…');
-    try {
-      const {data: authData, error: authError} = await adminDb.auth.signInWithPassword({email, password: raw});
-      if (authError) throw authError;
-      const {data: adminRow, error: adminError} = await adminDb
-        .from('neon_admins').select('user_id').eq('user_id', authData.user.id).maybeSingle();
-      if (adminError || !adminRow) {
-        await adminDb.auth.signOut();
-        throw new Error('این حساب در فهرست مدیران مجاز نیست.');
-      }
+    if (email === ADMIN_EMAIL.toLowerCase() && raw === ADMIN_PASSWORD) {
       $('a18-password').value = '';
       login();
-    } catch (error) {
-      showLoginMessage('ورود ناموفق: ' + (error.message || 'دسترسی تأیید نشد.') + ' اگر جدول neon_admins ساخته نشده، SQL راهنما را اجرا کن.');
+    } else {
+      showLoginMessage('ایمیل یا رمز عبور اشتباه است.');
       $('a18-password').value = '';
-    } finally {
-      submit.disabled = false;
     }
+    submit.disabled = false;
   });
 
   $('a18-logout').addEventListener('click',logout);
