@@ -525,6 +525,23 @@
     }
   </style>
 
+
+<style id="neon-arena-next-update">
+:root{scroll-behavior:smooth}
+@keyframes naGlowPulse{0%,100%{box-shadow:0 0 10px rgba(0,245,255,.12)}50%{box-shadow:0 0 24px rgba(0,245,255,.28)}}
+@keyframes naRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes naNeonBorder{0%,100%{border-color:rgba(0,245,255,.25)}50%{border-color:rgba(255,45,149,.6)}}
+.tournament-card,.feature-card,.game-card,.na-card{animation:naRise .55s ease both}
+.tournament-card:hover,.feature-card:hover,.game-card:hover{transform:translateY(-5px);filter:brightness(1.08);transition:transform .22s ease,filter .22s ease}
+.btn-primary,button{transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
+.btn-primary:hover,button:hover{filter:brightness(1.08)}
+#na-chat{animation:naGlowPulse 5s ease-in-out infinite}
+#na-chat .na-message{animation:naRise .25s ease both}
+#na-chat .na-status{animation:naNeonBorder 3s ease-in-out infinite}
+#na-chat .na-input:focus,#na-chat textarea:focus{box-shadow:0 0 0 3px rgba(0,245,255,.1),0 0 18px rgba(0,245,255,.12)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+</style>
+
 </head>
 
 <body>
@@ -5134,7 +5151,7 @@
       <div style="color:#aebdd5;font-size:13px;line-height:2">
         <div>💬 پیام‌های اخیر: <strong id="naChatTotal">۰</strong></div>
         <div>🛡️ پیام حداکثر ۳۰۰ کاراکتر</div>
-        <div>⚡ دریافت زنده با Supabase</div>
+        <div>⚡ چت زنده در صورت اتصال سرور؛ در غیر این صورت حالت محلی مرورگر</div>
       </div>
 
       <p class="na-help">
@@ -5169,6 +5186,39 @@
   let lastSentAt = 0;
   let messageCount = 0;
   const seenIds = new Set();
+  const LOCAL_CHAT_KEY = "neonArenaLocalChatMessagesV1";
+  let localChatMode = false;
+
+  function readLocalMessages() {
+    try {
+      const rows = JSON.parse(localStorage.getItem(LOCAL_CHAT_KEY) || "[]");
+      return Array.isArray(rows) ? rows.slice(-MAX_MESSAGES) : [];
+    } catch (_) { return []; }
+  }
+
+  function startLocalChat(reason) {
+    localChatMode = true;
+    client = null;
+    messagesEl.replaceChildren();
+    seenIds.clear();
+    messageCount = 0;
+    const rows = readLocalMessages();
+    if (rows.length) rows.forEach(addMessage);
+    else {
+      const empty = document.createElement("div");
+      empty.className = "na-empty";
+      empty.textContent = "چت محلی آماده است؛ اولین پیام رو بفرست! 🎮";
+      messagesEl.appendChild(empty);
+    }
+    setStatus("چت محلی همین مرورگر", true);
+    if (reason) showAlert("Supabase استفاده نمی‌شود. پیام‌ها فقط در همین مرورگر ذخیره می‌شوند و بین دستگاه‌های مختلف همگام نیستند.");
+  }
+
+  window.addEventListener("storage", event => {
+    if (event.key !== LOCAL_CHAT_KEY || !localChatMode) return;
+    const rows = readLocalMessages();
+    rows.forEach(addMessage);
+  });
 
   function showAlert(message) {
     alertEl.textContent = message;
@@ -5277,8 +5327,7 @@
 
   async function startChat() {
     if (!window.supabase || !window.supabase.createClient) {
-      setStatus("کتابخانه بارگذاری نشد", false);
-      showAlert("کتابخانه Supabase پیدا نشد. اتصال اینترنت و اسکریپت Supabase را بررسی کن.");
+      startLocalChat(true);
       return;
     }
 
@@ -5295,6 +5344,7 @@
       messagesEl.appendChild(empty);
       showAlert("در Supabase بخش SQL را اجرا کن. جزئیات خطا در Console مرورگر قابل مشاهده است.");
       console.error("NEON chat load error:", error);
+      startLocalChat(true);
       return;
     }
 
@@ -5342,8 +5392,8 @@
     event.preventDefault();
     clearAlert();
 
-    if (!client || !connected) {
-      showAlert("چت هنوز متصل نیست. تنظیمات Supabase را بررسی کن.");
+    if (!connected) {
+      showAlert("چت در دسترس نیست؛ صفحه را دوباره بارگذاری کن.");
       return;
     }
 
@@ -5374,19 +5424,25 @@
     sendBtn.textContent = "در حال ارسال...";
 
     try {
-      const { error } = await client
-        .from("arena_chat_messages")
-        .insert([{ nickname, message }]);
-
-      if (error) throw error;
-
+      if (localChatMode || !client) {
+        const rows = readLocalMessages();
+        const row = { id: "local-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7), nickname, message, created_at: new Date().toISOString() };
+        rows.push(row);
+        localStorage.setItem(LOCAL_CHAT_KEY, JSON.stringify(rows.slice(-MAX_MESSAGES)));
+        addMessage(row);
+      } else {
+        const { error } = await client
+          .from("arena_chat_messages")
+          .insert([{ nickname, message }]);
+        if (error) throw error;
+      }
       lastSentAt = Date.now();
       textEl.value = "";
       updateCount();
       clearAlert();
     } catch (error) {
       console.error("NEON chat send error:", error);
-      showAlert("پیام ارسال نشد. اتصال، مجوزهای جدول و تنظیمات Supabase را بررسی کن.");
+      showAlert("پیام ذخیره نشد؛ امکان ذخیره‌سازی مرورگر را بررسی کن.");
     } finally {
       sending = false;
       sendBtn.disabled = false;
