@@ -8372,251 +8372,109 @@ body{background:radial-gradient(ellipse at 10% 0%,#8b001d24,transparent 36%),rad
 <!-- END SECTION 25 -->
 
 <!-- NEON ARENA - SECTION 26: ONLINE ROOMS -->
-<section id="na-online-rooms-26" dir="rtl">
-  <style>
-    #na-online-rooms-26 {
-      max-width: 1000px;
-      margin: 16px auto;
-      padding: 12px;
-      color: #f5f5ff;
-      font-family: inherit;
-      box-sizing: border-box;
-    }
-
-    #na-online-rooms-26 * { box-sizing: border-box; }
-
-    #na-online-rooms-26 .na26-card {
-      padding: 18px;
-      border: 1px solid #29314d;
-      border-radius: 18px;
-      background: #0c1020;
-    }
-
-    #na-online-rooms-26 h2 {
-      margin: 0 0 8px;
-      font-size: 22px;
-    }
-
-    #na-online-rooms-26 .na26-desc {
-      color: #a8b1cb;
-      font-size: 13px;
-      line-height: 1.9;
-      margin: 0 0 16px;
-    }
-
-    #na-online-rooms-26 .na26-field {
-      width: 100%;
-      min-height: 45px;
-      border: 1px solid #343b59;
-      border-radius: 11px;
-      padding: 12px;
-      background: #151b2e;
-      color: white;
-      font: inherit;
-      font-size: 14px;
-      outline: none;
-    }
-
-    #na-online-rooms-26 .na26-field:focus {
-      border-color: #ff7886;
-    }
-
-    #na-online-rooms-26 .na26-actions {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 9px;
-      margin-top: 10px;
-    }
-
-    #na-online-rooms-26 .na26-btn {
-      min-width: 0;
-      min-height: 45px;
-      padding: 11px;
-      border: 1px solid #343b59;
-      border-radius: 11px;
-      background: #191f35;
-      color: white;
-      font: inherit;
-      font-size: 13px;
-      font-weight: 800;
-      cursor: pointer;
-      touch-action: manipulation;
-      overflow-wrap: anywhere;
-    }
-
-    #na-online-rooms-26 .na26-primary {
-      background: linear-gradient(110deg, #ff1f3d, #a30e25);
-      border: none;
-    }
-
-    #na-online-rooms-26 .na26-status {
-      margin-top: 14px;
-      padding: 13px;
-      border: 1px solid #303854;
-      border-radius: 12px;
-      background: #151b2e;
-      color: #cbd5e1;
-      font-size: 13px;
-      line-height: 1.9;
-      overflow-wrap: anywhere;
-    }
-
-    #na-online-rooms-26 .na26-small {
-      margin-top: 12px;
-      color: #929db8;
-      font-size: 11px;
-      line-height: 1.9;
-    }
-
-    @media(max-width:480px) {
-      #na-online-rooms-26 { padding: 7px; }
-      #na-online-rooms-26 .na26-card { padding: 13px; }
-      #na-online-rooms-26 .na26-actions { grid-template-columns: 1fr; }
-    }
-  </style>
-
-  <div class="na26-card">
-    <h2>🎮 ONLINE ROOM CENTER</h2>
-    <p class="na26-desc">
-      مرکز روم‌های NEON ARENA. ساخت و ورود آنلاین واقعی به اتصال
-      دیتابیس و تنظیمات امن سرور نیاز دارد.
-    </p>
-
-    <label for="na26-room-code" style="display:block;margin-bottom:7px;font-size:13px">
-      کد روم
-    </label>
-
-    <input
-      id="na26-room-code"
-      class="na26-field"
-      type="text"
-      maxlength="32"
-      autocomplete="off"
-      placeholder="کد روم را وارد کن"
-    />
-
-    <div class="na26-actions">
-      <button type="button" id="na26-create" class="na26-btn na26-primary">
-        ＋ ساخت روم آنلاین
-      </button>
-
-      <button type="button" id="na26-join" class="na26-btn">
-        ↗ ورود به روم
-      </button>
-
-      <button type="button" id="na26-copy" class="na26-btn">
-        📋 کپی کد روم
-      </button>
-
-      <button type="button" id="na26-refresh" class="na26-btn">
-        🔄 بررسی اتصال
-      </button>
+<section id="na-online-rooms-26" dir="rtl" aria-labelledby="na26-title">
+<style>
+#na-online-rooms-26{--r:#ff304b;--bg:#0b080a;--panel:#171014;--line:#49202a;max-width:1120px;margin:24px auto;padding:14px;color:#fff;font-family:inherit;box-sizing:border-box}
+#na-online-rooms-26 *{box-sizing:border-box}#na-online-rooms-26 .na26-shell{border:1px solid var(--line);border-radius:22px;padding:clamp(14px,3vw,28px);background:radial-gradient(ellipse at top left,#351019 0,transparent 45%),linear-gradient(145deg,#120b0e,#090809);box-shadow:0 18px 55px #0007}
+#na-online-rooms-26 .na26-kicker{color:#ff7385;font-size:12px;font-weight:900;letter-spacing:1px}#na-online-rooms-26 h2{margin:7px 0;font-size:clamp(24px,4vw,34px)}#na-online-rooms-26 .na26-desc{color:#c5b4b8;line-height:1.9;font-size:13px;margin:0 0 18px}
+#na-online-rooms-26 .na26-status{border:1px solid #58303a;background:#1d1116;border-radius:12px;padding:12px 14px;color:#f4dbe0;font-size:13px;line-height:1.9;margin:14px 0;overflow-wrap:anywhere}#na-online-rooms-26 .na26-status[data-kind="ok"]{border-color:#27674b;background:#0d2018;color:#c8f8df}#na-online-rooms-26 .na26-status[data-kind="warn"]{border-color:#755b24;background:#211b0e;color:#ffedbd}
+#na-online-rooms-26 .na26-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}#na-online-rooms-26 .na26-tab,#na-online-rooms-26 .na26-btn{border:1px solid #59303a;border-radius:11px;padding:11px 14px;background:#211318;color:#fff;font:inherit;font-size:13px;font-weight:800;cursor:pointer;min-height:42px}#na-online-rooms-26 .na26-tab[aria-selected="true"],#na-online-rooms-26 .na26-primary{background:linear-gradient(120deg,#ff304b,#a50e29);border-color:#ff5268;box-shadow:0 5px 18px #ff304b2b}
+#na-online-rooms-26 .na26-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}#na-online-rooms-26 .na26-panel{background:#130d10;border:1px solid #3d222a;border-radius:16px;padding:16px;min-width:0}#na-online-rooms-26 h3{margin:0 0 12px;font-size:17px}#na-online-rooms-26 .na26-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#na-online-rooms-26 .na26-form .na26-wide{grid-column:1/-1}#na-online-rooms-26 .na26-field{width:100%;min-width:0;min-height:44px;border:1px solid #50303a;border-radius:10px;padding:11px;background:#0d090b;color:#fff;font:inherit;font-size:13px}#na-online-rooms-26 .na26-field:focus{outline:2px solid #ff5268;outline-offset:1px}#na-online-rooms-26 .na26-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}#na-online-rooms-26 .na26-list{display:grid;gap:9px}#na-online-rooms-26 .na26-item{border:1px solid #3e242c;background:#1a1014;border-radius:12px;padding:12px;display:grid;gap:7px;min-width:0}#na-online-rooms-26 .na26-item strong{font-size:14px}#na-online-rooms-26 .na26-meta{color:#c6aeb4;font-size:12px;line-height:1.8;overflow-wrap:anywhere}#na-online-rooms-26 .na26-empty{border:1px dashed #59303a;border-radius:12px;padding:16px;text-align:center;color:#bca8ad;font-size:13px;line-height:1.8}#na-online-rooms-26 .na26-code{font-family:ui-monospace,monospace;letter-spacing:2px;color:#ff8090;font-weight:900}#na-online-rooms-26 .na26-hidden{display:none!important}#na-online-rooms-26 .na26-note{font-size:11px;color:#a9949a;line-height:1.9;margin:12px 0 0}
+@media(max-width:700px){#na-online-rooms-26 .na26-grid{grid-template-columns:1fr}}@media(max-width:440px){#na-online-rooms-26{padding:7px}#na-online-rooms-26 .na26-form{grid-template-columns:1fr}#na-online-rooms-26 .na26-form .na26-wide{grid-column:auto}#na-online-rooms-26 .na26-btn,#na-online-rooms-26 .na26-tab{flex:1 1 auto}}
+</style>
+<div class="na26-shell">
+  <span class="na26-kicker">NEON ARENA // ROOMS & TOURNAMENTS</span>
+  <h2 id="na26-title">اتاق بساز؛ وارد رقابت شو <span style="color:#ff304b">⚔️</span></h2>
+  <p class="na26-desc">ساخت اتاق با کد اختصاصی، پیوستن به اتاق دوستان و ایجاد مسابقه و ثبت‌نام بازیکن‌ها. با تنظیم دیتابیس، اطلاعات بین دستگاه‌ها همگام می‌شود.</p>
+  <div id="na26-status" class="na26-status" role="status" aria-live="polite">در حال بررسی اتصال…</div>
+  <div class="na26-tabs" role="tablist" aria-label="بخش رقابت">
+    <button class="na26-tab" type="button" role="tab" aria-selected="true" data-panel="rooms">🎮 اتاق‌ها</button>
+    <button class="na26-tab" type="button" role="tab" aria-selected="false" data-panel="tournaments">🏆 مسابقات</button>
+  </div>
+  <div id="na26-rooms-panel" class="na26-grid">
+    <div class="na26-panel"><h3>＋ ساخت اتاق</h3>
+      <form id="na26-create-room" class="na26-form">
+        <input class="na26-field na26-wide" id="na26-room-title" maxlength="60" required placeholder="نام اتاق؛ مثلاً رنک شبانه">
+        <select class="na26-field" id="na26-room-game" required><option value="">انتخاب بازی</option><option>PUBG Mobile</option><option>Call of Duty Mobile</option><option>Free Fire</option><option>eFootball</option><option>Counter-Strike 1.6</option></select>
+        <select class="na26-field" id="na26-room-size"><option value="2">۲ بازیکن</option><option value="4" selected>۴ بازیکن</option><option value="5">۵ بازیکن</option><option value="10">۱۰ بازیکن</option><option value="20">۲۰ بازیکن</option></select>
+        <input class="na26-field na26-wide" id="na26-room-host" maxlength="32" required placeholder="نام بازیکن / میزبان">
+        <button class="na26-btn na26-primary na26-wide" type="submit">ساخت اتاق و دریافت کد</button>
+      </form>
+      <p class="na26-note">کد اتاق را برای دوستت بفرست. در حالت محلی فقط همین دستگاه آن را می‌بیند.</p>
     </div>
-
-    <div id="na26-status" class="na26-status" aria-live="polite">
-      برای شروع، اتصال Supabase سایت باید بررسی شود.
+    <div class="na26-panel"><h3>↗ پیوستن به اتاق</h3>
+      <form id="na26-join-room" class="na26-form">
+        <input class="na26-field na26-wide" id="na26-room-code" maxlength="10" required autocomplete="off" placeholder="کد اتاق را وارد کن">
+        <input class="na26-field na26-wide" id="na26-join-name" maxlength="32" required placeholder="نام بازیکن">
+        <button class="na26-btn na26-primary na26-wide" type="submit">بررسی کد و پیوستن</button>
+      </form>
+      <div id="na26-joined-room" class="na26-item na26-hidden" style="margin-top:12px"></div>
+      <p class="na26-note">این بخش برای هماهنگی بازیکن‌هاست و به‌تنهایی بازی را میزبانی نمی‌کند.</p>
     </div>
-
-    <div class="na26-small">
-      این پنل تا وقتی اتصال واقعی و توابع امن سرور تنظیم نشده باشند،
-      روم جعلی نمی‌سازد و کد آزمایشی را به‌عنوان روم آنلاین نمایش نمی‌دهد.
+    <div class="na26-panel" style="grid-column:1/-1"><h3>اتاق‌های در دسترس</h3><div id="na26-room-list" class="na26-list"><div class="na26-empty">هنوز اتاقی ساخته نشده.</div></div></div>
+  </div>
+  <div id="na26-tournaments-panel" class="na26-hidden">
+    <div class="na26-grid">
+      <div class="na26-panel"><h3>🏆 ایجاد مسابقه</h3>
+        <form id="na26-create-tournament" class="na26-form">
+          <input class="na26-field na26-wide" id="na26-tournament-title" maxlength="70" required placeholder="نام مسابقه">
+          <select class="na26-field" id="na26-tournament-game" required><option value="">انتخاب بازی</option><option>PUBG Mobile</option><option>Call of Duty Mobile</option><option>Free Fire</option><option>eFootball</option><option>Counter-Strike 1.6</option></select>
+          <select class="na26-field" id="na26-tournament-mode"><option>انفرادی</option><option>دو نفره</option><option>تیمی</option></select>
+          <input class="na26-field" id="na26-tournament-host" maxlength="32" required placeholder="نام برگزارکننده">
+          <input class="na26-field" id="na26-tournament-prize" maxlength="50" placeholder="جایزه (اختیاری)">
+          <label class="na26-wide" style="font-size:12px;color:#d8c0c6">زمان شروع (اختیاری)<input class="na26-field" id="na26-tournament-time" type="datetime-local" style="display:block;margin-top:7px"></label>
+          <button class="na26-btn na26-primary na26-wide" type="submit">ایجاد مسابقه</button>
+        </form>
+      </div>
+      <div class="na26-panel"><h3>🛡️ ثبت‌نام در مسابقه</h3>
+        <form id="na26-enter-tournament" class="na26-form">
+          <select class="na26-field na26-wide" id="na26-tournament-select" required><option value="">اول مسابقه را انتخاب کن</option></select>
+          <input class="na26-field na26-wide" id="na26-tournament-player" maxlength="32" required placeholder="نام بازیکن / تیم">
+          <button class="na26-btn na26-primary na26-wide" type="submit">ثبت‌نام</button>
+        </form>
+        <p class="na26-note">این نسخه ثبت‌نام و هماهنگی مسابقه را مدیریت می‌کند؛ نتیجه بازی باید توسط برگزارکننده تأیید شود.</p>
+      </div>
+      <div class="na26-panel" style="grid-column:1/-1"><h3>مسابقات فعال</h3><div id="na26-tournament-list" class="na26-list"><div class="na26-empty">هنوز مسابقه‌ای ساخته نشده.</div></div></div>
     </div>
   </div>
-
-  <script>
-    (() => {
-      const root = document.getElementById('na-online-rooms-26');
-      if (!root || root.dataset.ready === '1') return;
-      root.dataset.ready = '1';
-
-      const $ = id => root.querySelector('#' + id);
-      const codeInput = $('na26-room-code');
-      const status = $('na26-status');
-
-      function getClient() {
-        const client = window.supabaseClient || window.supabase;
-
-        if (!client || typeof client.from !== 'function') {
-          return null;
-        }
-
-        return client;
-      }
-
-      function setStatus(message) {
-        status.textContent = message;
-      }
-
-      function checkConnection() {
-        const client = getClient();
-
-        if (client) {
-          setStatus(
-            'کلاینت Supabase پیدا شد؛ اما وجود کلاینت به‌تنهایی اتصال شبکه، ' +
-            'جدول روم‌ها یا مجوز ساخت و ورود را تأیید نمی‌کند. ' +
-            'برای فعال‌سازی واقعی باید ساختار دیتابیس بررسی شود.'
-          );
-        } else {
-          setStatus(
-            'کلاینت Supabase شناسایی نشد. نام متغیر اتصال را در کد اصلی ' +
-            'بررسی کن. هنوز هیچ روم آنلاینی ساخته یا وارد نشده است.'
-          );
-        }
-      }
-
-      $('na26-create').addEventListener('click', () => {
-        setStatus(
-          'ساخت روم هنوز فعال نشده؛ باید جدول روم‌ها و تابع امن ساخت روم ' +
-          'در Supabase مطابق ساختار واقعی پروژه تنظیم شوند.'
-        );
-      });
-
-      $('na26-join').addEventListener('click', () => {
-        const code = codeInput.value.trim();
-
-        if (!code) {
-          setStatus('اول کد رومی را وارد کن.');
-          codeInput.focus();
-          return;
-        }
-
-        setStatus(
-          'کد وارد شد؛ برای بررسی عضویت باید تابع امن ورود و مجوزهای ' +
-          'Supabase تنظیم شوند. هنوز وارد هیچ رومی نشده‌ای.'
-        );
-      });
-
-      $('na26-copy').addEventListener('click', async () => {
-        const code = codeInput.value.trim();
-
-        if (!code) {
-          setStatus('کدی برای کپی وجود ندارد.');
-          return;
-        }
-
-        try {
-          if (!navigator.clipboard || !window.isSecureContext) {
-            throw new Error('clipboard unavailable');
-          }
-
-          await navigator.clipboard.writeText(code);
-          setStatus('کد روم کپی شد.');
-        } catch (_) {
-          codeInput.focus();
-          codeInput.select();
-
-          setStatus(
-            'کپی خودکار در این مرورگر در دسترس نیست؛ کد انتخاب شده و ' +
-            'می‌توانی با گزینه Copy آن را کپی کنی.'
-          );
-        }
-      });
-
-      $('na26-refresh').addEventListener('click', checkConnection);
-
-      checkConnection();
-    })();
-  </script>
+  <p class="na26-note">وضعیت آنلاین: اگر اتصال و جدول‌های Supabase تنظیم باشند، اطلاعات بین کاربران همگام می‌شود؛ در غیر این صورت سایت به حالت محلی همین مرورگر برمی‌گردد. برای آنلاین‌سازی، فایل SQL همراه ZIP را در SQL Editor پروژه Supabase اجرا کن.</p>
+</div>
+<script>
+(()=>{
+ const root=document.getElementById('na-online-rooms-26'); if(!root||root.dataset.v4Ready)return; root.dataset.v4Ready='1';
+ const $=id=>root.querySelector('#'+id), status=$('na26-status');
+ const URL='https://zbwcfhlhzbljhuflkctw.supabase.co';
+ const KEY='sb_publishable_nUBsv40eRwB8JgncQCTzWA_AisKU0Ux';
+ const RK='neonArenaRoomsV4', TK='neonArenaTournamentsV4', EK='neonArenaTournamentEntriesV4';
+ let db=null, online=false, rooms=[], tournaments=[], entries=[];
+ const read=(key)=>{try{const x=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(x)?x:[]}catch(_){return []}};
+ const save=(key,data)=>{try{localStorage.setItem(key,JSON.stringify(data));return true}catch(_){return false}};
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const setStatus=(msg,kind='')=>{status.textContent=msg;status.dataset.kind=kind};
+ const code=()=>Math.random().toString(36).slice(2,8).toUpperCase();
+ const dateText=v=>{if(!v)return 'زمان اعلام نشده';const d=new Date(v);return isNaN(d)?String(v):d.toLocaleString('fa-IR',{dateStyle:'medium',timeStyle:'short'});};
+ async function boot(){
+   rooms=read(RK); tournaments=read(TK); entries=read(EK);
+   try{if(window.supabase&&typeof window.supabase.createClient==='function'){db=window.supabase.createClient(URL,KEY);const probe=await db.from('na_rooms').select('id').limit(1);if(!probe.error){online=true;await loadOnline();setStatus('اتصال دیتابیس برقرار است؛ اتاق‌ها و مسابقات از Supabase خوانده می‌شوند.','ok');setupRealtime();}else{setStatus('اتصال Supabase پیدا شد اما جدول‌های نسخه جدید هنوز آماده نیستند. فایل neon-arena-rooms.sql را اجرا کن؛ فعلاً حالت محلی فعال است.','warn');}}else{setStatus('حالت محلی فعال است. برای همگام‌سازی بین دستگاه‌ها، فایل SQL همراه ZIP را در Supabase اجرا کن.','warn');}}catch(e){setStatus('اتصال آنلاین کامل نشد؛ حالت محلی همین مرورگر فعال است. فایل SQL و اتصال اینترنت را بررسی کن.','warn');}
+   renderRooms();renderTournaments();
+ }
+ async function loadOnline(){
+   const [r,t,e]=await Promise.all([db.from('na_rooms').select('*').eq('status','open').order('created_at',{ascending:false}).limit(100),db.from('na_tournaments').select('*').order('created_at',{ascending:false}).limit(100),db.from('na_tournament_entries').select('*').limit(500)]);
+   if(r.error||t.error||e.error)throw new Error('Tables not ready'); rooms=r.data||[];tournaments=t.data||[];entries=e.data||[];
+ }
+ function setupRealtime(){try{db.channel('na-v4-rooms-tournaments').on('postgres_changes',{event:'*',schema:'public',table:'na_rooms'},()=>refresh()).on('postgres_changes',{event:'*',schema:'public',table:'na_tournaments'},()=>refresh()).on('postgres_changes',{event:'*',schema:'public',table:'na_tournament_entries'},()=>refresh()).subscribe();}catch(_){}}
+ async function refresh(){if(online){try{await loadOnline()}catch(_){online=false;setStatus('همگام‌سازی قطع شد؛ اطلاعات محلی نمایش داده می‌شود.','warn')}}renderRooms();renderTournaments();}
+ function item(title,meta,extra=''){const el=document.createElement('article');el.className='na26-item';const h=document.createElement('strong');h.textContent=title;const m=document.createElement('div');m.className='na26-meta';m.textContent=meta;el.append(h,m);if(extra){const x=document.createElement('div');x.className='na26-meta';x.textContent=extra;el.append(x)}return el;}
+ function renderRooms(){const list=$('na26-room-list');list.replaceChildren();if(!rooms.length){const e=document.createElement('div');e.className='na26-empty';e.textContent='هنوز اتاقی ساخته نشده؛ اولین اتاق را بساز!';list.append(e);return;}rooms.forEach(r=>{const card=item(r.title||'اتاق NEON',`${r.game||'بازی نامشخص'} · میزبان: ${r.host_name||'ناشناس'} · ظرفیت: ${r.max_players||4}`,`کد اتاق: ${r.code} · ${online?'آنلاین':'محلی'}`);const line=document.createElement('div');line.className='na26-actions';const join=document.createElement('button');join.type='button';join.className='na26-btn na26-primary';join.textContent='پیوستن با این کد';join.addEventListener('click',()=>{$('na26-room-code').value=r.code;$('na26-join-name').focus();$('na26-join-room').scrollIntoView({behavior:'smooth',block:'center'});});const copy=document.createElement('button');copy.type='button';copy.className='na26-btn';copy.textContent='کپی کد';copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(r.code);setStatus('کد اتاق کپی شد.','ok')}catch(_){$('na26-room-code').value=r.code;$('na26-room-code').select();setStatus('کد در کادر ورود قرار گرفت؛ آن را کپی کن.','warn')}});line.append(join,copy);card.append(line);list.append(card);});}
+ function renderTournaments(){const list=$('na26-tournament-list'),select=$('na26-tournament-select'),old=select.value;list.replaceChildren();select.replaceChildren();const opt=document.createElement('option');opt.value='';opt.textContent='انتخاب مسابقه';select.append(opt);if(!tournaments.length){const e=document.createElement('div');e.className='na26-empty';e.textContent='هنوز مسابقه‌ای ساخته نشده؛ از فرم بالا مسابقه بساز.';list.append(e);}tournaments.forEach(t=>{const id=String(t.id??t.local_id);const o=document.createElement('option');o.value=id;o.textContent=`${t.title} — ${t.game}`;select.append(o);const count=entries.filter(x=>String(x.tournament_id??x.local_tournament_id)===id).length;const card=item(t.title,`${t.game} · ${t.mode||'انفرادی'} · برگزارکننده: ${t.host_name||'ناشناس'}`,`شروع: ${dateText(t.start_at)} · ثبت‌نام: ${count}${t.prize?' · جایزه: '+t.prize:''} · ${online?'آنلاین':'محلی'}`);list.append(card);});if([...select.options].some(o=>o.value===old))select.value=old;}
+ root.querySelectorAll('[data-panel]').forEach(btn=>btn.addEventListener('click',()=>{const isRooms=btn.dataset.panel==='rooms';root.querySelectorAll('[data-panel]').forEach(b=>b.setAttribute('aria-selected',String(b===btn)));$('na26-rooms-panel').classList.toggle('na26-hidden',!isRooms);$('na26-tournaments-panel').classList.toggle('na26-hidden',isRooms);}));
+ $('na26-create-room').addEventListener('submit',async e=>{e.preventDefault();const title=$('na26-room-title').value.trim(),game=$('na26-room-game').value,host=$('na26-room-host').value.trim(),max=Number($('na26-room-size').value);if(!title||!game||!host)return;const payload={code:code(),title,game,host_name:host,max_players:max,status:'open'};if(online){const {data,error}=await db.from('na_rooms').insert(payload).select('*').single();if(error){setStatus('ساخت آنلاین اتاق ناموفق بود. مجوزهای جدول na_rooms را بررسی کن؛ هیچ اتاقی ثبت نشد.','warn');return;}rooms.unshift(data);setStatus(`اتاق آنلاین ساخته شد؛ کد ورود: ${data.code}`,'ok');}else{payload.local_id=Date.now().toString(36);payload.created_at=new Date().toISOString();rooms.unshift(payload);if(!save(RK,rooms)){setStatus('ذخیره‌سازی مرورگر در دسترس نیست.','warn');return;}setStatus(`اتاق در همین مرورگر ساخته شد؛ کد ورود: ${payload.code}. برای دیدن از دستگاه دیگر، دیتابیس را تنظیم کن.`,'warn');}renderRooms();e.target.reset();$('na26-room-size').value='4';});
+ $('na26-join-room').addEventListener('submit',async e=>{e.preventDefault();const c=$('na26-room-code').value.trim().toUpperCase(),name=$('na26-join-name').value.trim();if(!c||!name)return;let room=rooms.find(r=>String(r.code).toUpperCase()===c);if(online&&!room){const {data,error}=await db.from('na_rooms').select('*').eq('code',c).eq('status','open').maybeSingle();if(error){setStatus('بررسی کد اتاق ناموفق بود؛ جدول و سیاست‌های Supabase را بررسی کن.','warn');return;}room=data;}if(!room){setStatus('این کد پیدا نشد. اگر اتاق روی دستگاه دیگری ساخته شده، اتصال آنلاین و SQL را بررسی کن.','warn');return;}if(online){const {error}=await db.from('na_room_members').insert({room_id:room.id,player_name:name});if(error){setStatus('اتاق پیدا شد اما عضویت ثبت نشد؛ سیاست‌های جدول na_room_members را بررسی کن.','warn');return;}}const joined=$('na26-joined-room');joined.classList.remove('na26-hidden');joined.replaceChildren();const h=document.createElement('strong');h.textContent='به اتاق پیوستی: '+room.title;const m=document.createElement('div');m.className='na26-meta';m.textContent=`بازی: ${room.game} · میزبان: ${room.host_name} · کد: ${room.code}`;joined.append(h,m);setStatus(online?'عضویت در اتاق آنلاین ثبت شد. برای شروع بازی، میزبان باید جزئیات اتصال بازی را به اشتراک بگذارد.':'این اتاق در حالت محلی پیدا شد؛ عضویت فقط در همین مرورگر تأیید شده است.','ok');});
+ $('na26-create-tournament').addEventListener('submit',async e=>{e.preventDefault();const title=$('na26-tournament-title').value.trim(),game=$('na26-tournament-game').value,mode=$('na26-tournament-mode').value,host=$('na26-tournament-host').value.trim(),prize=$('na26-tournament-prize').value.trim(),time=$('na26-tournament-time').value||null;if(!title||!game||!host)return;const payload={title,game,mode,host_name:host,prize:prize||null,start_at:time?new Date(time).toISOString():null};if(online){const {data,error}=await db.from('na_tournaments').insert(payload).select('*').single();if(error){setStatus('ایجاد مسابقه آنلاین انجام نشد؛ جدول na_tournaments یا مجوزها آماده نیست.','warn');return;}tournaments.unshift(data);setStatus('مسابقه آنلاین ایجاد شد و برای کاربران متصل قابل مشاهده است.','ok');}else{payload.local_id=Date.now().toString(36);payload.id=payload.local_id;payload.created_at=new Date().toISOString();tournaments.unshift(payload);if(!save(TK,tournaments)){setStatus('ذخیره‌سازی مرورگر در دسترس نیست.','warn');return;}setStatus('مسابقه در همین مرورگر ساخته شد؛ برای عمومی‌شدن، SQL همراه ZIP را اجرا کن.','warn');}renderTournaments();e.target.reset();});
+ $('na26-enter-tournament').addEventListener('submit',async e=>{e.preventDefault();const tid=$('na26-tournament-select').value,name=$('na26-tournament-player').value.trim();if(!tid||!name)return;const tour=tournaments.find(t=>String(t.id??t.local_id)===String(tid));if(!tour){setStatus('مسابقه انتخاب‌شده پیدا نشد؛ فهرست را تازه کن.','warn');return;}if(online){const {error}=await db.from('na_tournament_entries').insert({tournament_id:tour.id,player_name:name});if(error){setStatus('ثبت‌نام آنلاین ناموفق بود؛ جدول و سیاست‌های na_tournament_entries را بررسی کن.','warn');return;}entries.push({tournament_id:tour.id,player_name:name});setStatus('ثبت‌نام آنلاین در مسابقه انجام شد.','ok');}else{const ent={local_id:Date.now().toString(36),local_tournament_id:tid,tournament_id:tid,player_name:name,created_at:new Date().toISOString()};entries.push(ent);save(EK,entries);setStatus('درخواست ثبت‌نام در همین مرورگر ذخیره شد؛ عمومی نیست.','warn');}renderTournaments();e.target.reset();});
+ boot();
+})();
+</script>
 </section>
 <!-- END SECTION 26 -->
 
