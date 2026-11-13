@@ -1168,4 +1168,80 @@ ensureExtra();renderExtra();
 })();
 </script>
 
+
+<section class="section" id="season-engine"><div class="container">
+  <div class="section-head"><div><div class="kicker">SEASONAL COMPETITION ENGINE</div><h2>لیگ‌های فصلی ARENA</h2><p class="section-desc">مرکز رسمی فصل‌ها، لیگ‌های 1v1، 2v2 و 5v5 و وضعیت برگزاری آن‌ها</p></div><span class="tag ok">SUPABASE</span></div>
+  <div class="two-col">
+    <div class="panel"><div class="panel-head"><h3>فصل‌های فعال و آینده</h3><button class="btn ghost small" id="arenaSeasonRefresh">بروزرسانی</button></div><div class="panel-body" id="arenaSeasonList"><div class="empty">در حال دریافت فصل‌ها…</div></div></div>
+    <div class="panel"><div class="panel-head"><h3>ساخت فصل جدید</h3><span class="kicker">ADMIN ONLY</span></div><div class="panel-body">
+      <div class="form-grid">
+        <div class="field full"><label for="arenaSeasonName">نام فصل</label><input id="arenaSeasonName" maxlength="70" placeholder="مثلاً فصل اول ARENA"></div>
+        <div class="field"><label for="arenaSeasonSlug">شناسه انگلیسی فصل</label><input id="arenaSeasonSlug" maxlength="70" placeholder="season-01"></div>
+        <div class="field"><label for="arenaSeasonStarts">شروع فصل</label><input id="arenaSeasonStarts" type="datetime-local"></div>
+        <div class="field"><label for="arenaSeasonEnds">پایان فصل</label><input id="arenaSeasonEnds" type="datetime-local"></div>
+        <div class="field"><label for="arenaRegOpens">شروع ثبت‌نام</label><input id="arenaRegOpens" type="datetime-local"></div>
+        <div class="field"><label for="arenaRegCloses">پایان ثبت‌نام</label><input id="arenaRegCloses" type="datetime-local"></div>
+      </div>
+      <p class="form-hint">با ساخت فصل، سه لیگ مستقل 1v1، 2v2 و 5v5 به‌صورت پیش‌نویس ساخته می‌شوند. فعال‌سازی ثبت‌نام پس از تنظیم قوانین و ورودی هر لیگ انجام می‌شود.</p>
+      <div class="form-actions"><button class="btn primary" id="arenaCreateSeason">ساخت فصل و سه لیگ</button></div>
+      <div id="arenaSeasonAdminMsg" class="form-hint" role="status"></div>
+    </div></div>
+  </div>
+</div></section>
+<script>
+/* Seasonal League Engine UI — season metadata stored in Supabase, not localStorage. */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const faDate = v => v ? new Date(v).toLocaleDateString('fa-IR') : 'تعیین نشده';
+  const statusFa = s => ({draft:'پیش‌نویس',registration:'ثبت‌نام',live:'در حال برگزاری',completed:'پایان‌یافته',cancelled:'لغوشده'}[s] || s);
+  const client = () => window.supabaseClient || null;
+  async function loadSeasons(){
+    const root=$('arenaSeasonList'); if(!root) return;
+    const c=client();
+    if(!c){root.innerHTML='<div class="empty">اتصال Supabase در دسترس نیست.</div>';return;}
+    root.innerHTML='<div class="empty">در حال دریافت فصل‌ها…</div>';
+    const {data,error}=await c.from('arena_seasons').select('id,name,slug,status,starts_at,ends_at,arena_season_leagues(id,format,status,max_entries,entry_fee_toman,prize_pool_toman)').order('created_at',{ascending:false});
+    if(error){root.innerHTML='<div class="empty">جدول فصل‌ها هنوز ایجاد نشده یا دسترسی خواندن وجود ندارد. ابتدا SQL موتور لیگ را در Supabase اجرا کن.</div>';return;}
+    if(!data?.length){root.innerHTML='<div class="empty">هنوز فصلی ساخته نشده است.</div>';return;}
+    root.innerHTML=data.map(s=>`<article class="history-card">
+      <div class="player-card-head"><strong>${esc(s.name)}</strong><span class="tag ${s.status==='live'?'ok':s.status==='registration'?'pending':''}">${esc(statusFa(s.status))}</span></div>
+      <div class="metric-row"><span class="metric-chip">شروع: <b>${esc(faDate(s.starts_at))}</b></span><span class="metric-chip">پایان: <b>${esc(faDate(s.ends_at))}</b></span></div>
+      <div class="module-grid">${(s.arena_season_leagues||[]).sort((a,b)=>a.format.localeCompare(b.format)).map(l=>`<div class="mini-card"><h4>${esc(l.format)} League</h4><p>وضعیت: ${esc(statusFa(l.status))}</p><p>ظرفیت: ${l.max_entries==null?'نامحدود':esc(l.max_entries)}</p><p>ورودی: ${Number(l.entry_fee_toman||0).toLocaleString('fa-IR')} تومان</p><p>جایزه: ${Number(l.prize_pool_toman||0).toLocaleString('fa-IR')} تومان</p></div>`).join('')}</div>
+    </article>`).join('');
+  }
+  function dateValue(id){const v=$(id)?.value;return v?new Date(v).toISOString():null;}
+  async function createSeason(){
+    const c=client(), msg=$('arenaSeasonAdminMsg');
+    if(!c){msg.textContent='اتصال Supabase موجود نیست.';return;}
+    const {data:{user},error:userError}=await c.auth.getUser();
+    if(userError||!user){msg.textContent='ابتدا با حساب ادمین وارد شو.';return;}
+    const name=$('arenaSeasonName').value.trim(), slug=$('arenaSeasonSlug').value.trim().toLowerCase();
+    if(name.length<3||!/^[a-z0-9-]{3,70}$/.test(slug)){msg.textContent='نام فصل و شناسه انگلیسی معتبر وارد کن.';return;}
+    const starts=dateValue('arenaSeasonStarts'), ends=dateValue('arenaSeasonEnds'), opens=dateValue('arenaRegOpens'), closes=dateValue('arenaRegCloses');
+    if(starts&&ends&&new Date(ends)<=new Date(starts)){msg.textContent='پایان فصل باید بعد از شروع فصل باشد.';return;}
+    if(opens&&closes&&new Date(closes)<=new Date(opens)){msg.textContent='پایان ثبت‌نام باید بعد از شروع ثبت‌نام باشد.';return;}
+    const btn=$('arenaCreateSeason');btn.disabled=true;msg.textContent='در حال ساخت فصل…';
+    try{
+      const {data:season,error}=await c.from('arena_seasons').insert({name,slug,status:'draft',starts_at:starts,ends_at:ends,registration_opens_at:opens,registration_closes_at:closes,created_by:user.id}).select('id').single();
+      if(error) throw error;
+      const rows=['1v1','2v2','5v5'].map(format=>({season_id:season.id,format,title:`${name} — ${format}`,status:'draft',group_size:4,playoff_qualifiers:2,points_win:3,points_draw:1,points_loss:0}));
+      const {error:leagueError}=await c.from('arena_season_leagues').insert(rows);
+      if(leagueError) throw leagueError;
+      msg.textContent='فصل و هر سه لیگ با موفقیت ساخته شدند. برای انتشار، وضعیت فصل و لیگ‌ها را از پنل مدیریتی تغییر بده.';
+      $('arenaSeasonName').value='';$('arenaSeasonSlug').value='';
+      await loadSeasons();
+    }catch(e){msg.textContent='خطا: '+(e.message||'ساخت فصل انجام نشد. بررسی کن SQL اجرا شده باشد و حساب ادمین مجوز داشته باشد.');}
+    finally{btn.disabled=false;}
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    $('arenaSeasonRefresh')?.addEventListener('click',loadSeasons);
+    $('arenaCreateSeason')?.addEventListener('click',createSeason);
+    loadSeasons();
+    window.addEventListener('focus',loadSeasons);
+  });
+})();
+</script>
+
 </body></html>
