@@ -222,11 +222,12 @@ button,input,select,textarea{font-family:inherit}
         <div class="field" style="margin-top:10px"><label for="playerProfilePhone">شماره موبایل (اختیاری)</label><input id="playerProfilePhone" type="tel" inputmode="tel" placeholder="09xxxxxxxxx"></div>
         <p class="form-hint" id="playerAccountEmail"></p>
         <div class="form-actions"><button class="btn primary" type="button" id="playerSaveProfile">ذخیره پروفایل</button><button class="btn danger-btn" type="button" id="playerLogout">خروج از حساب بازیکن</button></div>
-        <form id="playerRecoveryForm" class="hidden" style="margin-top:14px">
-          <div class="field"><label for="playerNewPassword">رمز عبور جدید</label><input id="playerNewPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="حداقل ۸ کاراکتر"></div>
-          <div class="form-actions"><button class="btn primary" type="submit">ثبت رمز جدید</button></div>
-        </form>
       </div>
+      <form id="playerRecoveryForm" class="hidden" style="margin-top:14px">
+        <div class="callout">لینک بازیابی معتبر است. رمز جدیدت را وارد کن.</div>
+        <div class="field"><label for="playerNewPassword">رمز عبور جدید</label><input id="playerNewPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="حداقل ۸ کاراکتر"></div>
+        <div class="form-actions"><button class="btn primary" type="submit" id="playerRecoverySubmit">ثبت رمز جدید</button></div>
+      </form>
       <div id="playerAuthMessage" class="form-hint" role="status" aria-live="polite"></div>
       <p class="form-hint">برای ثبت‌نام، ایمیل معتبر وارد کن و لینک تأیید ارسال‌شده را باز کن. ارسال ایمیل به تنظیمات تأیید ایمیل و SMTP پروژه Supabase وابسته است.</p>
     </div>
@@ -832,6 +833,17 @@ ensureExtra();renderExtra();
     $('playerShowLogin').classList.add('active');
     message('');
   };
+  const showRecovery = () => {
+    $('playerAuthLoggedOut').classList.remove('hidden');
+    $('playerAuthLoggedIn').classList.add('hidden');
+    $('playerSignupForm').classList.add('hidden');
+    $('playerLoginForm').classList.add('hidden');
+    $('playerRecoveryForm').classList.remove('hidden');
+    $('playerShowSignup').classList.remove('active');
+    $('playerShowLogin').classList.remove('active');
+    message('لینک بازیابی باز شد؛ رمز جدید را وارد کن.');
+  };
+  const isRecoveryUrl = () => /(?:^|[&#])type=recovery(?:&|$)/.test(window.location.hash);
   async function refreshPlayerSession() {
     const { data, error } = await playerAuthClient.auth.getSession();
     if (error) { message('بازیابی وضعیت حساب انجام نشد. دوباره تلاش کن.', true); return; }
@@ -912,6 +924,26 @@ ensureExtra();renderExtra();
       message(err.message || 'ارسال لینک بازیابی انجام نشد.', true);
     }
   });
+  $('playerRecoveryForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const password = $('playerNewPassword').value;
+    if (password.length < 8) return message('رمز جدید باید حداقل ۸ کاراکتر باشد.', true);
+    const submit = $('playerRecoverySubmit');
+    submit.disabled = true;
+    try {
+      const { error } = await playerAuthClient.auth.updateUser({ password });
+      if (error) throw error;
+      $('playerRecoveryForm').classList.add('hidden');
+      $('playerNewPassword').value = '';
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+      await refreshPlayerSession();
+      message('رمز عبور با موفقیت تغییر کرد. حالا می‌توانی وارد حساب شوی.');
+    } catch (err) {
+      message(err.message || 'تغییر رمز انجام نشد. لینک ممکن است منقضی شده باشد.', true);
+    } finally {
+      submit.disabled = false;
+    }
+  });
 
   $('playerSaveProfile').addEventListener('click', async () => {
     const display_name = $('playerProfileName').value.trim();
@@ -934,10 +966,18 @@ ensureExtra();renderExtra();
     await refreshPlayerSession();
   });
 
-  playerAuthClient.auth.onAuthStateChange((_event, _session) => {
-    refreshPlayerSession();
+  playerAuthClient.auth.onAuthStateChange((event, _session) => {
+    if (event === 'PASSWORD_RECOVERY' || isRecoveryUrl()) {
+      setTimeout(showRecovery, 0);
+    } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'SIGNED_OUT') {
+      setTimeout(() => {
+        if (!isRecoveryUrl()) refreshPlayerSession();
+      }, 0);
+    }
   });
-  refreshPlayerSession();
+  refreshPlayerSession().then(() => {
+    if (isRecoveryUrl()) showRecovery();
+  });
 
   // Preserve the existing modal close behavior while supporting Escape for this modal.
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('show')) hideModal(); });
