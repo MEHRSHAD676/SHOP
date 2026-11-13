@@ -192,8 +192,9 @@ button,input,select,textarea{font-family:inherit}
 
 <!-- Admin login and workspace -->
 <div class="overlay" id="adminModal" role="dialog" aria-modal="true"><div class="dialog wide"><div class="dialog-head"><h3>پنل مدیریت CS 1.6 ARENA</h3><button class="close" data-close="adminModal">×</button></div><div class="dialog-body">
-<div id="adminLogin"><div class="callout">نسخه HTML-only است: پنل مدیریت فقط روی همین مرورگر اثر می‌گذارد و ورود آن امنیت واقعی ندارد. رمز اولیه نمایشی: <b class="ltr">1606</b>؛ برای سایت عمومی حتماً بک‌اند و احراز هویت امن لازم است.</div><div class="form-grid"><div class="field"><label for="adminPin">رمز مدیر</label><input id="adminPin" type="password" inputmode="numeric" placeholder="رمز پنل"></div></div><div class="form-actions"><button class="btn primary" id="adminLoginBtn">ورود به پنل</button></div><div id="loginError" class="form-hint"></div></div>
+<div id="adminLogin"><div class="callout">ورود مدیر با حساب Supabase انجام می‌شود. فقط حسابی که در جدول admin_users ثبت شده باشد اجازه ورود دارد.</div><div class="form-grid"><div class="field"><label for="adminEmail">ایمیل مدیر</label><input id="adminEmail" type="email" autocomplete="username" placeholder="ایمیل حساب مدیر"></div><div class="field"><label for="adminPassword">رمز عبور</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="رمز عبور Supabase"></div></div><div class="form-actions"><button class="btn primary" id="adminLoginBtn">ورود امن به پنل</button></div><div id="loginError" class="form-hint"></div></div>
 <div id="adminWorkspace" class="hidden">
+<div class="form-actions"><button class="btn ghost" id="adminLogoutBtn">خروج از حساب مدیر</button></div>
 <div class="callout">تغییرات در حافظه همین مرورگر ذخیره می‌شوند. برای انتقال اطلاعات، از «خروجی پشتیبان» استفاده کن.</div>
 <div class="admin-overview" id="adminOverview">
   <div class="admin-stat"><span>تورنومنت‌ها</span><b id="adminStatTournaments">۰</b></div>
@@ -247,9 +248,13 @@ button,input,select,textarea{font-family:inherit}
 
 </div></div></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 'use strict';
 const STORAGE_KEY='cs16arena_full_v1';
+const SUPABASE_URL='https://ghzpkahtthlauqfwvwdy.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_paEd5BNTcSMcjL55mS_UTQ_bYksKYRu';
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const TELEGRAM='hajimehrsahd';
 // Fixed AbanGateway checkout links supplied by the site owner.
 // Amounts below are the actual payable totals shown by each checkout page.
@@ -293,7 +298,33 @@ function renderAdminLists(){if(!$('#adminTeamList'))return;$('#adminTeamList').i
 function renderAdminMatchList(){const id=$('#matchTournament')?.value||db.tournaments[0]?.id,root=$('#adminMatchList');if(!root)return;const rounds=db.brackets[id]?.rounds;if(!rounds){root.innerHTML='<div class="empty">برای این مسابقه هنوز براکت ساخته نشده است.</div>';return}const items=[];rounds.forEach((r,ri)=>r.forEach((m,mi)=>{if(m.teamA&&m.teamB)items.push({ri,mi,m})}));root.innerHTML=items.length?items.map(x=>`<div class="admin-item" style="display:block"><b>${roundName(x.ri,rounds.length)} · ${esc(teamName(x.m.teamA))} / ${esc(teamName(x.m.teamB))}</b><div class="form-grid" style="margin-top:8px"><div class="field"><label>امتیاز تیم اول</label><input type="number" min="0" id="scoreA-${x.ri}-${x.mi}" value="${x.m.scoreA??''}"></div><div class="field"><label>امتیاز تیم دوم</label><input type="number" min="0" id="scoreB-${x.ri}-${x.mi}" value="${x.m.scoreB??''}"></div></div><div class="form-actions"><button class="btn primary small" data-save-match="${x.ri}-${x.mi}">ثبت نتیجه</button><span class="note">${x.m.done?'برنده فعلی: '+esc(teamName(x.m.winnerId)):'در انتظار نتیجه'}</span></div></div>`).join(''):'<div class="empty">بعد از مشخص‌شدن دو تیم در هر بازی، فرم ثبت نتیجه نمایش داده می‌شود.</div>';$$('[data-save-match]').forEach(b=>b.addEventListener('click',()=>{const [ri,mi]=b.dataset.saveMatch.split('-').map(Number),m=db.brackets[id].rounds[ri][mi],a=Number($(`#scoreA-${ri}-${mi}`).value),c=Number($(`#scoreB-${ri}-${mi}`).value);if(!Number.isFinite(a)||!Number.isFinite(c)||$(`#scoreA-${ri}-${mi}`).value===''||$(`#scoreB-${ri}-${mi}`).value===''||a===c){toast('دو امتیاز معتبر و غیرمساوی وارد کن.');return}const winnerId=a>c?m.teamA:m.teamB;m.scoreA=a;m.scoreB=c;m.winnerId=winnerId;m.done=true;advanceWinner(id,ri,mi,winnerId);saveDB();renderAll();toast('نتیجه ثبت شد.')}))}
 function renderAll(){renderEvents();renderSelects();renderResults();renderRankings();renderServers();if(adminUnlocked)renderAdminLists()}
 function openAdmin(){showModal('adminModal');$('#adminLogin').classList.toggle('hidden',adminUnlocked);$('#adminWorkspace').classList.toggle('hidden',!adminUnlocked);if(adminUnlocked)renderAll()}
-function loginAdmin(){if($('#adminPin').value===String(db.adminPin||'1606')){adminUnlocked=true;$('#loginError').textContent='';openAdmin()}else $('#loginError').textContent='رمز اشتباه است.'}
+async function loginAdmin(){
+  const email=$('#adminEmail').value.trim(), password=$('#adminPassword').value;
+  const error=$('#loginError'); error.textContent='';
+  if(!email||!password){error.textContent='ایمیل و رمز عبور را وارد کن.';return}
+  const {data,error:authError}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(authError){error.textContent='ورود ناموفق بود؛ ایمیل و رمز را بررسی کن.';return}
+  const {data:adminRow,error:roleError}=await supabaseClient.from('admin_users').select('user_id').eq('user_id',data.user.id).maybeSingle();
+  if(roleError||!adminRow){
+    await supabaseClient.auth.signOut();
+    error.textContent='این حساب دسترسی مدیر ندارد یا بررسی دسترسی ناموفق بود.';
+    return;
+  }
+  adminUnlocked=true; $('#adminPassword').value=''; openAdmin();
+}
+async function logoutAdmin(){
+  await supabaseClient.auth.signOut(); adminUnlocked=false;
+  $('#adminLogin').classList.remove('hidden'); $('#adminWorkspace').classList.add('hidden');
+  $('#adminEmail').value=''; $('#adminPassword').value='';
+  toast('از حساب مدیر خارج شدی.');
+}
+async function restoreAdminSession(){
+  const {data}=await supabaseClient.auth.getSession();
+  if(!data.session)return;
+  const {data:row,error}=await supabaseClient.from('admin_users').select('user_id').eq('user_id',data.session.user.id).maybeSingle();
+  if(!error&&row){adminUnlocked=true; if($('#adminModal').classList.contains('show'))openAdmin();}
+  else await supabaseClient.auth.signOut();
+}
 function setAdminTab(tab){$$('.admin-section').forEach(s=>s.classList.toggle('hidden',s.id!==tab));$$('[data-admin-tab]').forEach(b=>b.classList.toggle('active',b.dataset.adminTab===tab))}
 function applyLanguage(){const en=language==='en';document.documentElement.lang=en?'en':'fa';document.documentElement.dir=en?'ltr':'rtl';$$('[data-fa]').forEach(el=>el.textContent= en?(el.dataset.en||el.dataset.fa):el.dataset.fa);$$('[data-fa-html]').forEach(el=>el.innerHTML=en?el.dataset.enHtml:el.dataset.faHtml);$('#langToggle').textContent=en?'FA':'EN'}
 // Main filters and navigation
@@ -301,15 +332,15 @@ $$('.filter').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter
 // Modal controls
 $$('[data-close]').forEach(b=>b.addEventListener('click',()=>hideModal(b.dataset.close)));$$('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)hideModal(o.id)}));document.addEventListener('keydown',e=>{if(e.key==='Escape')$$('.overlay.show').forEach(o=>hideModal(o.id))});$('#sendTelegram').addEventListener('click',sendTelegram);
 // Admin controls
-$('#openAdminTop').addEventListener('click',openAdmin);$('#openAdminFooter').addEventListener('click',openAdmin);$('#adminLoginBtn').addEventListener('click',loginAdmin);$('#adminPin').addEventListener('keydown',e=>{if(e.key==='Enter')loginAdmin()});$$('[data-admin-tab]').forEach(b=>b.addEventListener('click',()=>setAdminTab(b.dataset.adminTab)));
+$('#openAdminTop').addEventListener('click',openAdmin);$('#openAdminFooter').addEventListener('click',openAdmin);$('#adminLoginBtn').addEventListener('click',loginAdmin);$('#adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')loginAdmin()});$('#adminLogoutBtn').addEventListener('click',logoutAdmin);$$('[data-admin-tab]').forEach(b=>b.addEventListener('click',()=>setAdminTab(b.dataset.adminTab)));
 $('#addTeamBtn').addEventListener('click',()=>{const tournamentId=$('#adminTeamTournament').value,name=$('#adminTeamName').value.trim(),captain=$('#adminCaptainName').value.trim(),roster=$('#adminRoster').value.trim(),reserveRoster=$('#adminReserveRoster')?.value.trim()||'',paymentStatus=$('#adminPayment').value;if(!tournamentId||!name||!captain){toast('مسابقه، نام تیم و کاپیتان را وارد کن.');return}const t=eventById(tournamentId),players=roster.split('\n').map(s=>s.trim()).filter(Boolean),reservePlayers=reserveRoster.split('\n').map(s=>s.trim()).filter(Boolean);if(players.length&&players.length<(t.mode==='5v5'?5:t.mode==='2v2'?2:1)){toast(`برای ${t.mode} تعداد بازیکن‌ها کامل نیست.`);return}db.teams.push({id:'team_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),tournamentId,name,captain,players,reservePlayers,paymentStatus,createdAt:new Date().toISOString()});$('#adminTeamName').value='';$('#adminCaptainName').value='';$('#adminRoster').value='';if($('#adminReserveRoster'))$('#adminReserveRoster').value='';saveDB();renderAll();toast('تیم اضافه شد.')});
 $('#generateBracketBtn').addEventListener('click',()=>{const id=$('#generateTournament').value;if(!id)return;if(db.brackets[id]&&!confirm('براکت قبلی و نتایجش حذف و از نو ساخته شود؟'))return;makeBracket(id)});$('#matchTournament').addEventListener('change',renderAdminMatchList);$('#bracketTournament').addEventListener('change',renderBracket);
 $('#addTournamentBtn').addEventListener('click',()=>{const name=$('#newTournamentName').value.trim(),mode=$('#newTournamentMode').value,map=$('#newTournamentMap').value.trim()||'de_dust2',entry=Number($('#newTournamentEntry').value),prize=Number($('#newTournamentPrize').value),capacity=Number($('#newTournamentCapacity').value)||16;if(!name||!Number.isFinite(entry)||!Number.isFinite(prize)||entry<0||prize<0){toast('نام مسابقه و مبالغ معتبر را وارد کن.');return}db.tournaments.push({id:'event_'+Date.now(),name,mode,map,entry,prize,capacity});$('#newTournamentName').value='';$('#newTournamentEntry').value='';$('#newTournamentPrize').value='';$('#newTournamentCapacity').value='';saveDB();renderAll();toast('مسابقه جدید ساخته شد.')});
 $('#saveServerBtn').addEventListener('click',()=>{const tournamentId=$('#serverTournament').value,name=$('#serverName').value.trim()||'سرور مسابقه',map=$('#serverMap').value.trim(),ip=$('#serverIP').value.trim(),port=$('#serverPort').value.trim(),password=$('#serverPassword').value.trim();if(!tournamentId||!ip||!port){toast('مسابقه، IP و پورت را وارد کن.');return}const item={id:'srv_'+Date.now(),tournamentId,name,map,ip,port,password};db.servers.push(item);$('#serverName').value='';$('#serverMap').value='';$('#serverIP').value='';$('#serverPort').value='';$('#serverPassword').value='';saveDB();renderAll();toast('اطلاعات سرور ذخیره شد.')});
-$('#changePinBtn').addEventListener('click',()=>{const pin=$('#newAdminPin').value.trim();if(pin.length<4){toast('رمز باید حداقل ۴ کاراکتر باشد.');return}db.adminPin=pin;$('#newAdminPin').value='';saveDB();toast('رمز محلی پنل تغییر کرد.')});
+$('#changePinBtn').addEventListener('click',()=>{const pin=$('#newAdminPin').value.trim();if(pin.length<4){toast('رمز باید حداقل ۴ کاراکتر باشد.');return}$('#newAdminPin').value='';toast('ورود مدیر از طریق حساب Supabase انجام می‌شود؛ این رمز محلی دیگر کاربردی ندارد.')});
 $('#exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cs16-arena-backup.json';a.click();URL.revokeObjectURL(url)});$('#importFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data.tournaments)||!Array.isArray(data.teams))throw new Error('invalid');db={...clone(DEFAULT_DB),...data};saveDB();renderAll();toast('پشتیبان بازیابی شد.')}catch(err){toast('فایل پشتیبان معتبر نیست.')}e.target.value=''});$('#resetBtn').addEventListener('click',()=>{if(!confirm('تمام اطلاعات ذخیره‌شده در این مرورگر پاک شود؟'))return;db=clone(DEFAULT_DB);saveDB();adminUnlocked=false;renderAll();openAdmin();toast('اطلاعات محلی بازنشانی شد.')});
 // Initial render
-renderAll();applyLanguage();
+renderAll();applyLanguage();restoreAdminSession();
 </script>
 
 <script>
