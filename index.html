@@ -33,12 +33,22 @@ button,input,select,textarea{font-family:inherit}
 @media(max-width:720px){.container{width:calc(100% - 26px)}.hero{padding:28px 0 18px}.hero-art{min-height:210px}.section{padding:23px 0}.admin-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.format-image-grid{grid-template-columns:1fr}.format-image-item{grid-template-columns:1fr}.admin-config-strip{display:grid;grid-template-columns:1fr;gap:3px}.nav-links{top:calc(100% + 7px)}.section-head h2{font-size:24px}}
 @media(min-width:721px){.nav-links{max-height:70vh;overflow:auto}.nav-actions>.primary{display:inline-flex}}
 
+
+/* CS 1.6 ARENA launch polish: original mark, weekly schedule, and support paths */
+.brand-mark-new{display:grid;place-items:center;background:linear-gradient(145deg,#202a39,#0b0e14);border:1px solid #f0444d66;box-shadow:0 8px 24px #f0444d26}
+.brand-mark-new svg{width:100%;height:100%;padding:4px}
+.weekly-strip{display:flex;align-items:center;gap:13px;margin-top:8px;margin-bottom:8px;padding:13px 16px;border:1px solid #f0444d55;border-radius:15px;background:linear-gradient(100deg,#f0444d18,#111720 55%,#111720);box-shadow:0 10px 28px #0004}
+.weekly-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#f0444d20;color:#ff7e85;font-size:25px;font-weight:900;flex-shrink:0}
+.weekly-copy{display:flex;flex-direction:column;min-width:0;gap:1px}.weekly-copy strong{font-size:13px}.weekly-copy span{font-size:11px;color:var(--muted)}.weekly-pill{margin-inline-start:auto;padding:5px 9px;border-radius:999px;background:#f0444d18;border:1px solid #f0444d50;color:#ff9ca1;font-size:9px;font-weight:900;letter-spacing:1px;white-space:nowrap;direction:ltr}
+@media(max-width:600px){.weekly-strip{align-items:flex-start}.weekly-pill{font-size:8px}.weekly-copy span{line-height:1.7}}
+
 </style>
 </head>
 <body>
 <header class="topbar"><div class="container nav">
-<a class="brand" href="#home"><div class="brand-mark">✕</div><div><div class="brand-name">CS 1.6 <span>ARENA</span></div><div class="brand-sub">LEGACY NEVER DIES</div></div></a>
-<nav class="nav-links" id="navLinks"><a href="#tournaments" data-fa="مسابقات" data-en="Events">مسابقات</a><a href="#bracket" data-fa="براکت" data-en="Bracket">براکت</a><a href="#results" data-fa="نتایج" data-en="Results">نتایج</a><a href="#teams" data-fa="تیم‌ها" data-en="Teams">تیم‌ها</a><a href="#servers" data-fa="سرورها" data-en="Servers">سرورها</a><a href="#rules" data-fa="قوانین" data-en="Rules">قوانین</a><a href="#match-center">اتاق مسابقه</a><a href="#player-hub">بازیکن‌ها</a><a href="#community">انجمن</a></nav>
+<a class="brand" href="#home"><div class="brand-mark brand-mark-new" aria-label="CS 1.6 ARENA logo">
+<svg viewBox="0 0 64 64" role="img" aria-hidden="true"><path d="M32 4 56 18v28L32 60 8 46V18L32 4Z" fill="#141a24" stroke="#f0444d" stroke-width="3"/><path d="M32 12v10M32 42v10M12 32h10M42 32h10" stroke="#f6f7fb" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="32" r="13" fill="none" stroke="#f0444d" stroke-width="3"/><circle cx="32" cy="32" r="4" fill="#f6f7fb"/><path d="m25 39 14-14" stroke="#f0444d" stroke-width="3" stroke-linecap="round"/></svg></div><div><div class="brand-name">CS 1.6 <span>ARENA</span></div><div class="brand-sub">LEGACY NEVER DIES</div></div></a>
+<nav class="nav-links" id="navLinks"><a href="#tournaments" data-fa="مسابقات" data-en="Events">مسابقات</a><a href="#bracket" data-fa="براکت" data-en="Bracket">براکت</a><a href="#results" data-fa="نتایج" data-en="Results">نتایج</a><a href="#teams" data-fa="تیم‌ها" data-en="Teams">تیم‌ها</a><a href="#servers" data-fa="سرورها" data-en="Servers">سرورها</a><a href="#rules" data-fa="قوانین" data-en="Rules">قوانین</a><a href="#match-center">اتاق مسابقه</a><a href="#player-hub">بازیکن‌ها</a><a href="#community">انجمن</a><a href="#reports-center" data-fa="پشتیبانی" data-en="Support">پشتیبانی</a></nav>
 <div class="nav-actions"><button class="lang-btn" id="langToggle">EN</button><button class="btn primary small" id="openAdminTop">پنل مدیریت</button><button class="menu-btn" id="menuToggle" aria-label="باز کردن منو" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button></div>
 </div></header>
 <main>
@@ -50,6 +60,11 @@ button,input,select,textarea{font-family:inherit}
 </div><div class="hero-art"><div class="crosshair"><div class="core"></div></div><div class="art-label"><div><small>COUNTER-STRIKE 1.6</small><strong>READY / GO</strong></div><span class="art-stamp">EST. 2026</span></div></div></div>
 <div class="stats"><div class="stat"><strong>1v1 · 2v2 · 5v5</strong><span data-fa="فرمت‌های مسابقه" data-en="Tournament formats">فرمت‌های مسابقه</span></div><div class="stat"><strong>IRR</strong><span data-fa="واحد پرداخت: تومان" data-en="Currency: Toman">واحد پرداخت: تومان</span></div><div class="stat"><strong>CS 1.6</strong><span data-fa="نسخه کلاسیک" data-en="Classic edition">نسخه کلاسیک</span></div><div class="stat"><strong>ARENA</strong><span data-fa="رقابت برای قهرمانی" data-en="Compete for the title">رقابت برای قهرمانی</span></div></div>
 </div></section>
+<div class="container weekly-strip" id="weeklySchedulePublic" aria-live="polite">
+  <div class="weekly-icon">◷</div>
+  <div class="weekly-copy"><strong>لیگ هفتگی ARENA</strong><span id="weeklyScheduleText">مسابقات هر هفته برگزار می‌شوند؛ روز و ساعت دقیق پس از تنظیم مدیر اعلام می‌شود.</span></div>
+  <span class="weekly-pill">WEEKLY LEAGUE</span>
+</div>
 <section class="section" id="tournaments"><div class="container"><div class="section-head"><div><div class="kicker">CHOOSE YOUR BATTLE</div><h2 data-fa="مسابقات و هزینه‌ها" data-en="Tournaments & entry fees">مسابقات و هزینه‌ها</h2><p class="section-desc" data-fa="ورودی‌ها و جایزه‌ها به تومان هستند. مبلغ ورودی فعلاً به‌عنوان هزینه کل تیم در نظر گرفته شده." data-en="Fees and prizes are in Toman. Entry is currently treated as a team fee.">ورودی‌ها و جایزه‌ها به تومان هستند. مبلغ ورودی فعلاً به‌عنوان هزینه کل تیم در نظر گرفته شده.</p></div><div class="filters"><button class="filter active" data-filter="ALL">همه</button><button class="filter" data-filter="1v1">1v1</button><button class="filter" data-filter="2v2">2v2</button><button class="filter" data-filter="5v5">5v5</button></div></div><div class="grid3" id="tournamentGrid"></div></div></section>
 <section class="section" id="bracket"><div class="container"><div class="section-head"><div><div class="kicker">ROAD TO THE FINAL</div><h2 data-fa="براکت مسابقات" data-en="Tournament bracket">براکت مسابقات</h2><p class="section-desc" data-fa="ابتدا لیگ گروهی برگزار می‌شود؛ سپس چهار تیم برتر به مرحله حذفی و فینال می‌رسند." data-en="Teams play a league stage first; the top four advance to the playoffs and final.">ابتدا لیگ گروهی برگزار می‌شود؛ سپس چهار تیم برتر به مرحله حذفی و فینال می‌رسند.</p></div><select id="bracketTournament" class="lang-btn" aria-label="انتخاب مسابقه"></select></div><div class="panel" style="margin-bottom:12px"><div class="panel-head"><h3>جدول لیگ گروهی</h3><span class="kicker">LEAGUE TABLE</span></div><div class="panel-body" id="leagueTableView"><div class="empty">بعد از ساخت برنامه لیگ و ثبت نتایج، جدول رده‌بندی اینجا نمایش داده می‌شود.</div></div></div><div class="panel"><div class="panel-head"><h3>مرحله حذفی</h3><span class="kicker">PLAYOFFS</span></div><div class="panel-body"><div id="bracketView" class="empty">هنوز مرحله حذفی ساخته نشده است.</div></div></div></div></section>
 <section class="section" id="results"><div class="container"><div class="section-head"><div><div class="kicker">MATCH HISTORY</div><h2 data-fa="نتایج مسابقات" data-en="Match results">نتایج مسابقات</h2><p class="section-desc" data-fa="فقط نتایجی نمایش داده می‌شوند که مدیر ثبت و تأیید کرده باشد." data-en="Only results submitted and confirmed by the organizer appear here.">فقط نتایجی نمایش داده می‌شوند که مدیر ثبت و تأیید کرده باشد.</p></div></div><div class="panel"><div class="panel-body" id="resultsView"><div class="empty">هنوز نتیجه‌ای ثبت نشده است.</div></div></div></div></section>
@@ -131,16 +146,16 @@ button,input,select,textarea{font-family:inherit}
   <div class="panel"><div class="panel-head"><h3>هایلایت‌ها</h3><span class="kicker">BEST MOMENTS</span></div><div class="panel-body" id="highlightFeed"><div class="empty">هنوز کلیپی ثبت نشده است.</div></div></div></div>
 </div></section>
 <section class="section" id="reports-center"><div class="container">
-  <div class="section-head"><div><div class="kicker">FAIR PLAY & SUPPORT</div><h2>اعتراض، گزارش تخلف و پشتیبانی</h2><p class="section-desc">گزارش نتیجه، اعتراض، مدرک تصویری یا دمو. فایل در این نسخه روی سرور بارگذاری نمی‌شود.</p></div></div>
+  <div class="section-head"><div><div class="kicker">FAIR PLAY & SUPPORT</div><h2>پشتیبانی و ارتباط با برگزارکننده</h2><p class="section-desc">هم از طریق تیکت داخل سایت درخواست ثبت کن و هم مستقیم در تلگرام پیام بده. تیکت‌های این نسخه فقط در همین مرورگر ذخیره می‌شوند.</p></div></div>
   <div class="two-col">
-    <div class="panel"><div class="panel-head"><h3>ثبت اعتراض یا گزارش</h3><span class="kicker">REPORT CENTER</span></div><div class="panel-body">
+    <div class="panel"><div class="panel-head"><h3>ثبت تیکت پشتیبانی یا اعتراض</h3><span class="kicker">SUPPORT TICKETS</span></div><div class="panel-body">
       <div class="form-grid">
-        <div class="field"><label for="reportType">نوع درخواست</label><select id="reportType"><option>اعتراض به نتیجه</option><option>گزارش چیت / تقلب</option><option>رفتار نامناسب</option><option>مشکل سرور / دیسکانکت</option><option>درخواست بررسی پرداخت</option></select></div>
+        <div class="field"><label for="reportType">نوع درخواست</label><select id="reportType"><option>پشتیبانی عمومی</option><option>مشکل حساب کاربری</option><option>سؤال درباره ثبت‌نام</option><option>پیگیری پرداخت</option><option>اعتراض به نتیجه</option><option>گزارش چیت / تقلب</option><option>رفتار نامناسب</option><option>مشکل سرور / دیسکانکت</option><option>درخواست بررسی پرداخت</option></select></div>
         <div class="field"><label for="reportTarget">تیم یا بازیکن مرتبط</label><input id="reportTarget" placeholder="نام تیم یا بازیکن"></div>
         <div class="field full"><label for="reportDetails">شرح موضوع</label><textarea id="reportDetails" rows="4" maxlength="1200" placeholder="زمان مسابقه، توضیح و جزئیات..."></textarea></div>
         <div class="field full"><label for="reportEvidence">پیوست مدرک (اختیاری)</label><input id="reportEvidence" type="file" accept="image/*,video/*,.dem,.txt,.zip"></div>
       </div>
-      <div class="form-actions"><button class="btn primary" id="submitReportBtn">ثبت درخواست</button><a class="btn ghost" href="https://t.me/hajimehrsahd" target="_blank" rel="noopener">پشتیبانی تلگرام ↗</a></div>
+      <div class="form-actions"><button class="btn primary" id="submitReportBtn">ثبت تیکت داخل سایت</button><a class="btn blue" href="https://t.me/hajimehrsahd" target="_blank" rel="noopener noreferrer">پیام به پشتیبانی تلگرام ↗</a></div>
       <p class="form-hint">در این نسخه فقط نام فایل پیوست ذخیره می‌شود. برای ارسال واقعی مدرک، آن را در تلگرام به برگزارکننده بفرست.</p>
     </div></div>
     <div class="panel"><div class="panel-head"><h3>درخواست‌های ثبت‌شده</h3><span class="kicker">TICKET TRACKER</span></div><div class="panel-body" id="reportFeed"><div class="empty">هنوز درخواستی ثبت نشده است.</div></div></div>
@@ -205,8 +220,9 @@ button,input,select,textarea{font-family:inherit}
   <div class="format-image-item"><b>5v5 · پنج نفره</b><label class="upload-control" for="formatImage5">انتخاب تصویر 5v5</label><input id="formatImage5" type="file" accept="image/*" class="hidden"><div class="format-image-preview" id="formatImagePreview5">هنوز تصویری انتخاب نشده</div><button type="button" class="btn danger-btn small" data-remove-format-image="5v5">حذف تصویر</button></div>
  </div>
 </div></section>
-<section id="serverAdmin" class="admin-section hidden"><div class="admin-grid"><div class="admin-card"><h4>ثبت / ویرایش سرور</h4><div class="form-grid"><div class="field full"><label for="serverTournament">مسابقه</label><select id="serverTournament"></select></div><div class="field"><label for="serverName">عنوان سرور</label><input id="serverName" placeholder="Server #1"></div><div class="field"><label for="serverMap">نقشه</label><input id="serverMap" placeholder="de_dust2"></div><div class="field"><label for="serverIP">IP یا دامنه</label><input id="serverIP" placeholder="127.0.0.1"></div><div class="field"><label for="serverPort">پورت</label><input id="serverPort" type="number" placeholder="27015"></div><div class="field full"><label for="serverPassword">رمز سرور (در صورت نیاز)</label><input id="serverPassword" placeholder="اختیاری"></div></div><div class="form-actions"><button class="btn primary" id="saveServerBtn">ذخیره سرور</button></div></div><div class="admin-card"><h4>سرورهای ثبت‌شده</h4><div id="adminServerList" class="admin-list"></div></div></div></section>
-<section id="settingsAdmin" class="admin-section hidden"><div class="admin-grid"><div class="admin-card"><h4>تغییر رمز پنل (محلی)</h4><div class="field"><label for="newAdminPin">رمز جدید</label><input id="newAdminPin" type="password" inputmode="numeric" minlength="4" placeholder="حداقل ۴ رقم"></div><div class="form-actions"><button class="btn muted-btn" id="changePinBtn">تغییر رمز</button></div><p class="form-hint">این رمز داخل مرورگر ذخیره می‌شود و امنیت سروری ندارد.</p></div><div class="admin-card"><h4>پشتیبان‌گیری از اطلاعات</h4><p class="note">فایل JSON شامل تیم‌ها، مسابقات، نتایج و تنظیمات سرور است.</p><div class="form-actions"><button class="btn muted-btn" id="exportBtn">خروجی پشتیبان</button><label class="btn ghost" for="importFile">بازیابی پشتیبان</label><input id="importFile" type="file" accept="application/json" class="hidden"></div><div class="form-actions"><button class="btn danger-btn" id="resetBtn">بازنشانی اطلاعات همین مرورگر</button></div></div></div></section>
+<section id="serverAdmin" class="admin-section hidden"><div class="admin-grid"><div class="admin-card"><h4>ثبت / ویرایش سرور اختصاصی ARENA</h4><p class="note">زیرساخت مسابقات روی سرور اختصاصی خودتان تنظیم می‌شود. IP و پورت واقعی را وارد کن تا در صفحه عمومی نمایش داده شود.</p><div class="form-grid"><div class="field full"><label for="serverTournament">مسابقه</label><select id="serverTournament"></select></div><div class="field"><label for="serverName">عنوان سرور</label><input id="serverName" placeholder="Server #1"></div><div class="field"><label for="serverMap">نقشه</label><input id="serverMap" placeholder="de_dust2"></div><div class="field"><label for="serverIP">IP یا دامنه</label><input id="serverIP" placeholder="127.0.0.1"></div><div class="field"><label for="serverPort">پورت</label><input id="serverPort" type="number" placeholder="27015"></div><div class="field full"><label for="serverPassword">رمز سرور (در صورت نیاز)</label><input id="serverPassword" placeholder="اختیاری"></div></div><div class="form-actions"><button class="btn primary" id="saveServerBtn">ذخیره سرور</button></div></div><div class="admin-card"><h4>سرورهای ثبت‌شده</h4><div id="adminServerList" class="admin-list"></div></div></div></section>
+<section id="settingsAdmin" class="admin-section hidden"><div class="admin-grid">
+<div class="admin-card"><h4>برنامه لیگ هفتگی</h4><p class="note">تکرار مسابقات هفتگی است؛ روز و ساعت شروع را اینجا تعیین کن. منطقه زمانی نمایش برنامه، زمان محلی برگزارکننده است.</p><div class="form-grid"><div class="field"><label for="weeklyDayAdmin">روز برگزاری</label><select id="weeklyDayAdmin"><option value="">هنوز تعیین نشده</option><option value="شنبه">شنبه</option><option value="یکشنبه">یکشنبه</option><option value="دوشنبه">دوشنبه</option><option value="سه‌شنبه">سه‌شنبه</option><option value="چهارشنبه">چهارشنبه</option><option value="پنجشنبه">پنجشنبه</option><option value="جمعه">جمعه</option></select></div><div class="field"><label for="weeklyTimeAdmin">ساعت شروع</label><input id="weeklyTimeAdmin" type="time"></div></div><div class="form-actions"><button class="btn primary small" id="saveWeeklyScheduleBtn">ذخیره برنامه هفتگی</button></div><p class="form-hint">تا وقتی روز و ساعت انتخاب نشود، سایت فقط اعلام می‌کند که مسابقات هفتگی هستند.</p></div><div class="admin-card"><h4>تغییر رمز پنل (محلی)</h4><div class="field"><label for="newAdminPin">رمز جدید</label><input id="newAdminPin" type="password" inputmode="numeric" minlength="4" placeholder="حداقل ۴ رقم"></div><div class="form-actions"><button class="btn muted-btn" id="changePinBtn">تغییر رمز</button></div><p class="form-hint">این رمز داخل مرورگر ذخیره می‌شود و امنیت سروری ندارد.</p></div><div class="admin-card"><h4>پشتیبان‌گیری از اطلاعات</h4><p class="note">فایل JSON شامل تیم‌ها، مسابقات، نتایج و تنظیمات سرور است.</p><div class="form-actions"><button class="btn muted-btn" id="exportBtn">خروجی پشتیبان</button><label class="btn ghost" for="importFile">بازیابی پشتیبان</label><input id="importFile" type="file" accept="application/json" class="hidden"></div><div class="form-actions"><button class="btn danger-btn" id="resetBtn">بازنشانی اطلاعات همین مرورگر</button></div></div></div></section>
 
 <section id="advancedAdmin" class="admin-section hidden">
   <div class="admin-grid">
@@ -245,7 +261,7 @@ const PAYMENT_LINKS={
 const DEFAULT_DB={adminPin:'1606',tournaments:[
 {id:'aim',name:'Aim Kings',map:'aim_map',mode:'1v1',entry:100000,prize:150000,capacity:32},
 {id:'duo',name:'Duo Clash',map:'de_inferno',mode:'2v2',entry:150000,prize:270000,capacity:16},
-{id:'dust2',name:'Dust2 Masters',map:'de_dust2',mode:'5v5',entry:300000,prize:550000,capacity:16}],teams:[],brackets:{},servers:[],formatImages:{},leagueSchedules:{},competitionFormat:'league_knockout',prizeDistribution:'split',serverType:'own'};
+{id:'dust2',name:'Dust2 Masters',map:'de_dust2',mode:'5v5',entry:300000,prize:550000,capacity:16}],teams:[],brackets:{},servers:[],formatImages:{},leagueSchedules:{},competitionFormat:'league_knockout',prizeDistribution:'split',serverType:'own',weeklySchedule:{cadence:'weekly',day:'',time:''}};
 let db=loadDB(),language='fa',filter='ALL',selectedTournamentId=db.tournaments[0]?.id||null,adminUnlocked=false;
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 function clone(v){return JSON.parse(JSON.stringify(v))}
@@ -644,6 +660,49 @@ ensureExtra();renderExtra();
   // Handle a changed league table selection when the public bracket selector changes.
   q('#bracketTournament')?.addEventListener('change',()=>renderLeaguePublic(q('#bracketTournament').value));
   renderAdminOverview();renderFormatImages();refreshLeagueSelect();renderEvents();
+})();
+</script>
+
+
+<script>
+(()=>{
+  const weeklyNode=document.getElementById('weeklyScheduleText');
+  const dayInput=document.getElementById('weeklyDayAdmin');
+  const timeInput=document.getElementById('weeklyTimeAdmin');
+  if(!window.__arenaLaunchDefaultsApplied){
+    window.__arenaLaunchDefaultsApplied=true;
+    if(!db.weeklySchedule) db.weeklySchedule={cadence:'weekly',day:'',time:''};
+    if(db.serverType!=='own') db.serverType='own';
+  }
+  function renderArenaWeekly(){
+    const w=db.weeklySchedule||{cadence:'weekly',day:'',time:''};
+    if(weeklyNode){
+      const day=w.day||''; const time=w.time||'';
+      weeklyNode.textContent=day&&time?`هر هفته، ${day} ساعت ${time} به وقت برگزارکننده`:
+        day?`هر هفته، ${day}؛ ساعت دقیق هنوز توسط مدیر تعیین نشده است.`:
+        'مسابقات هر هفته برگزار می‌شوند؛ روز و ساعت دقیق پس از تنظیم مدیر اعلام می‌شود.';
+    }
+    if(dayInput && document.activeElement!==dayInput) dayInput.value=w.day||'';
+    if(timeInput && document.activeElement!==timeInput) timeInput.value=w.time||'';
+  }
+  document.getElementById('saveWeeklyScheduleBtn')?.addEventListener('click',()=>{
+    const day=dayInput?.value||'',time=timeInput?.value||'';
+    if(day && !time){if(typeof toast==='function')toast('برای روز انتخاب‌شده، ساعت شروع را هم مشخص کن.');return;}
+    db.weeklySchedule={cadence:'weekly',day,time};
+    if(typeof saveDB==='function')saveDB();
+    renderArenaWeekly();
+    if(typeof toast==='function')toast(day&&time?'برنامه هفتگی ذخیره شد.':'برنامه هفتگی پاک شد؛ روز و ساعت هنوز تعیین نشده است.');
+  });
+  // Add a general support destination to the ticket selector if an older saved page lacks it.
+  const typeSelect=document.getElementById('reportType');
+  if(typeSelect && ![...typeSelect.options].some(o=>o.text==='پشتیبانی عمومی')){
+    const opt=document.createElement('option');opt.text='پشتیبانی عمومی';typeSelect.insertBefore(opt,typeSelect.firstChild);
+  }
+  renderArenaWeekly();
+  if(typeof renderAll==='function'){
+    const previous=renderAll;
+    renderAll=function(){previous();renderArenaWeekly();};
+  }
 })();
 </script>
 
