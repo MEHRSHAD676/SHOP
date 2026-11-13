@@ -49,7 +49,7 @@ button,input,select,textarea{font-family:inherit}
 <a class="brand" href="#home"><div class="brand-mark brand-mark-new" aria-label="CS 1.6 ARENA logo">
 <svg viewBox="0 0 64 64" role="img" aria-hidden="true"><path d="M32 4 56 18v28L32 60 8 46V18L32 4Z" fill="#141a24" stroke="#f0444d" stroke-width="3"/><path d="M32 12v10M32 42v10M12 32h10M42 32h10" stroke="#f6f7fb" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="32" r="13" fill="none" stroke="#f0444d" stroke-width="3"/><circle cx="32" cy="32" r="4" fill="#f6f7fb"/><path d="m25 39 14-14" stroke="#f0444d" stroke-width="3" stroke-linecap="round"/></svg></div><div><div class="brand-name">CS 1.6 <span>ARENA</span></div><div class="brand-sub">LEGACY NEVER DIES</div></div></a>
 <nav class="nav-links" id="navLinks"><a href="#tournaments" data-fa="مسابقات" data-en="Events">مسابقات</a><a href="#bracket" data-fa="براکت" data-en="Bracket">براکت</a><a href="#results" data-fa="نتایج" data-en="Results">نتایج</a><a href="#teams" data-fa="تیم‌ها" data-en="Teams">تیم‌ها</a><a href="#servers" data-fa="سرورها" data-en="Servers">سرورها</a><a href="#rules" data-fa="قوانین" data-en="Rules">قوانین</a><a href="#match-center">اتاق مسابقه</a><a href="#player-hub">بازیکن‌ها</a><a href="#community">انجمن</a><a href="#reports-center" data-fa="پشتیبانی" data-en="Support">پشتیبانی</a></nav>
-<div class="nav-actions"><button class="lang-btn" id="langToggle">EN</button><button class="btn primary small" id="openAdminTop">پنل مدیریت</button><button class="menu-btn" id="menuToggle" aria-label="باز کردن منو" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button></div>
+<div class="nav-actions"><button class="lang-btn" id="langToggle">EN</button><button class="btn ghost small" id="openPlayerAuth">حساب بازیکن</button><button class="btn primary small" id="openAdminTop">پنل مدیریت</button><button class="menu-btn" id="menuToggle" aria-label="باز کردن منو" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button></div>
 </div></header>
 <main>
 <section class="hero" id="home"><div class="container"><div class="hero-grid"><div>
@@ -186,6 +186,53 @@ button,input,select,textarea{font-family:inherit}
 <section class="container"><div class="cta"><div><div class="kicker">YOUR TEAM. YOUR LEGACY.</div><h2 data-fa="تیمت آماده‌ی مبارزه‌ست؟" data-en="Is your team ready?">تیمت آماده‌ی مبارزه‌ست؟</h2><p data-fa="برای هماهنگی ثبت‌نام، به برگزارکننده در تلگرام پیام بده." data-en="Message the organizer on Telegram to arrange your registration.">برای هماهنگی ثبت‌نام، به برگزارکننده در تلگرام پیام بده.</p></div><button class="btn primary" id="ctaRegister">ثبت‌نام در مسابقه ↙</button></div></section>
 </main>
 <footer><div class="container footer-row"><div><div class="footer-brand">CS 1.6 ARENA</div><div>یک پروژه مستقل طرفداری برای جامعه Counter-Strike 1.6.</div></div><div>این وب‌سایت وابسته به Valve نیست. نسخه تک‌فایلی و محلی؛ پرداخت واقعی و ثبت‌نام مرکزی نیازمند بک‌اند است.</div><button class="btn ghost small" id="openAdminFooter">ورود مدیر</button></div></footer>
+
+<!-- Player account: separate auth storage from the administrator session -->
+<div class="overlay" id="playerAuthModal" role="dialog" aria-modal="true" aria-labelledby="playerAuthTitle">
+  <div class="dialog">
+    <div class="dialog-head">
+      <h3 id="playerAuthTitle">حساب بازیکن CS 1.6 ARENA</h3>
+      <button class="close" type="button" data-close="playerAuthModal" aria-label="بستن">×</button>
+    </div>
+    <div class="dialog-body">
+      <div id="playerAuthLoggedOut">
+        <div class="tabs" role="tablist" aria-label="ورود و ثبت‌نام">
+          <button type="button" class="tab active" id="playerShowSignup">ساخت حساب</button>
+          <button type="button" class="tab" id="playerShowLogin">ورود</button>
+        </div>
+        <form id="playerSignupForm">
+          <div class="form-grid">
+            <div class="field full"><label for="playerSignupName">نام نمایشی</label><input id="playerSignupName" maxlength="40" autocomplete="nickname" placeholder="نام بازیکن"></div>
+            <div class="field full"><label for="playerSignupEmail">ایمیل</label><input id="playerSignupEmail" type="email" autocomplete="email" required placeholder="name@example.com"></div>
+            <div class="field full"><label for="playerSignupPassword">رمز عبور (حداقل ۸ کاراکتر)</label><input id="playerSignupPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="رمز عبور قوی"></div>
+          </div>
+          <div class="form-actions"><button class="btn primary" type="submit" id="playerSignupSubmit">ساخت حساب و ارسال ایمیل تأیید</button></div>
+        </form>
+        <form id="playerLoginForm" class="hidden">
+          <div class="form-grid">
+            <div class="field full"><label for="playerLoginEmail">ایمیل</label><input id="playerLoginEmail" type="email" autocomplete="email" required placeholder="name@example.com"></div>
+            <div class="field full"><label for="playerLoginPassword">رمز عبور</label><input id="playerLoginPassword" type="password" autocomplete="current-password" required placeholder="رمز عبور"></div>
+          </div>
+          <div class="form-actions"><button class="btn primary" type="submit">ورود به حساب</button><button class="btn ghost" type="button" id="playerForgotPassword">فراموشی رمز عبور</button></div>
+        </form>
+      </div>
+      <div id="playerAuthLoggedIn" class="hidden">
+        <div class="callout">وارد حساب بازیکن شدی. اطلاعات پروفایل در حساب احراز هویت Supabase ذخیره می‌شود.</div>
+        <div class="field"><label for="playerProfileName">نام نمایشی</label><input id="playerProfileName" maxlength="40" placeholder="نام بازیکن"></div>
+        <div class="field" style="margin-top:10px"><label for="playerProfilePhone">شماره موبایل (اختیاری)</label><input id="playerProfilePhone" type="tel" inputmode="tel" placeholder="09xxxxxxxxx"></div>
+        <p class="form-hint" id="playerAccountEmail"></p>
+        <div class="form-actions"><button class="btn primary" type="button" id="playerSaveProfile">ذخیره پروفایل</button><button class="btn danger-btn" type="button" id="playerLogout">خروج از حساب بازیکن</button></div>
+        <form id="playerRecoveryForm" class="hidden" style="margin-top:14px">
+          <div class="field"><label for="playerNewPassword">رمز عبور جدید</label><input id="playerNewPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="حداقل ۸ کاراکتر"></div>
+          <div class="form-actions"><button class="btn primary" type="submit">ثبت رمز جدید</button></div>
+        </form>
+      </div>
+      <div id="playerAuthMessage" class="form-hint" role="status" aria-live="polite"></div>
+      <p class="form-hint">برای ثبت‌نام، ایمیل معتبر وارد کن و لینک تأیید ارسال‌شده را باز کن. ارسال ایمیل به تنظیمات تأیید ایمیل و SMTP پروژه Supabase وابسته است.</p>
+    </div>
+  </div>
+</div>
+
 
 <!-- Registration contact dialog -->
 <div class="overlay" id="registrationModal" role="dialog" aria-modal="true"><div class="dialog"><div class="dialog-head"><h3>پرداخت و ثبت‌نام مسابقه</h3><button class="close" data-close="registrationModal">×</button></div><div class="dialog-body"><div id="selectedEventInfo" class="callout"></div><div class="payment-box" id="paymentBox"><div class="payment-head"><div><b>پرداخت ورودی از طریق آبان‌گیت‌وی</b><div class="note" id="paymentDescription">مبلغ پرداخت مطابق فرمت مسابقه است.</div></div><span class="tag pending">ABAN GATEWAY</span></div><a id="payEntryBtn" class="btn primary" href="#" target="_blank" rel="noopener noreferrer">رفتن به صفحه پرداخت ↗</a><p class="form-hint" id="paymentNotice">پس از پرداخت، کد پیگیری را در فرم بنویس و اطلاعات ثبت‌نام را در تلگرام برای برگزارکننده بفرست. تأیید نهایی پرداخت توسط مدیر انجام می‌شود.</p></div><div class="callout hidden" id="paymentUnavailable">برای این مبلغ لینک پرداخت ثبت نشده است. پیش از واریز، با برگزارکننده در تلگرام هماهنگ کن.</div><div class="form-grid"><div class="field"><label for="regTeam">نام تیم</label><input id="regTeam" placeholder="مثلاً IRAN WARRIORS"></div><div class="field"><label for="regCaptain">نام کاپیتان</label><input id="regCaptain" placeholder="نام و نام خانوادگی"></div><div class="field full"><label for="regPlayers">نام بازیکن‌ها (با ویرگول جدا کن)</label><input id="regPlayers" placeholder="Player1, Player2, ..."></div><div class="field"><label for="regContact">راه ارتباطی شما (اختیاری)</label><input id="regContact" placeholder="آیدی تلگرام یا شماره تماس"></div><div class="field"><label for="regReceipt">کد پیگیری پرداخت (اختیاری)</label><input id="regReceipt" placeholder="بعد از پرداخت، در صورت وجود"></div></div><p class="form-hint">این فایل HTML نتیجه پرداخت را خودکار از درگاه دریافت نمی‌کند و ثبت‌نام را به‌صورت خودکار تأیید نمی‌کند. پس از پرداخت، رسید یا کد پیگیری را برای برگزارکننده بفرست؛ مدیر پس از بررسی، ورودی را تأیید می‌کند. این صفحه اطلاعات را روی سرور ذخیره نمی‌کند.</p><div class="form-actions"><button class="btn blue" id="sendTelegram">ارسال اطلاعات ثبت‌نام به تلگرام ↗</button><button class="btn ghost" data-close="registrationModal">بستن</button></div><span class="handle">@hajimehrsahd</span></div></div></div>
@@ -734,6 +781,166 @@ ensureExtra();renderExtra();
     const previous=renderAll;
     renderAll=function(){previous();renderArenaWeekly();};
   }
+})();
+</script>
+
+
+<script>
+(() => {
+  'use strict';
+  const PROJECT_URL = 'https://ghzpkahtthlauqfwvwdy.supabase.co';
+  const PUBLISHABLE_KEY = 'sb_publishable_paEd5BNTcSMcjL55mS_UTQ_bYksKYRu';
+  const modal = document.getElementById('playerAuthModal');
+  if (!modal || !window.supabase) return;
+
+  // Separate browser storage keeps player sign-in from replacing the admin session.
+  const playerAuthClient = window.supabase.createClient(PROJECT_URL, PUBLISHABLE_KEY, {
+    auth: {
+      storageKey: 'cs16arena-player-auth-v1',
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
+  const $ = (id) => document.getElementById(id);
+  const message = (text, isError = false) => {
+    const node = $('playerAuthMessage');
+    node.textContent = text || '';
+    node.style.color = isError ? '#ff9298' : '#57d6a0';
+  };
+  const showModal = () => {
+    modal.classList.add('show');
+    document.body.classList.add('modal-open');
+    message('');
+    refreshPlayerSession();
+  };
+  const hideModal = () => {
+    modal.classList.remove('show');
+    if (!document.querySelector('.overlay.show')) document.body.classList.remove('modal-open');
+  };
+  const showSignup = () => {
+    $('playerSignupForm').classList.remove('hidden');
+    $('playerLoginForm').classList.add('hidden');
+    $('playerShowSignup').classList.add('active');
+    $('playerShowLogin').classList.remove('active');
+    message('');
+  };
+  const showLogin = () => {
+    $('playerSignupForm').classList.add('hidden');
+    $('playerLoginForm').classList.remove('hidden');
+    $('playerShowSignup').classList.remove('active');
+    $('playerShowLogin').classList.add('active');
+    message('');
+  };
+  async function refreshPlayerSession() {
+    const { data, error } = await playerAuthClient.auth.getSession();
+    if (error) { message('بازیابی وضعیت حساب انجام نشد. دوباره تلاش کن.', true); return; }
+    const user = data.session?.user;
+    $('playerAuthLoggedOut').classList.toggle('hidden', !!user);
+    $('playerAuthLoggedIn').classList.toggle('hidden', !user);
+    if (user) {
+      $('playerAccountEmail').textContent = 'ایمیل حساب: ' + (user.email || '');
+      $('playerProfileName').value = user.user_metadata?.display_name || '';
+      $('playerProfilePhone').value = user.user_metadata?.phone || '';
+    }
+  }
+
+  $('openPlayerAuth')?.addEventListener('click', showModal);
+  modal.querySelectorAll('[data-close="playerAuthModal"]').forEach(b => b.addEventListener('click', hideModal));
+  modal.addEventListener('click', e => { if (e.target === modal) hideModal(); });
+  $('playerShowSignup').addEventListener('click', showSignup);
+  $('playerShowLogin').addEventListener('click', showLogin);
+
+  $('playerSignupForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    message('');
+    const email = $('playerSignupEmail').value.trim();
+    const password = $('playerSignupPassword').value;
+    const displayName = $('playerSignupName').value.trim();
+    if (password.length < 8) return message('رمز عبور باید حداقل ۸ کاراکتر باشد.', true);
+    const submit = $('playerSignupSubmit');
+    submit.disabled = true;
+    try {
+      const { data, error } = await playerAuthClient.auth.signUp({
+        email, password,
+        options: {
+          data: { display_name: displayName },
+          emailRedirectTo: window.location.href.split('#')[0]
+        }
+      });
+      if (error) throw error;
+      if (data.session) {
+        message('حساب ساخته شد و وارد شدی.');
+        await refreshPlayerSession();
+      } else {
+        message('درخواست ساخت حساب ثبت شد. ایمیل خود را باز کن و لینک تأیید Supabase را بزن؛ سپس وارد حساب شو.');
+        showLogin();
+      }
+    } catch (err) {
+      message(err.message || 'ساخت حساب انجام نشد. تنظیمات Supabase را بررسی کن.', true);
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  $('playerLoginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    message('');
+    try {
+      const { error } = await playerAuthClient.auth.signInWithPassword({
+        email: $('playerLoginEmail').value.trim(),
+        password: $('playerLoginPassword').value
+      });
+      if (error) throw error;
+      message('با موفقیت وارد شدی.');
+      await refreshPlayerSession();
+    } catch (err) {
+      message(err.message || 'ورود انجام نشد. ایمیل و رمز را بررسی کن.', true);
+    }
+  });
+
+  $('playerForgotPassword').addEventListener('click', async () => {
+    const email = $('playerLoginEmail').value.trim();
+    if (!email) return message('ابتدا ایمیل خود را در کادر ایمیل وارد کن.', true);
+    try {
+      const { error } = await playerAuthClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.href.split('#')[0]
+      });
+      if (error) throw error;
+      message('اگر این ایمیل در سامانه ثبت شده باشد، لینک بازیابی رمز برایش ارسال می‌شود.');
+    } catch (err) {
+      message(err.message || 'ارسال لینک بازیابی انجام نشد.', true);
+    }
+  });
+
+  $('playerSaveProfile').addEventListener('click', async () => {
+    const display_name = $('playerProfileName').value.trim();
+    const phone = $('playerProfilePhone').value.trim();
+    if (phone && !/^(\+98|0)?9\d{9}$/.test(phone.replace(/[\s-]/g, ''))) {
+      return message('شماره موبایل ایران را به شکل 09xxxxxxxxx وارد کن.', true);
+    }
+    const { error } = await playerAuthClient.auth.updateUser({
+      data: { display_name, phone }
+    });
+    if (error) return message(error.message || 'ذخیره پروفایل انجام نشد.', true);
+    message('پروفایل ذخیره شد.');
+    await refreshPlayerSession();
+  });
+
+  $('playerLogout').addEventListener('click', async () => {
+    const { error } = await playerAuthClient.auth.signOut();
+    if (error) return message(error.message || 'خروج انجام نشد.', true);
+    message('از حساب بازیکن خارج شدی.');
+    await refreshPlayerSession();
+  });
+
+  playerAuthClient.auth.onAuthStateChange((_event, _session) => {
+    refreshPlayerSession();
+  });
+  refreshPlayerSession();
+
+  // Preserve the existing modal close behavior while supporting Escape for this modal.
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('show')) hideModal(); });
 })();
 </script>
 
