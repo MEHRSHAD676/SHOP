@@ -216,24 +216,25 @@ button,input,select,textarea{font-family:inherit}
         </div>
         <form id="playerSignupForm">
           <div class="form-grid">
-            <div class="field full"><label for="playerSignupName">نام نمایشی</label><input id="playerSignupName" maxlength="40" autocomplete="nickname" placeholder="نام بازیکن"></div>
-            <div class="field full"><label for="playerSignupEmail">ایمیل</label><input id="playerSignupEmail" type="email" autocomplete="email" required placeholder="name@example.com"></div>
+            <div class="field full"><label for="playerSignupName">یوزرنیم</label><input id="playerSignupName" maxlength="24" autocomplete="username" required placeholder="مثلاً H4J1ME"></div>
+            <div class="field full"><label for="playerSignupPhone">شماره موبایل</label><input id="playerSignupPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="09xxxxxxxxx"></div>
             <div class="field full"><label for="playerSignupPassword">رمز عبور (حداقل ۸ کاراکتر)</label><input id="playerSignupPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="رمز عبور قوی"></div>
           </div>
-          <div class="form-actions"><button class="btn primary" type="submit" id="playerSignupSubmit">ساخت حساب و ارسال ایمیل تأیید</button></div>
+          <p class="form-hint">هیچ کد پیامکی یا ایمیلی ارسال نمی‌شود. شماره فقط برای ساخت حساب در Supabase ثبت می‌شود.</p>
+          <div class="form-actions"><button class="btn primary" type="submit" id="playerSignupSubmit">ساخت حساب</button></div>
         </form>
         <form id="playerLoginForm" class="hidden">
           <div class="form-grid">
-            <div class="field full"><label for="playerLoginEmail">ایمیل</label><input id="playerLoginEmail" type="email" autocomplete="email" required placeholder="name@example.com"></div>
+            <div class="field full"><label for="playerLoginPhone">شماره موبایل ثبت‌شده</label><input id="playerLoginPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="09xxxxxxxxx"></div>
             <div class="field full"><label for="playerLoginPassword">رمز عبور</label><input id="playerLoginPassword" type="password" autocomplete="current-password" required placeholder="رمز عبور"></div>
           </div>
-          <div class="form-actions"><button class="btn primary" type="submit">ورود به حساب</button><button class="btn ghost" type="button" id="playerForgotPassword">فراموشی رمز عبور</button></div>
+          <div class="form-actions"><button class="btn primary" type="submit">ورود به حساب</button></div>
         </form>
       </div>
       <div id="playerAuthLoggedIn" class="hidden">
         <div class="callout">وارد حساب بازیکن شدی. اطلاعات پروفایل در حساب احراز هویت Supabase ذخیره می‌شود.</div>
-        <div class="field"><label for="playerProfileName">نام نمایشی</label><input id="playerProfileName" maxlength="40" placeholder="نام بازیکن"></div>
-        <div class="field" style="margin-top:10px"><label for="playerProfilePhone">شماره موبایل (اختیاری)</label><input id="playerProfilePhone" type="tel" inputmode="tel" placeholder="09xxxxxxxxx"></div>
+        <div class="field"><label for="playerProfileName">یوزرنیم</label><input id="playerProfileName" maxlength="24" placeholder="یوزرنیم"></div>
+        <div class="field" style="margin-top:10px"><label for="playerProfilePhone">شماره موبایل ثبت‌شده</label><input id="playerProfilePhone" type="tel" inputmode="tel" readonly></div>
         <div class="form-grid" style="margin-top:10px">
           <div class="field"><label for="playerProfileNick">نام داخل بازی</label><input id="playerProfileNick" maxlength="28" placeholder="مثلاً H4J1ME"></div>
           <div class="field"><label for="playerProfileSteam">Steam ID / شناسه</label><input id="playerProfileSteam" maxlength="48" placeholder="STEAM_0:1:123456"></div>
@@ -242,15 +243,12 @@ button,input,select,textarea{font-family:inherit}
         </div>
         <p class="form-hint">اطلاعات حساب در Supabase ذخیره می‌شود؛ کارت عمومی بازیکن در این نسخه هنوز به دیتابیس مرکزی متصل نیست.</p>
         <p class="form-hint" id="playerAccountEmail"></p>
+        <div class="field" style="margin-top:12px"><label for="playerChangePassword">تغییر رمز عبور (اختیاری)</label><input id="playerChangePassword" type="password" minlength="8" autocomplete="new-password" placeholder="رمز جدید، حداقل ۸ کاراکتر"></div>
+        <div class="form-actions"><button class="btn ghost" type="button" id="playerChangePasswordBtn">ثبت رمز جدید</button></div>
         <div class="form-actions"><button class="btn primary" type="button" id="playerSaveProfile">ذخیره پروفایل</button><button class="btn danger-btn" type="button" id="playerLogout">خروج از حساب بازیکن</button></div>
       </div>
-      <form id="playerRecoveryForm" class="hidden" style="margin-top:14px">
-        <div class="callout">لینک بازیابی معتبر است. رمز جدیدت را وارد کن.</div>
-        <div class="field"><label for="playerNewPassword">رمز عبور جدید</label><input id="playerNewPassword" type="password" minlength="8" autocomplete="new-password" required placeholder="حداقل ۸ کاراکتر"></div>
-        <div class="form-actions"><button class="btn primary" type="submit" id="playerRecoverySubmit">ثبت رمز جدید</button></div>
-      </form>
       <div id="playerAuthMessage" class="form-hint" role="status" aria-live="polite"></div>
-      <p class="form-hint">برای ثبت‌نام، ایمیل معتبر وارد کن و لینک تأیید ارسال‌شده را باز کن. ارسال ایمیل به تنظیمات تأیید ایمیل و SMTP پروژه Supabase وابسته است.</p>
+      <p class="form-hint">ورود و ثبت‌نام با شماره موبایل و رمز عبور انجام می‌شود؛ هیچ ایمیل یا کد تأییدی در کار نیست. اگر رمز را فراموش کنی، فعلاً باید از پشتیبانی کمک بگیری.</p>
     </div>
   </div>
 </div>
@@ -280,7 +278,7 @@ button,input,select,textarea{font-family:inherit}
  <div class="admin-card"><h4>ثبت نتایج لیگ</h4><div id="adminLeagueMatches" class="admin-list"><div class="empty">ابتدا برنامه لیگ را بساز.</div></div></div>
 </div>
 <div class="admin-grid"><div class="admin-card"><h4>ساخت براکت حذفی</h4><div class="field"><label for="generateTournament">انتخاب مسابقه</label><select id="generateTournament"></select></div><div class="form-actions"><button class="btn primary" id="generateBracketBtn">ساخت / بازسازی براکت</button></div><p class="form-hint">بازسازی براکت، نتایج و مسیر قبلی همان مسابقه را پاک می‌کند.</p></div><div class="admin-card"><h4>ثبت نتیجه بازی</h4><div class="field"><label for="matchTournament">مسابقه</label><select id="matchTournament"></select></div><div id="adminMatchList" class="admin-list"></div></div></div></section>
-<section id="tournamentAdmin" class="admin-section hidden"><div class="admin-grid"><div class="admin-card"><h4>افزودن مسابقه جدید</h4><div class="form-grid"><div class="field"><label for="newTournamentName">نام مسابقه</label><input id="newTournamentName" placeholder="مثلاً Night Cup"></div><div class="field"><label for="newTournamentMode">فرمت</label><select id="newTournamentMode"><option>1v1</option><option>2v2</option><option>5v5</option></select></div><div class="field"><label for="newTournamentMap">نقشه</label><input id="newTournamentMap" placeholder="de_dust2"></div><div class="field"><label for="newTournamentEntry">ورودی (تومان)</label><input id="newTournamentEntry" type="number" min="0" placeholder="100000"></div><div class="field"><label for="newTournamentPrize">جایزه برنده (تومان)</label><input id="newTournamentPrize" type="number" min="0" placeholder="150000"></div><div class="field"><label for="newTournamentCapacity">ظرفیت تیم</label><input id="newTournamentCapacity" type="number" min="2" placeholder="16"></div></div><div class="form-actions"><button class="btn primary" id="addTournamentBtn">ساخت مسابقه</button></div></div><div class="admin-card"><h4>مسابقات فعلی</h4><div id="adminTournamentList" class="admin-list"></div></div></div>
+<section id="tournamentAdmin" class="admin-section hidden"><div class="admin-grid"><div class="admin-card"><h4>افزودن مسابقه جدید</h4><div class="form-grid"><div class="field"><label for="newTournamentName">نام مسابقه</label><input id="newTournamentName" placeholder="مثلاً Night Cup"></div><div class="field"><label for="newTournamentGame">بازی</label><select id="newTournamentGame"><option value="CS 1.6">Counter-Strike 1.6</option><option value="CS2">Counter-Strike 2</option></select></div><div class="field"><label for="newTournamentMode">فرمت</label><select id="newTournamentMode"><option>1v1</option><option>2v2</option><option>5v5</option></select></div><div class="field"><label for="newTournamentMap">نقشه</label><input id="newTournamentMap" placeholder="de_dust2"></div><div class="field"><label for="newTournamentEntry">ورودی (تومان)</label><input id="newTournamentEntry" type="number" min="0" placeholder="100000"></div><div class="field"><label for="newTournamentPrize">جایزه برنده (تومان)</label><input id="newTournamentPrize" type="number" min="0" placeholder="150000"></div><div class="field"><label for="newTournamentCapacity">ظرفیت تیم</label><input id="newTournamentCapacity" type="number" min="2" placeholder="16"></div></div><div class="form-actions"><button class="btn primary" id="addTournamentBtn">ساخت مسابقه</button></div></div><div class="admin-card"><h4>مسابقات فعلی</h4><div id="adminTournamentList" class="admin-list"></div></div></div>
 <div class="admin-card" style="margin-top:13px">
  <h4>تصویر اختصاصی کارت مسابقه‌ها</h4>
  <p class="form-hint">برای هر فرمت یک تصویر جدا انتخاب کن. تصویر بهینه می‌شود و فقط در همین مرورگر ذخیره خواهد شد.</p>
@@ -330,17 +328,24 @@ const TELEGRAM='hajimehrsahd';
 const PAYMENT_LINKS={
   '1v1':{amount:100000,url:'https://abangateway.ir/@cs_1_6arena/k254qq7b'},
   '2v2':{amount:150000,url:'https://abangateway.ir/@cs_1_6arena/kkh9n529'},
-  '5v5':{amount:500000,url:''}
+  '5v5':{amount:500000,url:'https://abangateway.ir/@cs_1_6arena/nesnqf6b'}
 };
 const DEFAULT_DB={adminPin:'1606',tournaments:[
-{id:'aim',name:'Aim Kings',map:'aim_map',mode:'1v1',entry:100000,prize:150000,capacity:32},
-{id:'duo',name:'Duo Clash',map:'de_inferno',mode:'2v2',entry:150000,prize:270000,capacity:16},
-{id:'dust2',name:'Dust2 Masters',map:'de_dust2',mode:'5v5',entry:500000,prize:550000,capacity:16}],teams:[],brackets:{},servers:[],formatImages:{},leagueSchedules:{},competitionFormat:'league_knockout',prizeDistribution:'split',serverType:'own',weeklySchedule:{cadence:'weekly',day:'',time:''}};
+{id:'aim',name:'Aim Kings',game:'CS 1.6',map:'aim_map',mode:'1v1',entry:100000,prize:150000,capacity:32},
+{id:'duo',name:'Duo Clash',game:'CS 1.6',map:'de_inferno',mode:'2v2',entry:150000,prize:270000,capacity:16},
+{id:'dust2',name:'Dust2 Masters',game:'CS 1.6',map:'de_dust2',mode:'5v5',entry:500000,prize:900000,capacity:16},
+{id:'cs2-dust2-5v5',name:'CS2 Dust2 Masters',game:'CS2',map:'de_dust2',mode:'5v5',entry:500000,prize:900000,capacity:16}],teams:[],brackets:{},servers:[],formatImages:{},leagueSchedules:{},competitionFormat:'league_knockout',prizeDistribution:'split',serverType:'own',weeklySchedule:{cadence:'weekly',day:'',time:''}};
 let db=loadDB(),language='fa',filter='ALL',selectedTournamentId=db.tournaments[0]?.id||null,adminUnlocked=false;
+// Migrate existing browser data without duplicating the CS2 event.
+db.tournaments.forEach(t=>{
+  if(!t.game) t.game='CS 1.6';
+  if(t.mode==='5v5') { t.entry=500000; t.prize=900000; }
+});
+if(!db.tournaments.some(t=>t.id==='cs2-dust2-5v5')){
+  db.tournaments.push({id:'cs2-dust2-5v5',name:'CS2 Dust2 Masters',game:'CS2',map:'de_dust2',mode:'5v5',entry:500000,prize:900000,capacity:16});
+}
+saveDB();
 window.__ARENA_DB__=db;window.__ARENA_TOURNAMENTS__=db.tournaments;
-// One-time migration: update the built-in Dust2 Masters 5v5 fee for existing browsers.
-const default5v5=db.tournaments.find(t=>t.id==='dust2'&&t.mode==='5v5');
-if(default5v5&&Number(default5v5.entry)===300000){default5v5.entry=500000;saveDB();}
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 function clone(v){return JSON.parse(JSON.stringify(v))}
 function loadDB(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return clone(DEFAULT_DB);const parsed=JSON.parse(raw);return {...clone(DEFAULT_DB),...parsed,tournaments:Array.isArray(parsed.tournaments)?parsed.tournaments:clone(DEFAULT_DB.tournaments),teams:Array.isArray(parsed.teams)?parsed.teams:[],brackets:parsed.brackets||{},servers:Array.isArray(parsed.servers)?parsed.servers:[]}}catch(e){return clone(DEFAULT_DB)}}
@@ -351,11 +356,11 @@ function eventById(id){return db.tournaments.find(t=>t.id===id)}
 function teamById(id){return db.teams.find(t=>t.id===id)}
 function showModal(id){$('#'+id).classList.add('show');document.body.classList.add('modal-open')}
 function hideModal(id){$('#'+id).classList.remove('show');if(!$('.overlay.show'))document.body.classList.remove('modal-open')}
-function renderEvents(){const list=db.tournaments.filter(t=>filter==='ALL'||t.mode===filter);$('#tournamentGrid').innerHTML=list.length?list.map(t=>`<article class="event-card"><div class="event-banner"><span class="event-map">${esc(t.map||'CS 1.6')}</span><span class="event-mode">${esc(t.mode)}</span></div><div class="event-content"><div class="event-title-row"><div class="event-title">${esc(t.name)}</div><span class="status">● OPEN</span></div><div class="meta-grid"><div><span class="meta-label">${language==='fa'?'ورودی کل تیم':'Team entry'}</span><span class="meta-value">${formatMoney(t.entry)}</span></div><div><span class="meta-label">${language==='fa'?'جایزه برنده':'Winner prize'}</span><span class="meta-value prize">${formatMoney(t.prize)}</span></div><div><span class="meta-label">${language==='fa'?'ظرفیت تیم':'Team slots'}</span><span class="meta-value">${Number(t.capacity)||'—'}</span></div></div><div class="event-foot"><span class="note">${(db.teams.filter(x=>x.tournamentId===t.id).length)} تیم ثبت‌شده</span><button class="btn primary small" data-register="${esc(t.id)}">${language==='fa'?'ثبت‌نام':'Register'} ↙</button></div></div></article>`).join(''):'<div class="empty">برای این فرمت مسابقه‌ای تعریف نشده است.</div>';$$('[data-register]').forEach(b=>b.addEventListener('click',()=>openReg(b.dataset.register)))}
+function renderEvents(){const list=db.tournaments.filter(t=>filter==='ALL'||t.mode===filter);$('#tournamentGrid').innerHTML=list.length?list.map(t=>`<article class="event-card"><div class="event-banner"><span class="event-map">${esc(t.game||'CS 1.6')} · ${esc(t.map||'de_dust2')}</span><span class="event-mode">${esc(t.mode)}</span></div><div class="event-content"><div class="event-title-row"><div class="event-title">${esc(t.name)}</div><span class="status">● OPEN</span></div><div class="meta-grid"><div><span class="meta-label">${language==='fa'?'ورودی کل تیم':'Team entry'}</span><span class="meta-value">${formatMoney(t.entry)}</span></div><div><span class="meta-label">${language==='fa'?'جایزه برنده':'Winner prize'}</span><span class="meta-value prize">${formatMoney(t.prize)}</span></div><div><span class="meta-label">${language==='fa'?'ظرفیت تیم':'Team slots'}</span><span class="meta-value">${Number(t.capacity)||'—'}</span></div></div><div class="event-foot"><span class="note">${(db.teams.filter(x=>x.tournamentId===t.id).length)} تیم ثبت‌شده</span><button class="btn primary small" data-register="${esc(t.id)}">${language==='fa'?'ثبت‌نام':'Register'} ↙</button></div></div></article>`).join(''):'<div class="empty">برای این فرمت مسابقه‌ای تعریف نشده است.</div>';$$('[data-register]').forEach(b=>b.addEventListener('click',()=>openReg(b.dataset.register)))}
 function renderSelects(){const opts=db.tournaments.map(t=>`<option value="${esc(t.id)}">${esc(t.name)} (${esc(t.mode)})</option>`).join('')||'<option value="">مسابقه‌ای موجود نیست</option>';['bracketTournament','adminTeamTournament','generateTournament','matchTournament','serverTournament'].forEach(id=>{const el=$('#'+id);if(!el)return;const old=el.value;el.innerHTML=opts;if([...el.options].some(o=>o.value===old))el.value=old});renderBracket();renderAdminLists();renderAdminMatchList()}
 function paymentLinkFor(t){const item=PAYMENT_LINKS[t?.mode];return item&&Number(t.entry)===item.amount?item.url:''}
 function openReg(id){const t=eventById(id);if(!t)return;selectedTournamentId=id;$('#selectedEventInfo').textContent=`${t.name} · ${t.mode} · ورودی کل تیم: ${formatMoney(t.entry)} · جایزه برنده: ${formatMoney(t.prize)}`;const paymentUrl=paymentLinkFor(t);$('#paymentBox').classList.toggle('hidden',!paymentUrl);$('#paymentUnavailable').classList.toggle('hidden',!!paymentUrl);$('#payEntryBtn').href=paymentUrl||'#';$('#paymentDescription').textContent=`مبلغ قابل پرداخت: ${formatMoney(t.entry)} · هزینه کل تیم`;$('#regTeam').value='';$('#regCaptain').value='';$('#regPlayers').value='';$('#regContact').value='';$('#regReceipt').value='';showModal('registrationModal')}
-function sendTelegram(){const t=eventById(selectedTournamentId);if(!t)return;const team=$('#regTeam').value.trim(),captain=$('#regCaptain').value.trim(),players=$('#regPlayers').value.trim(),contact=$('#regContact').value.trim(),receipt=$('#regReceipt').value.trim();if(!team||!captain){toast('نام تیم و کاپیتان را وارد کن.');return}const payUrl=paymentLinkFor(t);const lines=['سلام، برای ثبت‌نام در CS 1.6 ARENA پیام می‌دهم.',`مسابقه: ${t.name}`,`فرمت: ${t.mode}`,`ورودی کل تیم: ${formatMoney(t.entry)}`,`تیم: ${team}`,`کاپیتان: ${captain}`,`بازیکن‌ها: ${players||'در پیام بعدی ارسال می‌کنم'}`,`راه ارتباطی: ${contact||'در تلگرام'}`,`کد پیگیری پرداخت: ${receipt||'هنوز ارسال نشده'}`];if(payUrl)lines.push(`لینک پرداخت: ${payUrl}`);const msg=encodeURIComponent(lines.join('\n'));window.open(`https://t.me/${TELEGRAM}?text=${msg}`,'_blank','noopener');hideModal('registrationModal')}
+function sendTelegram(){const t=eventById(selectedTournamentId);if(!t)return;const team=$('#regTeam').value.trim(),captain=$('#regCaptain').value.trim(),players=$('#regPlayers').value.trim(),contact=$('#regContact').value.trim(),receipt=$('#regReceipt').value.trim();if(!team||!captain){toast('نام تیم و کاپیتان را وارد کن.');return}const payUrl=paymentLinkFor(t);const lines=['سلام، برای ثبت‌نام در CS 1.6 ARENA پیام می‌دهم.',`بازی: ${t.game||'CS 1.6'}`,`مسابقه: ${t.name}`,`فرمت: ${t.mode}`,`ورودی کل تیم: ${formatMoney(t.entry)}`,`تیم: ${team}`,`کاپیتان: ${captain}`,`بازیکن‌ها: ${players||'در پیام بعدی ارسال می‌کنم'}`,`راه ارتباطی: ${contact||'در تلگرام'}`,`کد پیگیری پرداخت: ${receipt||'هنوز ارسال نشده'}`];if(payUrl)lines.push(`لینک پرداخت: ${payUrl}`);const msg=encodeURIComponent(lines.join('\n'));window.open(`https://t.me/${TELEGRAM}?text=${msg}`,'_blank','noopener');hideModal('registrationModal')}
 function renderBracket(){const id=$('#bracketTournament').value||db.tournaments[0]?.id;const root=$('#bracketView');if(!id){root.innerHTML='<div class="empty">ابتدا مسابقه بساز.</div>';return}const data=db.brackets[id];if(!data||!data.rounds?.length){root.innerHTML='<div class="empty">هنوز براکتی ساخته نشده است. بعد از تأیید پرداخت حداقل دو تیم، مدیر می‌تواند براکت را بسازد.</div>';return}root.innerHTML=`<div class="bracket-wrap"><div class="bracket">${data.rounds.map((round,ri)=>`<div class="round"><h4>${roundName(ri,data.rounds.length)}</h4>${round.map(m=>`<div class="match"><div class="match-team ${m.winnerId&&m.winnerId===m.teamA?'winner':''}"><span>${esc(teamName(m.teamA))}</span><b class="match-score">${m.scoreA??'—'}</b></div><div class="match-team ${m.winnerId&&m.winnerId===m.teamB?'winner':''}"><span>${esc(teamName(m.teamB))}</span><b class="match-score">${m.scoreB??'—'}</b></div>${m.winnerId?'<div class="note green">برنده: '+esc(teamName(m.winnerId))+'</div>':''}</div>`).join('')}</div>`).join('')}</div></div>`}
 function roundName(i,total){if(i===total-1)return 'فینال';if(i===total-2)return 'نیمه‌نهایی';if(i===total-3)return 'یک‌چهارم نهایی';return `مرحله ${i+1}`}
 function teamName(id){if(id==='BYE')return 'استراحت';return teamById(id)?.name||'در انتظار تیم'}
@@ -367,7 +372,7 @@ function renderRankings(){const wins={};Object.values(db.brackets).forEach(b=>(b
 function renderServers(){const s=db.servers;$('#serverGrid').innerHTML=s.length?s.map(x=>`<article class="server-card"><h4>${esc(x.name||'سرور مسابقه')}</h4><div class="note">${esc(eventById(x.tournamentId)?.name||'مسابقه')} · ${esc(x.map||'')}</div><div class="server-data">${esc(x.ip)}:${esc(x.port)}</div><div class="server-data">${x.password?'PASSWORD: '+esc(x.password):'NO PASSWORD'}</div><button class="btn ghost small" data-copy-server="${esc(x.id)}">کپی دستور اتصال</button></article>`).join(''):'<div class="empty">هنوز اطلاعات سروری ثبت نشده است. بعد از اعلام IP و پورت، مدیر آن را از پنل اضافه می‌کند.</div>';$$('[data-copy-server]').forEach(b=>b.addEventListener('click',()=>{const x=db.servers.find(s=>s.id===b.dataset.copyServer);if(!x)return;const cmd=`${x.password?`password ${x.password}; `:''}connect ${x.ip}:${x.port}`;copyText(cmd) }))}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function copyText(text){if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(()=>toast('دستور اتصال کپی شد.')).catch(()=>fallbackCopy(text))}else fallbackCopy(text)}function fallbackCopy(text){const x=document.createElement('textarea');x.value=text;document.body.append(x);x.select();try{document.execCommand('copy');toast('کپی شد.')}catch(e){toast(text)}x.remove()}
-function renderAdminLists(){if(!$('#adminTeamList'))return;$('#adminTeamList').innerHTML=db.teams.length?db.teams.map(t=>`<div class="admin-item"><span><b>${esc(t.name)}</b><br><span class="note">${esc(eventById(t.tournamentId)?.name||'مسابقه')} · ${esc(t.captain||'')}</span></span><span class="actions"><button class="btn ${t.paymentStatus==='approved'?'muted-btn':'primary'}" data-payment="${esc(t.id)}">${t.paymentStatus==='approved'?'تأییدشده':'تأیید ورودی'}</button><button class="btn danger-btn" data-delete-team="${esc(t.id)}">حذف</button></span></div>`).join(''):'<div class="empty">هنوز تیمی اضافه نشده است.</div>';$$('[data-payment]').forEach(b=>b.addEventListener('click',()=>{const t=teamById(b.dataset.payment);if(!t)return;t.paymentStatus=t.paymentStatus==='approved'?'pending':'approved';saveDB();renderAll();toast('وضعیت ورودی تغییر کرد.')}));$$('[data-delete-team]').forEach(b=>b.addEventListener('click',()=>{if(!confirm('این تیم حذف شود؟'))return;db.teams=db.teams.filter(t=>t.id!==b.dataset.deleteTeam);saveDB();renderAll()}));$('#adminTournamentList').innerHTML=db.tournaments.map(t=>`<div class="admin-item"><span><b>${esc(t.name)}</b><br><span class="note">${t.mode} · ${formatMoney(t.entry)} ورودی</span></span><button class="btn danger-btn" data-delete-event="${esc(t.id)}">حذف</button></div>`).join('');$$('[data-delete-event]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.deleteEvent;if(!confirm('مسابقه و اطلاعات مرتبط حذف شود؟'))return;db.tournaments=db.tournaments.filter(t=>t.id!==id);db.teams=db.teams.filter(t=>t.tournamentId!==id);delete db.brackets[id];db.servers=db.servers.filter(s=>s.tournamentId!==id);saveDB();renderAll()}));$('#adminServerList').innerHTML=db.servers.length?db.servers.map(s=>`<div class="admin-item"><span><b>${esc(s.name)}</b><br><span class="note ltr">${esc(s.ip)}:${esc(s.port)}</span></span><button class="btn danger-btn" data-delete-server="${esc(s.id)}">حذف</button></div>`).join(''):'<div class="empty">سروری ثبت نشده است.</div>';$$('[data-delete-server]').forEach(b=>b.addEventListener('click',()=>{db.servers=db.servers.filter(s=>s.id!==b.dataset.deleteServer);saveDB();renderAll()}))}
+function renderAdminLists(){if(!$('#adminTeamList'))return;$('#adminTeamList').innerHTML=db.teams.length?db.teams.map(t=>`<div class="admin-item"><span><b>${esc(t.name)}</b><br><span class="note">${esc(eventById(t.tournamentId)?.name||'مسابقه')} · ${esc(t.captain||'')}</span></span><span class="actions"><button class="btn ${t.paymentStatus==='approved'?'muted-btn':'primary'}" data-payment="${esc(t.id)}">${t.paymentStatus==='approved'?'تأییدشده':'تأیید ورودی'}</button><button class="btn danger-btn" data-delete-team="${esc(t.id)}">حذف</button></span></div>`).join(''):'<div class="empty">هنوز تیمی اضافه نشده است.</div>';$$('[data-payment]').forEach(b=>b.addEventListener('click',()=>{const t=teamById(b.dataset.payment);if(!t)return;t.paymentStatus=t.paymentStatus==='approved'?'pending':'approved';saveDB();renderAll();toast('وضعیت ورودی تغییر کرد.')}));$$('[data-delete-team]').forEach(b=>b.addEventListener('click',()=>{if(!confirm('این تیم حذف شود؟'))return;db.teams=db.teams.filter(t=>t.id!==b.dataset.deleteTeam);saveDB();renderAll()}));$('#adminTournamentList').innerHTML=db.tournaments.map(t=>`<div class="admin-item"><span><b>${esc(t.name)}</b><br><span class="note">${esc(t.game||'CS 1.6')} · ${t.mode} · ${formatMoney(t.entry)} ورودی</span></span><button class="btn danger-btn" data-delete-event="${esc(t.id)}">حذف</button></div>`).join('');$$('[data-delete-event]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.deleteEvent;if(!confirm('مسابقه و اطلاعات مرتبط حذف شود؟'))return;db.tournaments=db.tournaments.filter(t=>t.id!==id);db.teams=db.teams.filter(t=>t.tournamentId!==id);delete db.brackets[id];db.servers=db.servers.filter(s=>s.tournamentId!==id);saveDB();renderAll()}));$('#adminServerList').innerHTML=db.servers.length?db.servers.map(s=>`<div class="admin-item"><span><b>${esc(s.name)}</b><br><span class="note ltr">${esc(s.ip)}:${esc(s.port)}</span></span><button class="btn danger-btn" data-delete-server="${esc(s.id)}">حذف</button></div>`).join(''):'<div class="empty">سروری ثبت نشده است.</div>';$$('[data-delete-server]').forEach(b=>b.addEventListener('click',()=>{db.servers=db.servers.filter(s=>s.id!==b.dataset.deleteServer);saveDB();renderAll()}))}
 function renderAdminMatchList(){const id=$('#matchTournament')?.value||db.tournaments[0]?.id,root=$('#adminMatchList');if(!root)return;const rounds=db.brackets[id]?.rounds;if(!rounds){root.innerHTML='<div class="empty">برای این مسابقه هنوز براکت ساخته نشده است.</div>';return}const items=[];rounds.forEach((r,ri)=>r.forEach((m,mi)=>{if(m.teamA&&m.teamB)items.push({ri,mi,m})}));root.innerHTML=items.length?items.map(x=>`<div class="admin-item" style="display:block"><b>${roundName(x.ri,rounds.length)} · ${esc(teamName(x.m.teamA))} / ${esc(teamName(x.m.teamB))}</b><div class="form-grid" style="margin-top:8px"><div class="field"><label>امتیاز تیم اول</label><input type="number" min="0" id="scoreA-${x.ri}-${x.mi}" value="${x.m.scoreA??''}"></div><div class="field"><label>امتیاز تیم دوم</label><input type="number" min="0" id="scoreB-${x.ri}-${x.mi}" value="${x.m.scoreB??''}"></div></div><div class="form-actions"><button class="btn primary small" data-save-match="${x.ri}-${x.mi}">ثبت نتیجه</button><span class="note">${x.m.done?'برنده فعلی: '+esc(teamName(x.m.winnerId)):'در انتظار نتیجه'}</span></div></div>`).join(''):'<div class="empty">بعد از مشخص‌شدن دو تیم در هر بازی، فرم ثبت نتیجه نمایش داده می‌شود.</div>';$$('[data-save-match]').forEach(b=>b.addEventListener('click',()=>{const [ri,mi]=b.dataset.saveMatch.split('-').map(Number),m=db.brackets[id].rounds[ri][mi],a=Number($(`#scoreA-${ri}-${mi}`).value),c=Number($(`#scoreB-${ri}-${mi}`).value);if(!Number.isFinite(a)||!Number.isFinite(c)||$(`#scoreA-${ri}-${mi}`).value===''||$(`#scoreB-${ri}-${mi}`).value===''||a===c){toast('دو امتیاز معتبر و غیرمساوی وارد کن.');return}const winnerId=a>c?m.teamA:m.teamB;m.scoreA=a;m.scoreB=c;m.winnerId=winnerId;m.done=true;advanceWinner(id,ri,mi,winnerId);saveDB();renderAll();toast('نتیجه ثبت شد.')}))}
 function renderAll(){renderEvents();renderSelects();renderResults();renderRankings();renderServers();if(adminUnlocked)renderAdminLists()}
 function openAdmin(){showModal('adminModal');$('#adminLogin').classList.toggle('hidden',adminUnlocked);$('#adminWorkspace').classList.toggle('hidden',!adminUnlocked);if(adminUnlocked)renderAll()}
@@ -408,7 +413,7 @@ $$('[data-close]').forEach(b=>b.addEventListener('click',()=>hideModal(b.dataset
 $('#openAdminTop').addEventListener('click',openAdmin);$('#openAdminFooter').addEventListener('click',openAdmin);$('#adminLoginBtn').addEventListener('click',loginAdmin);$('#adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')loginAdmin()});$('#adminLogoutBtn').addEventListener('click',logoutAdmin);$$('[data-admin-tab]').forEach(b=>b.addEventListener('click',()=>setAdminTab(b.dataset.adminTab)));
 $('#addTeamBtn').addEventListener('click',()=>{const tournamentId=$('#adminTeamTournament').value,name=$('#adminTeamName').value.trim(),captain=$('#adminCaptainName').value.trim(),roster=$('#adminRoster').value.trim(),reserveRoster=$('#adminReserveRoster')?.value.trim()||'',paymentStatus=$('#adminPayment').value;if(!tournamentId||!name||!captain){toast('مسابقه، نام تیم و کاپیتان را وارد کن.');return}const t=eventById(tournamentId),players=roster.split('\n').map(s=>s.trim()).filter(Boolean),reservePlayers=reserveRoster.split('\n').map(s=>s.trim()).filter(Boolean);if(players.length&&players.length<(t.mode==='5v5'?5:t.mode==='2v2'?2:1)){toast(`برای ${t.mode} تعداد بازیکن‌ها کامل نیست.`);return}db.teams.push({id:'team_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),tournamentId,name,captain,players,reservePlayers,paymentStatus,createdAt:new Date().toISOString()});$('#adminTeamName').value='';$('#adminCaptainName').value='';$('#adminRoster').value='';if($('#adminReserveRoster'))$('#adminReserveRoster').value='';saveDB();renderAll();toast('تیم اضافه شد.')});
 $('#generateBracketBtn').addEventListener('click',()=>{const id=$('#generateTournament').value;if(!id)return;if(db.brackets[id]&&!confirm('براکت قبلی و نتایجش حذف و از نو ساخته شود؟'))return;makeBracket(id)});$('#matchTournament').addEventListener('change',renderAdminMatchList);$('#bracketTournament').addEventListener('change',renderBracket);
-$('#addTournamentBtn').addEventListener('click',()=>{const name=$('#newTournamentName').value.trim(),mode=$('#newTournamentMode').value,map=$('#newTournamentMap').value.trim()||'de_dust2',entry=Number($('#newTournamentEntry').value),prize=Number($('#newTournamentPrize').value),capacity=Number($('#newTournamentCapacity').value)||16;if(!name||!Number.isFinite(entry)||!Number.isFinite(prize)||entry<0||prize<0){toast('نام مسابقه و مبالغ معتبر را وارد کن.');return}db.tournaments.push({id:'event_'+Date.now(),name,mode,map,entry,prize,capacity});$('#newTournamentName').value='';$('#newTournamentEntry').value='';$('#newTournamentPrize').value='';$('#newTournamentCapacity').value='';saveDB();renderAll();toast('مسابقه جدید ساخته شد.')});
+$('#addTournamentBtn').addEventListener('click',()=>{const name=$('#newTournamentName').value.trim(),game=$('#newTournamentGame').value,mode=$('#newTournamentMode').value,map=$('#newTournamentMap').value.trim()||'de_dust2',entry=Number($('#newTournamentEntry').value),prize=Number($('#newTournamentPrize').value),capacity=Number($('#newTournamentCapacity').value)||16;if(!name||!Number.isFinite(entry)||!Number.isFinite(prize)||entry<0||prize<0){toast('نام مسابقه و مبالغ معتبر را وارد کن.');return}db.tournaments.push({id:'event_'+Date.now(),name,game,mode,map,entry,prize,capacity});$('#newTournamentName').value='';$('#newTournamentEntry').value='';$('#newTournamentPrize').value='';$('#newTournamentCapacity').value='';saveDB();renderAll();toast('مسابقه جدید ساخته شد.')});
 $('#saveServerBtn').addEventListener('click',()=>{const tournamentId=$('#serverTournament').value,name=$('#serverName').value.trim()||'سرور مسابقه',map=$('#serverMap').value.trim(),ip=$('#serverIP').value.trim(),port=$('#serverPort').value.trim(),password=$('#serverPassword').value.trim();if(!tournamentId||!ip||!port){toast('مسابقه، IP و پورت را وارد کن.');return}const item={id:'srv_'+Date.now(),tournamentId,name,map,ip,port,password};db.servers.push(item);$('#serverName').value='';$('#serverMap').value='';$('#serverIP').value='';$('#serverPort').value='';$('#serverPassword').value='';saveDB();renderAll();toast('اطلاعات سرور ذخیره شد.')});
 $('#changePinBtn').addEventListener('click',()=>{const pin=$('#newAdminPin').value.trim();if(pin.length<4){toast('رمز باید حداقل ۴ کاراکتر باشد.');return}$('#newAdminPin').value='';toast('ورود مدیر از طریق حساب Supabase انجام می‌شود؛ این رمز محلی دیگر کاربردی ندارد.')});
 $('#exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cs16-arena-backup.json';a.click();URL.revokeObjectURL(url)});$('#importFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data.tournaments)||!Array.isArray(data.teams))throw new Error('invalid');db={...clone(DEFAULT_DB),...data};saveDB();renderAll();toast('پشتیبان بازیابی شد.')}catch(err){toast('فایل پشتیبان معتبر نیست.')}e.target.value=''});$('#resetBtn').addEventListener('click',()=>{if(!confirm('تمام اطلاعات ذخیره‌شده در این مرورگر پاک شود؟'))return;db=clone(DEFAULT_DB);saveDB();adminUnlocked=false;renderAll();openAdmin();toast('اطلاعات محلی بازنشانی شد.')});
@@ -829,19 +834,25 @@ ensureExtra();renderExtra();
 
   // Separate browser storage keeps player sign-in from replacing the admin session.
   const playerAuthClient = window.supabase.createClient(PROJECT_URL, PUBLISHABLE_KEY, {
-    auth: {
-      storageKey: 'cs16arena-player-auth-v1',
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true
-    }
+    auth: { storageKey: 'cs16arena-player-auth-v2', persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
   });
-  const $ = (id) => document.getElementById(id);
+  const $ = id => document.getElementById(id);
   const message = (text, isError = false) => {
     const node = $('playerAuthMessage');
+    if (!node) return;
     node.textContent = text || '';
     node.style.color = isError ? '#ff9298' : '#57d6a0';
   };
+  const normalizePhone = value => {
+    let digits = String(value || '').replace(/[^\d]/g, '');
+    if (digits.startsWith('0098')) digits = digits.slice(2);
+    if (digits.startsWith('98')) digits = '+' + digits;
+    else if (digits.startsWith('0')) digits = '+98' + digits.slice(1);
+    else if (digits.startsWith('9')) digits = '+98' + digits;
+    return /^\+989\d{9}$/.test(digits) ? digits : '';
+  };
+  const prettyPhone = value => value && value.startsWith('+98') ? '0' + value.slice(3) : (value || '');
+  const validUsername = value => /^[\p{L}\p{N}_.-]{3,24}$/u.test(value);
   const showModal = () => {
     modal.classList.add('show');
     document.body.classList.add('modal-open');
@@ -866,17 +877,18 @@ ensureExtra();renderExtra();
     $('playerShowLogin').classList.add('active');
     message('');
   };
-  const showRecovery = () => {
-    $('playerAuthLoggedOut').classList.remove('hidden');
-    $('playerAuthLoggedIn').classList.add('hidden');
-    $('playerSignupForm').classList.add('hidden');
-    $('playerLoginForm').classList.add('hidden');
-    $('playerRecoveryForm').classList.remove('hidden');
-    $('playerShowSignup').classList.remove('active');
-    $('playerShowLogin').classList.remove('active');
-    message('لینک بازیابی باز شد؛ رمز جدید را وارد کن.');
-  };
-  const isRecoveryUrl = () => /(?:^|[&#])type=recovery(?:&|$)/.test(window.location.hash);
+  async function syncProfile(user, extra = {}) {
+    const username = extra.username ?? user.user_metadata?.username ?? user.user_metadata?.display_name ?? '';
+    const phone = extra.phone ?? user.phone ?? user.user_metadata?.phone ?? '';
+    const payload = {
+      id: user.id,
+      display_name: username,
+      username,
+      phone
+    };
+    const { error } = await playerAuthClient.from('profiles').upsert(payload, { onConflict: 'id' });
+    if (error) throw error;
+  }
   async function refreshPlayerSession() {
     const { data, error } = await playerAuthClient.auth.getSession();
     if (error) { message('بازیابی وضعیت حساب انجام نشد. دوباره تلاش کن.', true); return; }
@@ -884,9 +896,10 @@ ensureExtra();renderExtra();
     $('playerAuthLoggedOut').classList.toggle('hidden', !!user);
     $('playerAuthLoggedIn').classList.toggle('hidden', !user);
     if (user) {
-      $('playerAccountEmail').textContent = 'ایمیل حساب: ' + (user.email || '');
-      $('playerProfileName').value = user.user_metadata?.display_name || '';
-      $('playerProfilePhone').value = user.user_metadata?.phone || '';
+      const username = user.user_metadata?.username || user.user_metadata?.display_name || '';
+      $('playerAccountEmail').textContent = 'یوزرنیم: ' + username + ' · شناسه حساب: ' + user.id.slice(0, 8);
+      $('playerProfileName').value = username;
+      $('playerProfilePhone').value = prettyPhone(user.phone || user.user_metadata?.phone || '');
       $('playerProfileNick').value = user.user_metadata?.game_nick || '';
       $('playerProfileSteam').value = user.user_metadata?.steam_id || '';
       $('playerProfileRole').value = user.user_metadata?.player_role || 'Rifler';
@@ -903,30 +916,32 @@ ensureExtra();renderExtra();
   $('playerSignupForm').addEventListener('submit', async e => {
     e.preventDefault();
     message('');
-    const email = $('playerSignupEmail').value.trim();
+    const username = $('playerSignupName').value.trim();
+    const phone = normalizePhone($('playerSignupPhone').value);
     const password = $('playerSignupPassword').value;
-    const displayName = $('playerSignupName').value.trim();
+    if (!validUsername(username)) return message('یوزرنیم باید ۳ تا ۲۴ کاراکتر و شامل حروف، عدد، نقطه، خط تیره یا زیرخط باشد.', true);
+    if (!phone) return message('شماره موبایل معتبر ایران وارد کن؛ مثل 09123456789.', true);
     if (password.length < 8) return message('رمز عبور باید حداقل ۸ کاراکتر باشد.', true);
     const submit = $('playerSignupSubmit');
     submit.disabled = true;
     try {
       const { data, error } = await playerAuthClient.auth.signUp({
-        email, password,
-        options: {
-          data: { display_name: displayName },
-          emailRedirectTo: window.location.href.split('#')[0]
-        }
+        phone, password,
+        options: { data: { username, display_name: username, phone } }
       });
       if (error) throw error;
-      if (data.session) {
-        message('حساب ساخته شد و وارد شدی.');
-        await refreshPlayerSession();
-      } else {
-        message('درخواست ساخت حساب ثبت شد. ایمیل خود را باز کن و لینک تأیید Supabase را بزن؛ سپس وارد حساب شو.');
-        showLogin();
+      if (!data.session || !data.user) {
+        message('حساب در انتظار تأیید شماره است. در Supabase بخش Authentication تنظیم «Confirm phone» را خاموش کن تا بدون پیامک ثبت‌نام کامل شود.', true);
+        return;
       }
+      await syncProfile(data.user, { username, phone });
+      message('حساب ساخته شد؛ بدون ارسال پیامک یا ایمیل وارد شدی.');
+      await refreshPlayerSession();
     } catch (err) {
-      message(err.message || 'ساخت حساب انجام نشد. تنظیمات Supabase را بررسی کن.', true);
+      const raw = String(err?.message || '');
+      if (/duplicate|unique/i.test(raw)) message('این یوزرنیم یا شماره قبلاً ثبت شده است.', true);
+      else if (/column .* does not exist|schema cache/i.test(raw)) message('ساخت حساب انجام شد، اما ستون‌های username و phone در جدول profiles هنوز ساخته نشده‌اند. فایل SQL همراه سایت را در Supabase اجرا کن.', true);
+      else message(err.message || 'ساخت حساب انجام نشد. تنظیمات Supabase را بررسی کن.', true);
     } finally {
       submit.disabled = false;
     }
@@ -935,59 +950,25 @@ ensureExtra();renderExtra();
   $('playerLoginForm').addEventListener('submit', async e => {
     e.preventDefault();
     message('');
+    const phone = normalizePhone($('playerLoginPhone').value);
+    if (!phone) return message('شماره موبایل معتبر ایران وارد کن.', true);
     try {
-      const { error } = await playerAuthClient.auth.signInWithPassword({
-        email: $('playerLoginEmail').value.trim(),
-        password: $('playerLoginPassword').value
+      const { data, error } = await playerAuthClient.auth.signInWithPassword({
+        phone, password: $('playerLoginPassword').value
       });
       if (error) throw error;
       message('با موفقیت وارد شدی.');
       await refreshPlayerSession();
     } catch (err) {
-      message(err.message || 'ورود انجام نشد. ایمیل و رمز را بررسی کن.', true);
-    }
-  });
-
-  $('playerForgotPassword').addEventListener('click', async () => {
-    const email = $('playerLoginEmail').value.trim();
-    if (!email) return message('ابتدا ایمیل خود را در کادر ایمیل وارد کن.', true);
-    try {
-      const { error } = await playerAuthClient.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.href.split('#')[0]
-      });
-      if (error) throw error;
-      message('اگر این ایمیل در سامانه ثبت شده باشد، لینک بازیابی رمز برایش ارسال می‌شود.');
-    } catch (err) {
-      message(err.message || 'ارسال لینک بازیابی انجام نشد.', true);
-    }
-  });
-  $('playerRecoveryForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    const password = $('playerNewPassword').value;
-    if (password.length < 8) return message('رمز جدید باید حداقل ۸ کاراکتر باشد.', true);
-    const submit = $('playerRecoverySubmit');
-    submit.disabled = true;
-    try {
-      const { error } = await playerAuthClient.auth.updateUser({ password });
-      if (error) throw error;
-      $('playerRecoveryForm').classList.add('hidden');
-      $('playerNewPassword').value = '';
-      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-      await refreshPlayerSession();
-      message('رمز عبور با موفقیت تغییر کرد. حالا می‌توانی وارد حساب شوی.');
-    } catch (err) {
-      message(err.message || 'تغییر رمز انجام نشد. لینک ممکن است منقضی شده باشد.', true);
-    } finally {
-      submit.disabled = false;
+      message(err.message || 'ورود انجام نشد؛ شماره موبایل و رمز را بررسی کن.', true);
     }
   });
 
   $('playerSaveProfile').addEventListener('click', async () => {
-    const display_name = $('playerProfileName').value.trim();
-    const phone = $('playerProfilePhone').value.trim();
-    if (phone && !/^(\+98|0)?9\d{9}$/.test(phone.replace(/[\s-]/g, ''))) {
-      return message('شماره موبایل ایران را به شکل 09xxxxxxxxx وارد کن.', true);
-    }
+    const { data: { user }, error: userError } = await playerAuthClient.auth.getUser();
+    if (userError || !user) return message('ابتدا وارد حساب شو.', true);
+    const username = $('playerProfileName').value.trim();
+    if (!validUsername(username)) return message('یوزرنیم باید ۳ تا ۲۴ کاراکتر باشد.', true);
     const game_nick = $('playerProfileNick').value.trim();
     const steam_id = $('playerProfileSteam').value.trim();
     const player_role = $('playerProfileRole').value;
@@ -996,11 +977,26 @@ ensureExtra();renderExtra();
       return message('فرمت Steam ID یا شناسه واردشده معتبر نیست.', true);
     }
     const { error } = await playerAuthClient.auth.updateUser({
-      data: { display_name, phone, game_nick, steam_id, player_role, looking_for_team }
+      data: { username, display_name: username, game_nick, steam_id, player_role, looking_for_team }
     });
     if (error) return message(error.message || 'ذخیره پروفایل انجام نشد.', true);
-    message('پروفایل ذخیره شد.');
-    await refreshPlayerSession();
+    try {
+      const { data: { user: updatedUser } } = await playerAuthClient.auth.getUser();
+      await syncProfile(updatedUser, { username, phone: updatedUser.phone });
+      message('پروفایل در Supabase ذخیره شد.');
+      await refreshPlayerSession();
+    } catch (err) {
+      message(err.message || 'پروفایل احراز هویت ذخیره شد، اما جدول profiles نیاز به بررسی دارد.', true);
+    }
+  });
+
+  $('playerChangePasswordBtn')?.addEventListener('click', async () => {
+    const password = $('playerChangePassword').value;
+    if (password.length < 8) return message('رمز جدید باید حداقل ۸ کاراکتر باشد.', true);
+    const { error } = await playerAuthClient.auth.updateUser({ password });
+    if (error) return message(error.message || 'تغییر رمز انجام نشد.', true);
+    $('playerChangePassword').value = '';
+    message('رمز عبور با موفقیت تغییر کرد.');
   });
 
   $('playerLogout').addEventListener('click', async () => {
@@ -1008,20 +1004,15 @@ ensureExtra();renderExtra();
     if (error) return message(error.message || 'خروج انجام نشد.', true);
     message('از حساب بازیکن خارج شدی.');
     await refreshPlayerSession();
+    showSignup();
   });
 
-  playerAuthClient.auth.onAuthStateChange((event, _session) => {
-    if (event === 'PASSWORD_RECOVERY' || isRecoveryUrl()) {
-      setTimeout(showRecovery, 0);
-    } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'SIGNED_OUT') {
-      setTimeout(() => {
-        if (!isRecoveryUrl()) refreshPlayerSession();
-      }, 0);
+  playerAuthClient.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'SIGNED_OUT') {
+      setTimeout(refreshPlayerSession, 0);
     }
   });
-  refreshPlayerSession().then(() => {
-    if (isRecoveryUrl()) showRecovery();
-  });
+  refreshPlayerSession();
   window.CS16PlayerAuth = {
     getUser: async () => {
       const { data, error } = await playerAuthClient.auth.getUser();
@@ -1031,8 +1022,6 @@ ensureExtra();renderExtra();
     open: showModal,
     getClient: () => playerAuthClient
   };
-
-  // Preserve the existing modal close behavior while supporting Escape for this modal.
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('show')) hideModal(); });
 })();
 </script>
